@@ -20,7 +20,7 @@ public class DemoeffectIntro : DemoEffectBase
     private bool inputActive = false;
     public override DemoEffectBase Init()
     {
-        RectTransform rect = ApplicationController.Instance.UI.CreateRectTransformObject("Image_bg", new Vector2(302, 200), new Vector3(0, 0, 0), Vector2.zero, Vector2.one, new Vector2(24, 8), new Vector2(-24, -8));
+        RectTransform rect = ApplicationController.Instance.UI.CreateRectTransformObject("Image_bg", new Vector2(320, 200), new Vector3(0, 0, 0), Vector2.zero, Vector2.one, new Vector2(24, 8), new Vector2(-24, -8));
         rect.SetAsFirstSibling();
         img = rect.AddComponent<Image>();
         img.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("white_32x32"));

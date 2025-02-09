@@ -23,10 +23,11 @@ public class ApplicationController : SingletonMono<ApplicationController>
         demoEffects = new List<DemoEffectBase>()
         {
             new DemoeffectIntro().Init() ,
-            new DemoeffectTextScroller().Init()
+            new DemoeffectTextScroller().Init(),
+            new DemoEffectEyeBalls().Init()
         };
 
-        currentDemoEffect = demoEffects[0];
+        currentDemoEffect = demoEffects[2];
         StartCoroutine(currentDemoEffect.Run());
     }
 
