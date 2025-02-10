@@ -40,7 +40,7 @@ public class DemoEffectEyeBalls : DemoEffectBase
         return base.Init();
     }
 
-    public override IEnumerator Run()
+    public override IEnumerator Run(System.Action callbackEnd)
     {
         Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[0];
 
@@ -84,9 +84,13 @@ public class DemoEffectEyeBalls : DemoEffectBase
             balls[3].DOLocalMove(new Vector3(-50, -50, 0), 1f, true).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
         });
 
+        base.Run(callbackEnd);
+    }
 
-
-        
+    public override void End(System.Action callbackEnd)
+    {
+        Debug.Log("end effect");
+        base.End(callbackEnd);
     }
 
     public override void DoUpdate()

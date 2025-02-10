@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using System.Linq;
 
-public abstract class DemoEffectBase
+public abstract class DemoEffectBase: IDemoEffect
 {
     public Dictionary<string, GameObject> GeneratedObjects = new Dictionary<string, GameObject>();
     public bool Initialized { get; private set; } = false;
@@ -20,13 +21,19 @@ public abstract class DemoEffectBase
         GeneratedObjects.Add(name, go);
     }
 
-    public virtual IEnumerator Run()
+    public virtual IEnumerator Run(System.Action callbackEnd)
     {
+        callbackEnd?.Invoke();
         yield break;
     }
 
-    public virtual void DoUpdate()
+    public virtual void End(System.Action callbackEnd) 
+    { 
+        
+    }
+    public virtual void DoUpdate() { }
+    public void GeneratedObjectsSetActive(bool active)
     {
-
+        GeneratedObjects.ToList().ForEach(kvp => kvp.Value.SetActive(active));
     }
 }

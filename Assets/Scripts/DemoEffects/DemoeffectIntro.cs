@@ -18,8 +18,11 @@ public class DemoeffectIntro : DemoEffectBase
     private float startTime;
     private bool firePressed = false;
     private bool inputActive = false;
+    private bool loopSnake = true;
     public override DemoEffectBase Init()
     {
+        loopSnake = true;
+
         RectTransform rect = ApplicationController.Instance.UI.CreateRectTransformObject("Image_bg", new Vector2(320, 200), new Vector3(0, 0, 0), Vector2.zero, Vector2.one, new Vector2(24, 8), new Vector2(-24, -8));
         rect.SetAsFirstSibling();
         img = rect.AddComponent<Image>();
@@ -41,11 +44,7 @@ public class DemoeffectIntro : DemoEffectBase
         return base.Init();
     }
 
-    public override void DoUpdate()
-    {
-        TextFunctions.ExplodeTextMesh(txt, startTime, new Vector3(0, 30f, 0), 50f);
-        base.DoUpdate();
-    }
+
 
     private void HandleFireInput(bool b)
     {
@@ -58,11 +57,13 @@ public class DemoeffectIntro : DemoEffectBase
                 img.transform.DOShakePosition(1.0f, strength: new Vector3(0, 20f, 0), vibrato: 5, randomness: 1, snapping: false, fadeOut: true);
                 pressSpaceCount++;
             }
+            else
+                loopSnake = false;
         }
         firePressed = b;        
     }
 
-    public override IEnumerator Run()
+    public override IEnumerator Run(System.Action callbackEnd)
     {
         //Disable input
         inputActive = false;
@@ -79,7 +80,22 @@ public class DemoeffectIntro : DemoEffectBase
         });
 
         txt2.gameObject.SetActive(true);
-        yield return AnimateLoadingSnake();        
+        yield return AnimateLoadingSnake();
+
+        Debug.Log("coroutines ended");
+        End(callbackEnd);
+    }
+
+    public override void End(System.Action callbackEnd)
+    {
+        Debug.Log("end effect");
+        base.End(callbackEnd);
+    }
+
+    public override void DoUpdate()
+    {
+        TextFunctions.ExplodeTextMesh(txt, startTime, new Vector3(0, 30f, 0), 50f);
+        base.DoUpdate();
     }
 
     IEnumerator AnimateStartText()
@@ -101,7 +117,7 @@ public class DemoeffectIntro : DemoEffectBase
         int showLettersCount = 40;
         int imgIndex = 0;
         string animatedString = "";
-        while (true)
+        while (loopSnake)
         {
             animatedString = spriteStrings[imgIndex].Substring(0, showLettersCount);
             string replacement = pressSpaceStrings[pressSpaceCount];
