@@ -47,7 +47,6 @@ public class ApplicationController : SingletonMono<ApplicationController>
             callBack?.Invoke();
             flashFadeImage.DOColor(transparent, duration).OnComplete(() =>
             {
-                Debug.Log("fade out complete");
                 //Invoke callback method after fade out complete
                 callBackEnd?.Invoke();
                 flashFadeImage.gameObject.SetActive(false);
