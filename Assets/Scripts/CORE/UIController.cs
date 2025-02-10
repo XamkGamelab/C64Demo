@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -36,9 +37,15 @@ public class UIController : SingletonMono<UIController>
         if (offsetMax.HasValue)
             rectTransform.offsetMax = offsetMax.Value;
 
-        
-
         return rectTransform;
+    }
+
+    public static Image AddResourcesImageComponent(RectTransform rectTransform, string spriteName, Color? color = null)
+    {
+        Image img = rectTransform.AddComponent<Image>();
+        img.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>(spriteName));
+        img.color = color == null? Color.white : color.Value;
+        return img;
     }
 
     public void ParentTransformToUI(Transform rectTransform, Transform parent = null, Vector3? position = null)
