@@ -116,9 +116,7 @@ public class DemoeffectTextScroller : DemoEffectBase
         //GeneratedObjects.ToList().ForEach(kvp => kvp.Value.SetActive(true));
         GeneratedObjectsSetActive(true);
 
-        yield return AnimateSpriteScroll();
-        
-        base.Run(callbackEnd);
+        yield return AnimateSpriteScroll();        
     }
 
     public override void End(System.Action callbackEnd)

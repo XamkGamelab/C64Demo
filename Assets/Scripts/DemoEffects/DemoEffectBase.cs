@@ -23,14 +23,10 @@ public abstract class DemoEffectBase: IDemoEffect
 
     public virtual IEnumerator Run(System.Action callbackEnd)
     {
-        callbackEnd?.Invoke();
         yield break;
     }
 
-    public virtual void End(System.Action callbackEnd) 
-    { 
-        
-    }
+    public virtual void End(System.Action callbackEnd) { }
     public virtual void DoUpdate() { }
     public void GeneratedObjectsSetActive(bool active)
     {

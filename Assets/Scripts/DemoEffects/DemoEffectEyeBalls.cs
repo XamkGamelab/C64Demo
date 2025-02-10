@@ -83,8 +83,6 @@ public class DemoEffectEyeBalls : DemoEffectBase
         {
             balls[3].DOLocalMove(new Vector3(-50, -50, 0), 1f, true).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
         });
-
-        base.Run(callbackEnd);
     }
 
     public override void End(System.Action callbackEnd)
