@@ -70,11 +70,15 @@ public class DemoeffectIntro : DemoEffectBase
         img.gameObject.SetActive(true);
         txt.gameObject.SetActive(true);
         yield return AnimateStartText();
-        startTime = Time.time;
-        ExecuteInUpdate = true;   
-        //Add "FLASH!" effect to ApplicationController?!?!?
-        txt2.gameObject.SetActive(true);
+        
+        yield return new WaitForSeconds(1f);
+        ApplicationController.Instance.FadeImageInOut(.2f, ApplicationController.Instance.C64PaletteArr[1], null, () => 
+        {
+            startTime = Time.time;
+            ExecuteInUpdate = true;
+        });
 
+        txt2.gameObject.SetActive(true);
         yield return AnimateLoadingSnake();        
     }
 
