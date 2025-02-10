@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class ApplicationController : SingletonMono<ApplicationController>
 {
@@ -31,18 +32,27 @@ public class ApplicationController : SingletonMono<ApplicationController>
             new DemoEffectEyeBalls().Init()
         };
 
-        currentDemoEffect = demoEffects[2];
+        currentDemoEffect = demoEffects[0];
         StartCoroutine(currentDemoEffect.Run());
     }
 
-    private void FlashWhite(float duration)
+    public void FadeImageInOut(float duration, Color color, System.Action callBack, System.Action callBackEnd)
     {
-        ActivateFlashFadeImage(C64PaletteArr[1]);
-    }
-
-    private void FadeDipToBlack(float duration)
-    {
-        ActivateFlashFadeImage(C64PaletteArr[0]);
+        ActivateFlashFadeImage(color);
+        Color transparent = new Color(color.r, color.g, color.b, 0);
+        flashFadeImage.color = transparent;
+        flashFadeImage.DOColor(color, duration).OnComplete(() =>
+        {
+            //Invoke callback method before fade out
+            callBack?.Invoke();
+            flashFadeImage.DOColor(transparent, duration).OnComplete(() =>
+            {
+                Debug.Log("fade out complete");
+                //Invoke callback method after fade out complete
+                callBackEnd?.Invoke();
+                flashFadeImage.gameObject.SetActive(false);
+            });
+        });
     }
 
     private void ActivateFlashFadeImage(Color color)
