@@ -93,10 +93,6 @@ public class DemoeffectTextScroller : DemoEffectBase
 
         return base.Init();
     }
-    public override void DoUpdate()
-    {
-        base.DoUpdate();
-    }
 
     private void HandleFireInput(bool b)
     {
@@ -107,7 +103,7 @@ public class DemoeffectTextScroller : DemoEffectBase
         firePressed = b;
     }
 
-    public override IEnumerator Run()
+    public override IEnumerator Run(System.Action callbackEnd)
     {
         Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[0];
         /*
@@ -117,10 +113,25 @@ public class DemoeffectTextScroller : DemoEffectBase
         */
 
         //Enable all generated objects
-        GeneratedObjects.ToList().ForEach(kvp => kvp.Value.SetActive(true));
+        //GeneratedObjects.ToList().ForEach(kvp => kvp.Value.SetActive(true));
+        GeneratedObjectsSetActive(true);
 
-        yield return AnimateSpriteScroll();
+        yield return AnimateSpriteScroll();        
     }
+
+    public override void End(System.Action callbackEnd)
+    {
+        Debug.Log("end effect");
+        base.End(callbackEnd);
+    }
+
+    //No need?
+    /*
+    public override void DoUpdate()
+    {
+        base.DoUpdate();
+    }
+    */
 
     private void InstantiateStarFieldSprites(int amount)
     {

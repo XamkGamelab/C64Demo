@@ -33,7 +33,7 @@ public class ApplicationController : SingletonMono<ApplicationController>
         };
 
         currentDemoEffect = demoEffects[0];
-        StartCoroutine(currentDemoEffect.Run());
+        StartCoroutine(currentDemoEffect.Run(null));
     }
 
     public void FadeImageInOut(float duration, Color color, System.Action callBack, System.Action callBackEnd)
