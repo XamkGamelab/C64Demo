@@ -19,6 +19,9 @@ public class DemoeffectIntro : DemoEffectBase
     private bool firePressed = false;
     private bool inputActive = false;
     private bool loopSnake = true;
+
+    
+    
     public override DemoEffectBase Init()
     {
         loopSnake = true;
@@ -50,7 +53,6 @@ public class DemoeffectIntro : DemoEffectBase
     {
         if (!firePressed && b)
         {
-            Debug.Log("FIRE DOWN!!!");
             if (pressSpaceCount < pressSpaceStrings.Length - 1)
             {
                 //Shake when space pressed
@@ -58,13 +60,23 @@ public class DemoeffectIntro : DemoEffectBase
                 pressSpaceCount++;
             }
             else
-                loopSnake = false;
+            {
+                ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[0], () =>
+                {
+                    //End the demo by exiting last coroutine and calling base.End();
+                    loopSnake = false;
+                    base.End();
+                }, null);
+            }
         }
         firePressed = b;        
     }
 
     public override IEnumerator Run(System.Action callbackEnd)
     {
+        yield return base.Run(callbackEnd);
+
+
         //Disable input
         inputActive = false;
 
@@ -81,15 +93,6 @@ public class DemoeffectIntro : DemoEffectBase
 
         txt2.gameObject.SetActive(true);
         yield return AnimateLoadingSnake();
-
-        Debug.Log("coroutines ended");
-        End(callbackEnd);
-    }
-
-    public override void End(System.Action callbackEnd)
-    {
-        Debug.Log("end effect");
-        base.End(callbackEnd);
     }
 
     public override void DoUpdate()
@@ -130,7 +133,7 @@ public class DemoeffectIntro : DemoEffectBase
                 if (!inputActive)
                 {
                     //Start playable part of demo and subscribe to input
-                    InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b));
+                    InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
                     pressSpaceCount = 0;
                     inputActive = true;
                 }

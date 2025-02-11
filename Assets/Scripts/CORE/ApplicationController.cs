@@ -3,6 +3,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using System.Linq;
 
 public class ApplicationController : SingletonMono<ApplicationController>
 {
@@ -11,6 +12,8 @@ public class ApplicationController : SingletonMono<ApplicationController>
 
     private Image flashFadeImage;
     private DemoEffectBase currentDemoEffect;
+    private int currentEffecIndex = 0;
+
     //Instantiate and init effect to this list after UI is instantiated
     private List<DemoEffectBase> demoEffects;
 
@@ -32,8 +35,29 @@ public class ApplicationController : SingletonMono<ApplicationController>
             new DemoEffectEyeBalls().Init()
         };
 
-        currentDemoEffect = demoEffects[0];
-        StartCoroutine(currentDemoEffect.Run(null));
+        //currentDemoEffect = demoEffects[0];
+        //StartCoroutine(currentDemoEffect.Run(null));
+
+        RunAllDemoEffects(0);
+    }
+
+    public void RunAllDemoEffects(int startFrom)
+    {
+        if (startFrom >= demoEffects.Count)
+        {
+            Debug.Log("INVALID INDEX OR DEMOS RAN THROUGH");
+        }
+        
+        currentEffecIndex = startFrom;
+        currentDemoEffect = demoEffects[currentEffecIndex];
+        
+        StopAllCoroutines();
+        StartCoroutine(currentDemoEffect.Run(() => 
+        {
+            //Move to next effect when this effect ends
+            currentEffecIndex++;
+            RunAllDemoEffects(currentEffecIndex);
+        }));
     }
 
     public void FadeImageInOut(float duration, Color color, System.Action callBack, System.Action callBackEnd)
