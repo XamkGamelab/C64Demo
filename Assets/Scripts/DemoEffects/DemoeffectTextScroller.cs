@@ -110,7 +110,6 @@ public class DemoeffectTextScroller : DemoEffectBase
 
     public override IEnumerator Run(System.Action callbackEnd)
     {
-        Debug.Log("TEXT SCROLLE Run action -> " + callbackEnd);
         yield return base.Run(callbackEnd);
 
         loopScroller = true;

@@ -20,8 +20,6 @@ public class DemoeffectIntro : DemoEffectBase
     private bool inputActive = false;
     private bool loopSnake = true;
 
-    
-    
     public override DemoEffectBase Init()
     {
         loopSnake = true;
@@ -46,8 +44,6 @@ public class DemoeffectIntro : DemoEffectBase
 
         return base.Init();
     }
-
-
 
     private void HandleFireInput(bool b)
     {
@@ -75,7 +71,6 @@ public class DemoeffectIntro : DemoEffectBase
     public override IEnumerator Run(System.Action callbackEnd)
     {
         yield return base.Run(callbackEnd);
-
 
         //Disable input
         inputActive = false;

@@ -6,5 +6,4 @@ public interface IDemoEffect
     public IEnumerator Run(System.Action endDemoCallback);    
     public void End(bool dispose);
     public void DoUpdate();
-
 }

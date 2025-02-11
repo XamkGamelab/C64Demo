@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class UIController : SingletonMono<UIController>
 {
     public Camera Cam => Camera.main;
-    public Canvas UICanvas; //=> GetComponent<Canvas>();
+    public Canvas UICanvas;
     public UIController Init()
     {
         UICanvas = GetComponent<Canvas>();

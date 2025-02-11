@@ -35,9 +35,6 @@ public class ApplicationController : SingletonMono<ApplicationController>
             new DemoEffectEyeBalls().Init()
         };
 
-        //currentDemoEffect = demoEffects[0];
-        //StartCoroutine(currentDemoEffect.Run(null));
-
         RunAllDemoEffects(0);
     }
 
