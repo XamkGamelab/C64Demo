@@ -40,11 +40,11 @@ public class DemoeffectTextScroller : DemoEffectBase
     //Starfield
     private List<Transform> stars = new List<Transform>();
     private float starMoveSpeed = 120f;
+
+    private bool loopScroller = true;
     
     public override DemoEffectBase Init()
     {
-        //InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b));
-
         //Top gradients
         InstantiateGradientImages(8, (4, 32));
 
@@ -98,41 +98,31 @@ public class DemoeffectTextScroller : DemoEffectBase
     {
         if (!firePressed && b)
         {
-            Debug.Log("FIRE DOWN!!!");
+            ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[0], () =>
+            {
+                //End the demo by exiting last coroutine and calling base.End();
+                loopScroller = false;
+                base.End();
+            }, null);
         }
         firePressed = b;
     }
 
     public override IEnumerator Run(System.Action callbackEnd)
     {
-        Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[0];
-        /*
-        gradientImages.ForEach(gi => gi.gameObject.SetActive(true));
-        txt.gameObject.SetActive(true);
-        headingTxt.gameObject.SetActive(true);
-        */
+        yield return base.Run(callbackEnd);
 
-        //Enable all generated objects
-        //GeneratedObjects.ToList().ForEach(kvp => kvp.Value.SetActive(true));
+        loopScroller = true;
+        InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
+
+        Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[0];
+        
+        //Enable all generated objects        
         GeneratedObjectsSetActive(true);
 
         yield return AnimateSpriteScroll();        
     }
-
-    public override void End(System.Action callbackEnd)
-    {
-        Debug.Log("end effect");
-        base.End(callbackEnd);
-    }
-
-    //No need?
-    /*
-    public override void DoUpdate()
-    {
-        base.DoUpdate();
-    }
-    */
-
+    
     private void InstantiateStarFieldSprites(int amount)
     {
         GameObject starsGO = new GameObject("stars");
@@ -199,7 +189,7 @@ public class DemoeffectTextScroller : DemoEffectBase
         int offset = 0;
         int[] offsets = new int[gradientImages.Count];
 
-        while (true)
+        while (loopScroller)
         {
             //Scroll top gradients
             offset++;
