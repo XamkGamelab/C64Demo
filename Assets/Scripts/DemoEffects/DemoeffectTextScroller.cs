@@ -40,6 +40,7 @@ public class DemoeffectTextScroller : DemoEffectBase
     //Starfield
     private List<Transform> stars = new List<Transform>();
     private float starMoveSpeed = 120f;
+    private float starsDistance = 10f;
 
     private bool loopScroller = true;
     
@@ -94,20 +95,6 @@ public class DemoeffectTextScroller : DemoEffectBase
         return base.Init();
     }
 
-    private void HandleFireInput(bool b)
-    {
-        if (!firePressed && b)
-        {
-            ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[0], () =>
-            {
-                //End the demo by exiting last coroutine and calling base.End();
-                loopScroller = false;
-                base.End();
-            }, null);
-        }
-        firePressed = b;
-    }
-
     public override IEnumerator Run(System.Action callbackEnd)
     {
         yield return base.Run(callbackEnd);
@@ -123,7 +110,21 @@ public class DemoeffectTextScroller : DemoEffectBase
         AudioController.Instance.PlayTrack("Track2", 1f, 4f);
         yield return AnimateSpriteScroll();        
     }
-    
+
+    private void HandleFireInput(bool b)
+    {
+        if (!firePressed && b)
+        {
+            ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[0], () =>
+            {
+                //End the demo by exiting last coroutine and calling base.End();
+                loopScroller = false;
+                base.End();
+            }, null);
+        }
+        firePressed = b;
+    }
+
     private void InstantiateStarFieldSprites(int amount)
     {
         GameObject starsGO = new GameObject("stars");
@@ -131,7 +132,7 @@ public class DemoeffectTextScroller : DemoEffectBase
         {
             GameObject go = new GameObject("star_" + i);
             go.transform.SetParent(starsGO.transform);
-            go.transform.position = new Vector3(UnityEngine.Random.Range(-12f, 12f), UnityEngine.Random.Range(-3f, 2f), 0);
+            go.transform.position = new Vector3(UnityEngine.Random.Range(-12f, 12f), UnityEngine.Random.Range(-3f, 2f), starsDistance);
             SpriteRenderer spriteRenderer = go.AddComponent<SpriteRenderer>();
             Sprite s = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("white_32x32"));            
             spriteRenderer.sprite = s;
@@ -227,7 +228,7 @@ public class DemoeffectTextScroller : DemoEffectBase
             {
                 star.Translate(Vector2.left * (starMoveSpeed + UnityEngine.Random.Range(0f, starMoveSpeed)) * Time.deltaTime * star.GetComponent<SpriteRenderer>().color.r);
                 if (star.position.x < -12f)
-                    star.position = new Vector3(12f + UnityEngine.Random.Range(0f, 3f), star.position.y, 0);
+                    star.position = new Vector3(12f + UnityEngine.Random.Range(0f, 3f), star.position.y, starsDistance);
             });
 
             yield return new WaitForSeconds(0.07f);

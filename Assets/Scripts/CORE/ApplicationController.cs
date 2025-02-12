@@ -32,10 +32,12 @@ public class ApplicationController : SingletonMono<ApplicationController>
         {
             new DemoeffectIntro().Init() ,
             new DemoeffectTextScroller().Init(),
-            new DemoEffectEyeBalls().Init()
+            new DemoEffectEyeBalls().Init(),
+            new DemoEffectRun().Init(),
+            new DemoEffectTimeBomb().Init()
         };
 
-        RunAllDemoEffects(0);
+        RunAllDemoEffects(4);
     }
 
     public void RunAllDemoEffects(int startFrom)
