@@ -42,7 +42,9 @@ public class ApplicationController : SingletonMono<ApplicationController>
     {
         if (startFrom >= demoEffects.Count)
         {
-            Debug.Log("INVALID INDEX OR DEMOS RAN THROUGH");
+            //This is just for debugging
+            Debug.LogWarning("INVALID INDEX OR DEMOS RAN THROUGH");
+            return;
         }
         
         currentEffecIndex = startFrom;

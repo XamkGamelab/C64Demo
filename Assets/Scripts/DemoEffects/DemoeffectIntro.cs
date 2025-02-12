@@ -18,6 +18,7 @@ public class DemoeffectIntro : DemoEffectBase
     private float startTime;
     private bool firePressed = false;
     private bool inputActive = false;
+    private bool inputOnCooldown = false;
     private bool loopSnake = true;
 
     public override DemoEffectBase Init()
@@ -47,12 +48,16 @@ public class DemoeffectIntro : DemoEffectBase
 
     private void HandleFireInput(bool b)
     {
-        if (!firePressed && b)
+        if (!firePressed && b && !inputOnCooldown)
         {
             if (pressSpaceCount < pressSpaceStrings.Length - 1)
             {
                 //Shake when space pressed
-                img.transform.DOShakePosition(1.0f, strength: new Vector3(0, 20f, 0), vibrato: 5, randomness: 1, snapping: false, fadeOut: true);
+                inputOnCooldown = true;
+                img.transform.DOShakePosition(1.0f, strength: new Vector3(0, 20f, 0), vibrato: 5, randomness: 1, snapping: false, fadeOut: true).OnComplete(() => 
+                {
+                    inputOnCooldown = false;
+                });
                 pressSpaceCount++;
             }
             else
@@ -84,6 +89,7 @@ public class DemoeffectIntro : DemoEffectBase
         {
             startTime = Time.time;
             ExecuteInUpdate = true;
+            AudioController.Instance.PlayTrack("Track1");
         });
 
         txt2.gameObject.SetActive(true);
@@ -118,7 +124,7 @@ public class DemoeffectIntro : DemoEffectBase
         while (loopSnake)
         {
             animatedString = spriteStrings[imgIndex].Substring(0, showLettersCount);
-            string replacement = pressSpaceStrings[pressSpaceCount];
+            string replacement = inputOnCooldown? " ...\n\n" : pressSpaceStrings[pressSpaceCount];
 
             if (showLettersCount >= letterCount)
             {
