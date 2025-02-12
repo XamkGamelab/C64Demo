@@ -120,6 +120,7 @@ public class DemoeffectTextScroller : DemoEffectBase
         //Enable all generated objects        
         GeneratedObjectsSetActive(true);
 
+        AudioController.Instance.PlayTrack("Track2", 1f, 4f);
         yield return AnimateSpriteScroll();        
     }
     
