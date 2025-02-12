@@ -12,4 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ae2719df7b33b1418c54ca64444176a, type: 3}
   m_Name: SoundtrackPlaylist
   m_EditorClassIdentifier: 
-  tracks: []
+  tracks:
+  - Name: Track1
+    MusicClip: {fileID: 8300000, guid: 889bab2e3c91f58478e73dea4179432e, type: 3}
+  - Name: Track2
+    MusicClip: {fileID: 8300000, guid: 42bb6be5f7a68d544a9562f8cba34a77, type: 3}

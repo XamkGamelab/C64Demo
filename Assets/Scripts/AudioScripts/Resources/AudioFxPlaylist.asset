@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: AudioFxPlaylist
   m_EditorClassIdentifier: 
   tracks:
-  - Name: Thunder
-    MusicClip: {fileID: 8300000, guid: 3dee8fc2ac77c9f4a95c42cb03a8a55f, type: 3}
+  - Name: Explosion_1
+    MusicClip: {fileID: 8300000, guid: dcfb7db6390346b41a05fd5b8c68002b, type: 3}
