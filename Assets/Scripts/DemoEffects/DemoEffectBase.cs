@@ -13,7 +13,12 @@ public abstract class DemoEffectBase: IDemoEffect
 
     public System.Action EndDemoCallback;
     
+    //Disposables for subscriptions like input
     protected CompositeDisposable Disposables = new CompositeDisposable();
+    //Variables for basic input (left/right up/down and fire are used in most effects)
+    protected bool FirePressed = false;
+    protected float HorizontalInput = 0f;
+    protected float VerticalInput = 0f;
 
     public virtual DemoEffectBase Init()
     {
@@ -29,6 +34,7 @@ public abstract class DemoEffectBase: IDemoEffect
 
     public virtual IEnumerator Run(System.Action endDemoCallback)
     {
+        Disposables = new CompositeDisposable();
         EndDemoCallback = endDemoCallback;        
         yield return null;
     }
@@ -38,6 +44,10 @@ public abstract class DemoEffectBase: IDemoEffect
         //Dispose disposables if dispose ;)
         if (dispose)
             Disposables?.Dispose();
+
+        //Reset input values;
+        HorizontalInput = VerticalInput = 0f;
+        FirePressed = false;
 
         GeneratedObjectsSetActive(false);
         EndDemoCallback.Invoke();

@@ -11,12 +11,14 @@ public class DemoeffectIntro : DemoEffectBase
 {
     private string c64default = "\r\n\r\n\r\n     **** COMMODORE 64 BASIC V2 ****\r\n  64K RAM SYSTEM 38911 BASIC BYTES FREE\r\n\r\n READY\r\n LOAD\"*\",B,1:\r\n\r\n SEARCHING FOR *\r\n LOADING\r\n READY.\r\n RUN";
     private string[] pressSpaceStrings = new string[] { " [PRESS SPACE TO START]\n\n", " [PRESS SPACE AGAIN]\n\n", " [AGAIN!!!]\n\n", " [COME ON. PRESS THAT SPACE. TO START]\n\n", " [ONE MORE TIME]\n\n" };
-    private int pressSpaceCount = 0;
+
     private TMP_Text txt;
-    private TMP_Text txt2;    
-    private Image img;        
+    private TMP_Text txt2;
+    private Image img;
+
+    private int pressSpaceCount = 0;         
     private float startTime;
-    private bool firePressed = false;
+    
     private bool inputActive = false;
     private bool inputOnCooldown = false;
     private bool loopSnake = true;
@@ -48,7 +50,7 @@ public class DemoeffectIntro : DemoEffectBase
 
     private void HandleFireInput(bool b)
     {
-        if (!firePressed && b && !inputOnCooldown)
+        if (!FirePressed && b && !inputOnCooldown)
         {
             if (pressSpaceCount < pressSpaceStrings.Length - 1)
             {
@@ -70,15 +72,18 @@ public class DemoeffectIntro : DemoEffectBase
                 }, null);
             }
         }
-        firePressed = b;        
+        FirePressed = b;        
     }
 
     public override IEnumerator Run(System.Action callbackEnd)
     {
         yield return base.Run(callbackEnd);
 
-        //Disable input
+        //Disable input and reset all values
         inputActive = false;
+        pressSpaceCount = 0;
+        loopSnake = true;
+        inputOnCooldown = false;
 
         AudioController.Instance.PlayTrack("Intro");
 

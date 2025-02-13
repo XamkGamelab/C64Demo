@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 using System.Linq;
+using UniRx;
 
 public class ApplicationController : SingletonMono<ApplicationController>
 {
@@ -31,34 +32,16 @@ public class ApplicationController : SingletonMono<ApplicationController>
         demoEffects = new List<DemoEffectBase>()
         {
             new DemoeffectIntro().Init() ,
-            new DemoeffectTextScroller().Init(),
+            new DemoeffectTextScroller().Init(),            
             new DemoEffectEyeBalls().Init(),
             new DemoEffectRun().Init(),
             new DemoEffectTimeBomb().Init()
+            
         };
 
-        RunAllDemoEffects(0);
-    }
+        RunAllDemoEffects(3);
 
-    public void RunAllDemoEffects(int startFrom)
-    {
-        if (startFrom >= demoEffects.Count)
-        {
-            //This is just for debugging
-            Debug.LogWarning("INVALID INDEX OR DEMOS RAN THROUGH");
-            return;
-        }
-        
-        currentEffecIndex = startFrom;
-        currentDemoEffect = demoEffects[currentEffecIndex];
-        
-        StopAllCoroutines();
-        StartCoroutine(currentDemoEffect.Run(() => 
-        {
-            //Move to next effect when this effect ends
-            currentEffecIndex++;
-            RunAllDemoEffects(currentEffecIndex);
-        }));
+        InputController.Instance.EscDown.Subscribe(b => { if (b) QuitApp(); });
     }
 
     public void FadeImageInOut(float duration, Color color, System.Action callBack, System.Action callBackEnd)
@@ -77,6 +60,33 @@ public class ApplicationController : SingletonMono<ApplicationController>
                 flashFadeImage.gameObject.SetActive(false);
             });
         });
+    }
+
+    public void RunAllDemoEffects(int startFrom)
+    {
+        if (startFrom >= demoEffects.Count)
+        {
+            //This is just for debugging
+            Debug.LogWarning("INVALID INDEX OR DEMOS RAN THROUGH, STARTING AGAIN.");
+            startFrom = 0;
+        }
+
+        currentEffecIndex = startFrom;
+        currentDemoEffect = demoEffects[currentEffecIndex];
+
+        StopAllCoroutines();
+        StartCoroutine(currentDemoEffect.Run(() =>
+        {
+            //Move to next effect when this effect ends
+            currentEffecIndex++;
+            RunAllDemoEffects(currentEffecIndex);
+        }));
+    }
+
+    private void QuitApp()
+    {
+        Debug.Log("QUIT");
+        Application.Quit();
     }
 
     private void ActivateFlashFadeImage(Color color)

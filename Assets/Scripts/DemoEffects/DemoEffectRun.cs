@@ -2,15 +2,19 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UniRx;
+using System.Linq;
 
 public class DemoEffectRun : DemoEffectBase
 {
     private Vector3 quadPos = new Vector3(0, 0.5f, 1.45f);
-
     private GameObject quad;
-    private MeshRenderer quadRenderer;
-    Material mat;
+    private GameObject runningMan;
+    private SpriteRenderer runningManRenderer;
 
+    private MeshRenderer quadRenderer;
+    private Material mat;
+    private List<Sprite> runningManSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("RunningManSheetPSD");
     public override DemoEffectBase Init()
     {
         mat = GameObject.Instantiate<Material>(Resources.Load<Material>("RunMaterial"));
@@ -22,6 +26,15 @@ public class DemoEffectRun : DemoEffectBase
         quadRenderer.sharedMaterial = mat;
         AddToGeneratedObjectsDict(quad.name, quad);
 
+        runningMan = new GameObject("RunningMan");
+        runningMan.transform.position = new Vector3(0, -0.7f, 1.5f);
+        runningManRenderer = runningMan.AddComponent<SpriteRenderer>();
+        runningManRenderer.sprite = runningManSprites.First();
+
+        SimpleSpriteAnimator simpleSpriteAnimator = runningMan.AddComponent<SimpleSpriteAnimator>();
+        simpleSpriteAnimator.Sprites = runningManSprites;
+
+
         return base.Init();
     }
 
@@ -32,6 +45,9 @@ public class DemoEffectRun : DemoEffectBase
         quad.SetActive(true);
 
         ExecuteInUpdate = true;
+
+        //Subscribe to input
+        InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
     }
 
     public override void DoUpdate()
@@ -43,5 +59,18 @@ public class DemoEffectRun : DemoEffectBase
         
 
         base.DoUpdate();
+    }
+
+    private void HandleFireInput(bool b)
+    {
+        if (!FirePressed && b)
+        {
+            ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[0], () =>
+            {
+                //End the demo by exiting last coroutine and calling base.End();                
+                base.End();
+            }, null);
+        }
+        FirePressed = b;
     }
 }
