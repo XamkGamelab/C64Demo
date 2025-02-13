@@ -80,6 +80,8 @@ public class DemoeffectIntro : DemoEffectBase
         //Disable input
         inputActive = false;
 
+        AudioController.Instance.PlayTrack("Intro");
+
         img.gameObject.SetActive(true);
         txt.gameObject.SetActive(true);
         yield return AnimateStartText();
