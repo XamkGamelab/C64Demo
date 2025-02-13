@@ -37,7 +37,7 @@ public class ApplicationController : SingletonMono<ApplicationController>
             new DemoEffectTimeBomb().Init()
         };
 
-        RunAllDemoEffects(4);
+        RunAllDemoEffects(0);
     }
 
     public void RunAllDemoEffects(int startFrom)
