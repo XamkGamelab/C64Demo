@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: SoundtrackPlaylist
   m_EditorClassIdentifier: 
   tracks:
+  - Name: Intro
+    MusicClip: {fileID: 8300000, guid: 7080331207a4c024388143cc61de1eae, type: 3}
   - Name: Track1
     MusicClip: {fileID: 8300000, guid: 889bab2e3c91f58478e73dea4179432e, type: 3}
   - Name: Track2
