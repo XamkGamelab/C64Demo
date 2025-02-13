@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UniRx;
 
 public class DemoEffectTimeBomb : DemoEffectBase
 {
@@ -27,5 +28,20 @@ public class DemoEffectTimeBomb : DemoEffectBase
         Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[0];
         headingTxt.gameObject.SetActive(true);
 
+        //Subscribe to input
+        InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
+    }
+
+    private void HandleFireInput(bool b)
+    {
+        if (!FirePressed && b)
+        {
+            ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[0], () =>
+            {
+                //End the demo by exiting last coroutine and calling base.End();                
+                base.End();
+            }, null);
+        }
+        FirePressed = b;
     }
 }

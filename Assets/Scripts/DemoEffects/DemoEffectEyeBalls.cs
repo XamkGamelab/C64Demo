@@ -5,6 +5,8 @@ using UnityEngine.UI;
 using TMPro;
 using Unity.VisualScripting;
 using DG.Tweening;
+using System.Linq;
+using UniRx;
 public class DemoEffectEyeBalls : DemoEffectBase
 {
     private Image img;
@@ -51,7 +53,10 @@ public class DemoEffectEyeBalls : DemoEffectBase
         balls[0].gameObject.SetActive(true);
         yield return new WaitForSeconds(1f);
 
-        
+        //Subscribe to input
+        InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
+
+
         balls[0].gameObject.SetActive(true);
         balls[0].DOLocalMove(new Vector3(64, 0, 0), 1f, true).OnComplete(() =>
         {
@@ -90,5 +95,18 @@ public class DemoEffectEyeBalls : DemoEffectBase
     public override void DoUpdate()
     {
         base.DoUpdate();
+    }
+
+    private void HandleFireInput(bool b)
+    {
+        if (!FirePressed && b)
+        {
+            ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[0], () =>
+            {
+                //End the demo by exiting last coroutine and calling base.End();                
+                base.End();
+            }, null);
+        }
+        FirePressed = b;
     }
 }

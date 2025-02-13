@@ -2,11 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UniRx;
 
 public class DemoEffectRun : DemoEffectBase
 {
     private Vector3 quadPos = new Vector3(0, 0.5f, 1.45f);
-
     private GameObject quad;
     private MeshRenderer quadRenderer;
     Material mat;
@@ -32,6 +32,9 @@ public class DemoEffectRun : DemoEffectBase
         quad.SetActive(true);
 
         ExecuteInUpdate = true;
+
+        //Subscribe to input
+        InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
     }
 
     public override void DoUpdate()
@@ -43,5 +46,18 @@ public class DemoEffectRun : DemoEffectBase
         
 
         base.DoUpdate();
+    }
+
+    private void HandleFireInput(bool b)
+    {
+        if (!FirePressed && b)
+        {
+            ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[0], () =>
+            {
+                //End the demo by exiting last coroutine and calling base.End();                
+                base.End();
+            }, null);
+        }
+        FirePressed = b;
     }
 }

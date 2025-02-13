@@ -15,8 +15,7 @@ public class DemoeffectTextScroller : DemoEffectBase
     private Image img;
 
     private float startTime;
-    private bool firePressed = false;
-
+    
     //Bottom text scroller
     private RectTransform txtRect;
     private RectTransform txtRectClone;
@@ -100,6 +99,8 @@ public class DemoeffectTextScroller : DemoEffectBase
         yield return base.Run(callbackEnd);
 
         loopScroller = true;
+
+        //Subscribe to input
         InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
 
         Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[0];
@@ -113,7 +114,7 @@ public class DemoeffectTextScroller : DemoEffectBase
 
     private void HandleFireInput(bool b)
     {
-        if (!firePressed && b)
+        if (!FirePressed && b)
         {
             ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[0], () =>
             {
@@ -122,7 +123,7 @@ public class DemoeffectTextScroller : DemoEffectBase
                 base.End();
             }, null);
         }
-        firePressed = b;
+        FirePressed = b;
     }
 
     private void InstantiateStarFieldSprites(int amount)
