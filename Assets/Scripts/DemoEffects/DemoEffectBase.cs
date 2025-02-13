@@ -34,6 +34,7 @@ public abstract class DemoEffectBase: IDemoEffect
 
     public virtual IEnumerator Run(System.Action endDemoCallback)
     {
+        Disposables = new CompositeDisposable();
         EndDemoCallback = endDemoCallback;        
         yield return null;
     }

@@ -79,8 +79,11 @@ public class DemoeffectIntro : DemoEffectBase
     {
         yield return base.Run(callbackEnd);
 
-        //Disable input
+        //Disable input and reset all values
         inputActive = false;
+        pressSpaceCount = 0;
+        loopSnake = true;
+        inputOnCooldown = false;
 
         AudioController.Instance.PlayTrack("Intro");
 

@@ -3,14 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
+using System.Linq;
 
 public class DemoEffectRun : DemoEffectBase
 {
     private Vector3 quadPos = new Vector3(0, 0.5f, 1.45f);
     private GameObject quad;
-    private MeshRenderer quadRenderer;
-    Material mat;
+    private GameObject runningMan;
+    private SpriteRenderer runningManRenderer;
 
+    private MeshRenderer quadRenderer;
+    private Material mat;
+    private List<Sprite> runningManSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("RunningManSheetPSD");
     public override DemoEffectBase Init()
     {
         mat = GameObject.Instantiate<Material>(Resources.Load<Material>("RunMaterial"));
@@ -21,6 +25,15 @@ public class DemoEffectRun : DemoEffectBase
         quadRenderer = quad.GetComponent<MeshRenderer>();
         quadRenderer.sharedMaterial = mat;
         AddToGeneratedObjectsDict(quad.name, quad);
+
+        runningMan = new GameObject("RunningMan");
+        runningMan.transform.position = new Vector3(0, -0.7f, 1.5f);
+        runningManRenderer = runningMan.AddComponent<SpriteRenderer>();
+        runningManRenderer.sprite = runningManSprites.First();
+
+        SimpleSpriteAnimator simpleSpriteAnimator = runningMan.AddComponent<SimpleSpriteAnimator>();
+        simpleSpriteAnimator.Sprites = runningManSprites;
+
 
         return base.Init();
     }

@@ -32,13 +32,14 @@ public class ApplicationController : SingletonMono<ApplicationController>
         demoEffects = new List<DemoEffectBase>()
         {
             new DemoeffectIntro().Init() ,
-            new DemoeffectTextScroller().Init(),
+            new DemoeffectTextScroller().Init(),            
             new DemoEffectEyeBalls().Init(),
             new DemoEffectRun().Init(),
             new DemoEffectTimeBomb().Init()
+            
         };
 
-        RunAllDemoEffects(0);
+        RunAllDemoEffects(3);
 
         InputController.Instance.EscDown.Subscribe(b => { if (b) QuitApp(); });
     }
@@ -66,8 +67,8 @@ public class ApplicationController : SingletonMono<ApplicationController>
         if (startFrom >= demoEffects.Count)
         {
             //This is just for debugging
-            Debug.LogWarning("INVALID INDEX OR DEMOS RAN THROUGH");
-            return;
+            Debug.LogWarning("INVALID INDEX OR DEMOS RAN THROUGH, STARTING AGAIN.");
+            startFrom = 0;
         }
 
         currentEffecIndex = startFrom;
