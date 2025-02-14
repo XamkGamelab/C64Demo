@@ -138,10 +138,10 @@ public class SimpleSpriteAnimator : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (StartWhenInCamViewport && !IsAnimating && CameraHelper.IsPointWithinViewport(Camera.main, Camera.main.transform.position, transform.position))
+        if (StartWhenInCamViewport && !IsAnimating && CameraFunctions.IsPointWithinViewport(Camera.main, Camera.main.transform.position, transform.position))
             Play(true);
 
-        if (DestroyWhenLeavesCamViewport && !CameraHelper.IsRendererBoundsWithinViewport(Camera.main, Camera.main.transform.position, GetComponent<SpriteRenderer>().bounds))
+        if (DestroyWhenLeavesCamViewport && !CameraFunctions.IsRendererBoundsWithinViewport(Camera.main, Camera.main.transform.position, GetComponent<SpriteRenderer>().bounds))
             Destroy(gameObject);
 
         //Render sprite from current sprite sheet:

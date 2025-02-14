@@ -9,15 +9,16 @@ using UniRx;
 public class ApplicationController : SingletonMono<ApplicationController>
 {
     public UIController UI { get; private set; }
+    public Dictionary<string, CameraSettings> CameraSettings { get; private set; }
     public Color[] C64PaletteArr => ColorFunctions.ColorsFromPaletteStripTexture(Instantiate(Resources.Load<Texture2D>("C64PaletteStrrip32x2_16_colors")), 16);
 
     private Image flashFadeImage;
     private DemoEffectBase currentDemoEffect;
     private int currentEffecIndex = 0;
-
+ 
     //Instantiate and init effect to this list after UI is instantiated
     private List<DemoEffectBase> demoEffects;
-
+    
     [RuntimeInitializeOnLoadMethod]
     static void OnInit()
     {
@@ -29,6 +30,12 @@ public class ApplicationController : SingletonMono<ApplicationController>
         flashFadeImage = InstantiateFlashFadeImage();
         flashFadeImage.gameObject.SetActive(false);
 
+        CameraSettings = new Dictionary<string, CameraSettings>()
+        {
+            { "orthoPixel", new CameraSettings { Orthographic = true, OrthographicSize = 1.2f } },
+            { "perspectiveFov60", new CameraSettings { Orthographic = false, FOV = 60f } }
+        };
+
         demoEffects = new List<DemoEffectBase>()
         {
             new DemoeffectIntro().Init() ,
@@ -39,7 +46,7 @@ public class ApplicationController : SingletonMono<ApplicationController>
             
         };
 
-        RunAllDemoEffects(0);
+        RunAllDemoEffects(2);
 
         InputController.Instance.EscDown.Subscribe(b => { if (b) QuitApp(); });
     }
