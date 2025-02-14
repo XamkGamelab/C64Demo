@@ -295,7 +295,7 @@ public class SimpleSpriteAnimator : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.LogError("Excetipm: " + e.Message + " | Gameobject " + gameObject.name);
+            Debug.LogError("Excetion: " + e.Message + " | Gameobject " + gameObject.name);
         }
 
         if (image == null)
