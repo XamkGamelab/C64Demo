@@ -55,4 +55,13 @@ public class TextureAndGaphicsFunctions
     {
         return Resources.LoadAll<Sprite>(imageName).ToList();
     }
+
+    public static SpriteRenderer InstantiateSpriteRendererGO(string goName, Vector3 pos, Sprite sprite)
+    {
+        GameObject go = new GameObject(goName);
+        go.transform.position = pos;
+        SpriteRenderer spriteRenderer = go.AddComponent<SpriteRenderer>();
+        spriteRenderer.sprite = sprite;
+        return spriteRenderer;
+    }
 }
