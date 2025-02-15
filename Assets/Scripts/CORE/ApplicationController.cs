@@ -39,14 +39,14 @@ public class ApplicationController : SingletonMono<ApplicationController>
         demoEffects = new List<DemoEffectBase>()
         {
             new DemoeffectIntro().Init() ,
-            new DemoeffectTextScroller().Init(),            
-            new DemoEffectEyeBalls().Init(),
             new DemoEffectRun().Init(),
+            new DemoeffectTextScroller().Init(),            
+            new DemoEffectEyeBalls().Init(),            
             new DemoEffectTimeBomb().Init()
             
         };
 
-        RunAllDemoEffects(2);
+        RunAllDemoEffects(0);
 
         InputController.Instance.EscDown.Subscribe(b => { if (b) QuitApp(); });
     }
