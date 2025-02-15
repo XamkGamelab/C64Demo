@@ -12,11 +12,15 @@ public class DemoEffectRun : DemoEffectBase
     
     private SpriteRenderer runningManRenderer;
     private SpriteRenderer runningManRendererClone;
-
     private SpriteRenderer groundRenderer;
 
     private MeshRenderer quadRenderer;
     private Material mat;
+
+    private float groundHalfWidth = 9.6f;
+    private float groundScrollSpeed = .5f;
+    private Vector3 groundStartPos;
+
     private List<Sprite> runningManSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("RunningManSheetPSD");
     public override DemoEffectBase Init()
     {
@@ -24,12 +28,12 @@ public class DemoEffectRun : DemoEffectBase
 
         quad = GameObject.CreatePrimitive(PrimitiveType.Quad);        
         quad.transform.position = quadPos;
-        quad.transform.localScale = new Vector3(4f, 1f, 1f);                
+        quad.transform.localScale = new Vector3(5f, 1f, 1f);                
         quadRenderer = quad.GetComponent<MeshRenderer>();
         quadRenderer.sharedMaterial = mat;
         AddToGeneratedObjectsDict(quad.name, quad);
 
-        runningManRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("RunningMan", new Vector3(0, -0.5f, 1.5f), runningManSprites.First());
+        runningManRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("RunningMan", new Vector3(0, -0.64f, 1.5f), runningManSprites.First());
         SimpleSpriteAnimator simpleSpriteAnimator = runningManRenderer.gameObject.AddComponent<SimpleSpriteAnimator>();
         simpleSpriteAnimator.Sprites = runningManSprites;
         AddToGeneratedObjectsDict(runningManRenderer.gameObject.name, runningManRenderer.gameObject);
@@ -39,10 +43,11 @@ public class DemoEffectRun : DemoEffectBase
         runningManRendererClone.transform.Rotate(180f, 0, 0);
         AddToGeneratedObjectsDict(runningManRendererClone.gameObject.name, runningManRendererClone.gameObject);
 
-        groundRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("GroundBase", new Vector3(0, -0.8f, 1f), GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("RunnerGround")));
+        groundRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("GroundBase", new Vector3(0, -1f, 1f), GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("RunnerGround")));
         groundRenderer.sortingOrder = -1000;
         groundRenderer.drawMode = SpriteDrawMode.Tiled;
-        groundRenderer.size = new Vector2(32, 0.63f);
+        groundRenderer.size = new Vector2(groundHalfWidth * 2f, 0.42f);
+        
         AddToGeneratedObjectsDict(groundRenderer.gameObject.name, groundRenderer.gameObject);
 
         return base.Init();
@@ -59,6 +64,9 @@ public class DemoEffectRun : DemoEffectBase
         runningManRenderer.gameObject.SetActive(true);
         runningManRendererClone.gameObject.SetActive(true);
         groundRenderer.gameObject.SetActive(true);
+        groundStartPos = groundRenderer.transform.position = new Vector3(CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position).min.x, groundRenderer.transform.position.y, groundRenderer.transform.position.z);
+        Debug.Log("CAM RECT:" + CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position));
+        
 
         ExecuteInUpdate = true;
 
@@ -71,7 +79,12 @@ public class DemoEffectRun : DemoEffectBase
         float s = (Mathf.Sin(Time.time * 2f) + 1) * .5f;
         quadRenderer.sharedMaterial.SetTextureOffset("_BaseMap", new Vector2(0f, s));
         quadRenderer.sharedMaterial.SetTextureOffset("_DetailAlbedoMap", new Vector2(0f, 1f-s));
-        
+
+        //Scroll ground
+        if (groundRenderer.transform.position.x < -groundHalfWidth + groundStartPos.x)
+            groundRenderer.transform.position = groundStartPos;
+        groundRenderer.transform.position += Vector3.left * groundScrollSpeed * Time.deltaTime;
+
         base.DoUpdate();
     }
 
