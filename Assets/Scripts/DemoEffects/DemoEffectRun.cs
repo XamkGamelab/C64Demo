@@ -4,24 +4,40 @@ using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
 using System.Linq;
+using TMPro;
 
 public class DemoEffectRun : DemoEffectBase
 {
+    private float startTime;
     private Vector3 quadPos = new Vector3(0, 0.5f, 1.45f);
     private GameObject quad;
     
     private SpriteRenderer runningManRenderer;
     private SpriteRenderer runningManRendererClone;
     private SpriteRenderer groundRenderer;
-    private SpriteRenderer arrowsRenderer;
 
+    private SimpleSpriteAnimator manSpriteAnimator;
+    //Text scroller
+    private RectTransform txtRect;    
+    private TMP_Text txt;    
+    public float scrollSpeed = 2000f;
+    
     private MeshRenderer quadRenderer;
     private Material mat;
 
     private float groundHalfWidth = 9.6f;
-    private float groundScrollSpeed = .5f;
-    private Vector3 groundStartPos;
+    private float groundScrollSpeedMin = .5f;
+    private float groundScrollSpeedMax = 2f;
 
+    private float minSpeedPercent = .1f;
+    private float currentSpeedPercent = .1f;
+    private float speedDecrement = 0.3f;
+    private float speedIncrecrement = 0.05f;
+
+    private Vector3 groundStartPos;    
+    private bool nextInputLeft = true;
+    private VertexGradient gradientLeft = new VertexGradient(ApplicationController.Instance.C64PaletteArr[6], ApplicationController.Instance.C64PaletteArr[0], ApplicationController.Instance.C64PaletteArr[9], ApplicationController.Instance.C64PaletteArr[0]);
+    
     private List<Sprite> runningManSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("RunningManSheetPSD");
     public override DemoEffectBase Init()
     {
@@ -35,8 +51,8 @@ public class DemoEffectRun : DemoEffectBase
         AddToGeneratedObjectsDict(quad.name, quad);
 
         runningManRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("RunningMan", new Vector3(0, -0.64f, 1.5f), runningManSprites.First());
-        SimpleSpriteAnimator simpleSpriteAnimator = runningManRenderer.gameObject.AddComponent<SimpleSpriteAnimator>();
-        simpleSpriteAnimator.Sprites = runningManSprites;
+        manSpriteAnimator = runningManRenderer.gameObject.AddComponent<SimpleSpriteAnimator>();
+        manSpriteAnimator.Sprites = runningManSprites;
         AddToGeneratedObjectsDict(runningManRenderer.gameObject.name, runningManRenderer.gameObject);
 
         runningManRendererClone = GameObject.Instantiate(runningManRenderer.gameObject).GetComponent<SpriteRenderer>();
@@ -50,40 +66,48 @@ public class DemoEffectRun : DemoEffectBase
         groundRenderer.size = new Vector2(groundHalfWidth * 2f, 0.42f);        
         AddToGeneratedObjectsDict(groundRenderer.gameObject.name, groundRenderer.gameObject);
 
-        arrowsRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("Arrows", new Vector3(0, -1.1f, 1f), GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("ArrowLeft")));
-        arrowsRenderer.sortingOrder = 1000;
-        arrowsRenderer.drawMode = SpriteDrawMode.Tiled;
-        arrowsRenderer.size = new Vector2(groundHalfWidth * 2f, 0.21f);
-        AddToGeneratedObjectsDict(arrowsRenderer.gameObject.name, arrowsRenderer.gameObject);
-
+        //Bottom scrolling text and it's clone
+        txtRect = ApplicationController.Instance.UI.CreateRectTransformObject("Text_scroller", new Vector2(UIController.GetCanvasSize().Value.x, 8), new Vector3(-30f, -30f, 0), Vector2.one * .5f, Vector2.one * .5f);
+        txtRect.pivot = new Vector2(1f, 0.5f);
+        txt = TextFunctions.AddTextMeshProTextComponent(txtRect, "C64_Pro_Mono-STYLE", 8, ApplicationController.Instance.C64PaletteArr[1]);
+        txt.alignment = TextAlignmentOptions.MidlineRight;
+        txt.enableVertexGradient = true;        
+        txt.colorGradient = gradientLeft;
+        txt.text = "RIGHT LEFT RIGHT LEFT RIGHT SPEED: " + (int)(currentSpeedPercent * 100) + "%";
+                
+        AddToGeneratedObjectsDict(txtRect.gameObject.name, txtRect.gameObject);
         return base.Init();
     }
 
     public override IEnumerator Run(Action endDemoCallback)
     {
         yield return base.Run(endDemoCallback);
+
+        startTime = Time.time;
+
+        currentSpeedPercent = minSpeedPercent = .1f;
         
         Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[0];
         CameraFunctions.SetCameraSettings(Camera.main, ApplicationController.Instance.CameraSettings["orthoPixel"]);
 
-        quad.SetActive(true);
-        runningManRenderer.gameObject.SetActive(true);
-        runningManRendererClone.gameObject.SetActive(true);
-        groundRenderer.gameObject.SetActive(true);
-        arrowsRenderer.gameObject.SetActive(true);
-
-        groundStartPos = groundRenderer.transform.position = new Vector3(CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position).min.x, groundRenderer.transform.position.y, groundRenderer.transform.position.z);
-        Debug.Log("CAM RECT:" + CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position));
+        GeneratedObjectsSetActive(true);
         
-
+        groundStartPos = groundRenderer.transform.position = new Vector3(CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position).min.x, groundRenderer.transform.position.y, groundRenderer.transform.position.z);
+        
         ExecuteInUpdate = true;
 
+        nextInputLeft = true;
         //Subscribe to input
-        InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
+        InputController.Instance.Horizontal.Subscribe(f => HandleHorizontalInput(f)).AddTo(Disposables);
     }
 
     public override void DoUpdate()
     {
+        //Decrement speed
+        currentSpeedPercent = Mathf.Clamp(currentSpeedPercent - speedDecrement * Time.deltaTime, minSpeedPercent, 1f);
+        float animDelay = Mathf.Lerp(0.01f, 0.1f, 1f - currentSpeedPercent);
+        manSpriteAnimator.AnimationFrameDelay = animDelay;
+
         float s = (Mathf.Sin(Time.time * 2f) + 1) * .5f;
         quadRenderer.sharedMaterial.SetTextureOffset("_BaseMap", new Vector2(0f, s));
         quadRenderer.sharedMaterial.SetTextureOffset("_DetailAlbedoMap", new Vector2(0f, 1f-s));
@@ -91,21 +115,28 @@ public class DemoEffectRun : DemoEffectBase
         //Scroll ground
         if (groundRenderer.transform.position.x < -groundHalfWidth + groundStartPos.x)
             groundRenderer.transform.position = groundStartPos;
+
+        float groundScrollSpeed = Mathf.Lerp(groundScrollSpeedMin, groundScrollSpeedMax, currentSpeedPercent);
         groundRenderer.transform.position += Vector3.left * groundScrollSpeed * Time.deltaTime;
+
+        //Wave text
+        txt.text = "RIGHT LEFT RIGHT LEFT RIGHT SPEED: " + ((int)(currentSpeedPercent * 100f)).ToString("000") + "%";
+        TextFunctions.TextMeshEffect(txt, startTime, new TextEffectSettings { EffectType = TextEffectSettings.TextEffectType.SinCurve, SinCurveSpeed = 4f, SinCurveMagnitude = 8f, SinCurveScale = 0.05f });
 
         base.DoUpdate();
     }
 
-    private void HandleFireInput(bool b)
+    private void HandleHorizontalInput(float f)
     {
-        if (!FirePressed && b)
+        if (f < 0 && nextInputLeft)
         {
-            ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[0], () =>
-            {
-                //End the demo by exiting last coroutine and calling base.End();                
-                base.End();
-            }, null);
+            nextInputLeft = false;            
+            currentSpeedPercent += speedIncrecrement;
         }
-        FirePressed = b;
+        else if (f > 0 && !nextInputLeft)
+        {
+            nextInputLeft = true;            
+            currentSpeedPercent += speedIncrecrement;
+        }
     }
 }

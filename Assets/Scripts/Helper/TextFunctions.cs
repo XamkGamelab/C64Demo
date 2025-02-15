@@ -7,10 +7,12 @@ using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
 using DG.Tweening;
+using System;
 
 public static class TextFunctions
 {
-    public static void ExplodeTextMesh(TMP_Text textComponent, float startTime, Vector3 explosionPoint, float explosionSpeed)
+    //verts[charInfo.vertexIndex + j] = orig + new Vector3(0, Mathf.Sin(Time.time * 2f + orig.x * 0.01f) * 10f, 0);
+    public static void TextMeshEffect(TMP_Text textComponent, float startTime, TextEffectSettings textEffectSettings /*Vector3 explosionPoint, float explosionSpeed*/)
     {
         textComponent.ForceMeshUpdate();
         var textInfo = textComponent.textInfo;
@@ -27,7 +29,21 @@ public static class TextFunctions
             for (int j = 0; j < 4; ++j)
             {
                 Vector3 orig = verts[charInfo.vertexIndex + j];
-                verts[charInfo.vertexIndex + j] += (orig - explosionPoint).normalized * (Time.time - startTime) * explosionSpeed;
+                //Switch case text function
+
+                switch (textEffectSettings.EffectType)
+                {
+                    case TextEffectSettings.TextEffectType.Explode:
+                        // code block
+                        verts[charInfo.vertexIndex + j] += (orig - textEffectSettings.ExplosionPoint).normalized * (Time.time - startTime) * textEffectSettings.ExplosionSpeed;
+                        break;
+                    case TextEffectSettings.TextEffectType.SinCurve:
+                        // code block
+                        verts[charInfo.vertexIndex + j] = orig + new Vector3(0, Mathf.Sin(Time.time * textEffectSettings.SinCurveSpeed + orig.x * textEffectSettings.SinCurveScale) * textEffectSettings.SinCurveMagnitude, 0);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException("Not an defined effect type.");                        
+                }
             }
         }
 
@@ -47,9 +63,10 @@ public static class TextFunctions
     public static TMP_Text AddTextMeshProTextComponent(RectTransform addTextTo, string fontAssetName, int fontSize, Color color)
     {
         TMP_Text txt = addTextTo.AddComponent<TextMeshProUGUI>();
-        txt.font = Object.Instantiate(Resources.Load<TMP_FontAsset>(fontAssetName));
+        txt.font = GameObject.Instantiate<TMP_FontAsset>(Resources.Load<TMP_FontAsset>(fontAssetName));
         txt.fontSize = fontSize;
         txt.color = color;
         return txt;
     }
+
 }

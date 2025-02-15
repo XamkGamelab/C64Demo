@@ -105,7 +105,7 @@ public class DemoeffectIntro : DemoEffectBase
 
     public override void DoUpdate()
     {
-        TextFunctions.ExplodeTextMesh(txt, startTime, new Vector3(0, 30f, 0), 50f);
+        TextFunctions.TextMeshEffect(txt, startTime, new TextEffectSettings { EffectType = TextEffectSettings.TextEffectType.Explode, ExplosionPoint = new Vector3(0, 30f, 0), ExplosionSpeed = 50f });
         base.DoUpdate();
     }
 
