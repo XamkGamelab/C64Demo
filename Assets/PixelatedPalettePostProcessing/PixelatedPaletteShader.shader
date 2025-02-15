@@ -91,7 +91,7 @@ Shader "Custom/URPPixelatedPaletteShader"
                 //Pixelate   
                 float2 blockPos = floor(IN.uv * _BlockCount);
                 float2 blockCenter = blockPos * _BlockSize + _HalfBlockSize;
-                half4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_point_clamp, blockCenter);            		        
+                half4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_point_clamp, blockCenter); //<-- blockCenter          		        
                 float yPos = _LUT_TexelSize.w / _PaletteCellSize * _LUT_TexelSize.y;
                 half4 gradedCol = (1,1,1,1);
 
