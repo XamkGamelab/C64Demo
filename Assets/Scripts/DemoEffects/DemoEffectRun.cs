@@ -30,6 +30,7 @@ public class DemoEffectRun : DemoEffectBase
         runningMan.transform.position = new Vector3(0, -0.7f, 1.5f);
         runningManRenderer = runningMan.AddComponent<SpriteRenderer>();
         runningManRenderer.sprite = runningManSprites.First();
+        AddToGeneratedObjectsDict(runningMan.name, runningMan);
 
         SimpleSpriteAnimator simpleSpriteAnimator = runningMan.AddComponent<SimpleSpriteAnimator>();
         simpleSpriteAnimator.Sprites = runningManSprites;
@@ -43,6 +44,8 @@ public class DemoEffectRun : DemoEffectBase
         yield return base.Run(endDemoCallback);
         Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[0];
         quad.SetActive(true);
+        runningMan.SetActive(true);
+        CameraFunctions.SetCameraSettings(Camera.main, ApplicationController.Instance.CameraSettings["orthoPixel"]);
 
         ExecuteInUpdate = true;
 
