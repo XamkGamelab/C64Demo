@@ -13,6 +13,7 @@ public class DemoEffectRun : DemoEffectBase
     private SpriteRenderer runningManRenderer;
     private SpriteRenderer runningManRendererClone;
     private SpriteRenderer groundRenderer;
+    private SpriteRenderer arrowsRenderer;
 
     private MeshRenderer quadRenderer;
     private Material mat;
@@ -46,9 +47,14 @@ public class DemoEffectRun : DemoEffectBase
         groundRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("GroundBase", new Vector3(0, -1f, 1f), GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("RunnerGround")));
         groundRenderer.sortingOrder = -1000;
         groundRenderer.drawMode = SpriteDrawMode.Tiled;
-        groundRenderer.size = new Vector2(groundHalfWidth * 2f, 0.42f);
-        
+        groundRenderer.size = new Vector2(groundHalfWidth * 2f, 0.42f);        
         AddToGeneratedObjectsDict(groundRenderer.gameObject.name, groundRenderer.gameObject);
+
+        arrowsRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("Arrows", new Vector3(0, -1.1f, 1f), GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("ArrowLeft")));
+        arrowsRenderer.sortingOrder = 1000;
+        arrowsRenderer.drawMode = SpriteDrawMode.Tiled;
+        arrowsRenderer.size = new Vector2(groundHalfWidth * 2f, 0.21f);
+        AddToGeneratedObjectsDict(arrowsRenderer.gameObject.name, arrowsRenderer.gameObject);
 
         return base.Init();
     }
@@ -64,6 +70,8 @@ public class DemoEffectRun : DemoEffectBase
         runningManRenderer.gameObject.SetActive(true);
         runningManRendererClone.gameObject.SetActive(true);
         groundRenderer.gameObject.SetActive(true);
+        arrowsRenderer.gameObject.SetActive(true);
+
         groundStartPos = groundRenderer.transform.position = new Vector3(CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position).min.x, groundRenderer.transform.position.y, groundRenderer.transform.position.z);
         Debug.Log("CAM RECT:" + CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position));
         
