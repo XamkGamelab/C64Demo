@@ -20,9 +20,14 @@ public class DemoeffectTextScroller : DemoEffectBase
     private RectTransform txtRect;
     private RectTransform txtRectClone;
     private RectTransform headingRect;
+    
     private TMP_Text headingTxt;
     private TMP_Text txt;
     private TMP_Text txtClone;
+
+    //Sprites
+    private SpriteRenderer shipRenderer;
+
     public float scrollSpeed = 2000f;
     private float textWidth;
     private Vector3 startPosition;
@@ -34,12 +39,12 @@ public class DemoeffectTextScroller : DemoEffectBase
     private List<Image> gradientImages = new List<Image>();
     private int gradientBarHeight = 8;
     private int gradientBottomHeight = 32;
-    private Vector2 initOffset = new Vector2(0, 80f);
+    private Vector2 initOffset = new Vector2(0, 100f);
 
     //Starfield
     private List<Transform> stars = new List<Transform>();
-    private float starMoveSpeed = 120f;
-    private float starsDistance = 10f;
+    private float starMoveSpeed = 60f;
+    private float starsDistance = 1f;
 
     private bool loopScroller = true;
     
@@ -62,7 +67,7 @@ public class DemoeffectTextScroller : DemoEffectBase
         txtRect = ApplicationController.Instance.UI.CreateRectTransformObject("Text_scroller", new Vector2(UIController.GetCanvasSize().Value.x, 8), new Vector3(0, 24f, 0), Vector2.zero, Vector2.zero);
         txtRect.pivot = Vector2.zero;
         txt = TextFunctions.AddTextMeshProTextComponent(txtRect, "8-BIT_WONDER", 12, ApplicationController.Instance.C64PaletteArr[13]);
-        txt.text = " ( THIS IS SOME TEST TEXT ) ( YEAH! )";
+        txt.text = " ( SEE YOU ON THE OTHER SIDE! ) ( YEAH! )";
         textWidth = txtRect.sizeDelta.x;
         //txtRect.anchoredPosition3D += new Vector3(0, 16f, 0); 
         startPosition = txtRect.anchoredPosition3D;
@@ -75,7 +80,7 @@ public class DemoeffectTextScroller : DemoEffectBase
         AddToGeneratedObjectsDict(txtRect.gameObject.name, txtRect.gameObject);
 
         //Top heading text
-        headingRect = ApplicationController.Instance.UI.CreateRectTransformObject("Text_heading", new Vector2(60, 60), new Vector3(0, -16, 0), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f));
+        headingRect = ApplicationController.Instance.UI.CreateRectTransformObject("Text_heading", new Vector2(60, 60), new Vector3(0, 0, 0), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f));
         headingRect.pivot = new Vector2(0.5f, 1f);
         headingTxt = TextFunctions.AddTextMeshProTextComponent(headingRect, "04B_19", 40, ApplicationController.Instance.C64PaletteArr[1]);
         headingTxt.alignment = TextAlignmentOptions.Center;
@@ -87,6 +92,11 @@ public class DemoeffectTextScroller : DemoEffectBase
             ApplicationController.Instance.C64PaletteArr[0],
             ApplicationController.Instance.C64PaletteArr[0]);
         AddToGeneratedObjectsDict(headingRect.gameObject.name, headingRect.gameObject);
+
+        Rect camRect = CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position);
+        //Ship sprite        
+        shipRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("SpaceShip", new Vector3(camRect.xMin + .16f, camRect.center.y, 1f), GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("SpaceShipHorizontal")));        
+        AddToGeneratedObjectsDict(shipRenderer.gameObject.name, shipRenderer.gameObject);
 
         //Create star field
         InstantiateStarFieldSprites(30);
@@ -131,15 +141,17 @@ public class DemoeffectTextScroller : DemoEffectBase
         GameObject starsGO = new GameObject("stars");
         for (int i = 0; i < amount; i++)
         {
+            Rect camRect = CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position);
             GameObject go = new GameObject("star_" + i);
             go.transform.SetParent(starsGO.transform);
-            go.transform.position = new Vector3(UnityEngine.Random.Range(-12f, 12f), UnityEngine.Random.Range(-3f, 2f), starsDistance);
+            go.transform.position = new Vector3(UnityEngine.Random.Range(camRect.xMin, camRect.xMax), UnityEngine.Random.Range(camRect.yMin, camRect.yMax), starsDistance);
             SpriteRenderer spriteRenderer = go.AddComponent<SpriteRenderer>();
             Sprite s = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("white_32x32"));            
             spriteRenderer.sprite = s;
             spriteRenderer.color = ApplicationController.Instance.C64PaletteArr[UnityEngine.Random.Range(2, 5)];
             spriteRenderer.drawMode = SpriteDrawMode.Tiled;
-            spriteRenderer.size = new Vector2(0.08f, 0.04f);
+            spriteRenderer.size = new Vector2(0.02f, 0.01f);
+            spriteRenderer.sortingOrder = -1000 - i;
             stars.Add(go.transform);
             AddToGeneratedObjectsDict(go.name, go.gameObject);
         }
@@ -225,11 +237,12 @@ public class DemoeffectTextScroller : DemoEffectBase
             headingTxt.colorGradient = new VertexGradient(color1,color1, color2,color2);
 
             //Move stars
+            Rect camRect = CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position);
             stars.ForEach(star => 
             {
                 star.Translate(Vector2.left * (starMoveSpeed + UnityEngine.Random.Range(0f, starMoveSpeed)) * Time.deltaTime * star.GetComponent<SpriteRenderer>().color.r);
-                if (star.position.x < -12f)
-                    star.position = new Vector3(12f + UnityEngine.Random.Range(0f, 3f), star.position.y, starsDistance);
+                if (star.position.x < camRect.xMin)
+                    star.position = new Vector3(camRect.width + UnityEngine.Random.Range(0f, 3f), star.position.y, starsDistance);
             });
 
             yield return new WaitForSeconds(0.07f);
