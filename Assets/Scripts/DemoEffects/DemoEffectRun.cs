@@ -5,6 +5,7 @@ using UnityEngine;
 using UniRx;
 using System.Linq;
 using TMPro;
+using DG.Tweening;
 
 public class DemoEffectRun : DemoEffectBase
 {
@@ -34,8 +35,13 @@ public class DemoEffectRun : DemoEffectBase
     private float speedDecrement = 0.3f;
     private float speedIncrecrement = 0.05f;
 
+    private float rmTransformSpeed = 0f;
+    private float rmMaxTransformSpeed = .1f;
+
     private Vector3 groundStartPos;    
     private bool nextInputLeft = true;
+    private bool goalReached = false;
+
     private VertexGradient gradientLeft = new VertexGradient(ApplicationController.Instance.C64PaletteArr[6], ApplicationController.Instance.C64PaletteArr[0], ApplicationController.Instance.C64PaletteArr[9], ApplicationController.Instance.C64PaletteArr[0]);
     
     private List<Sprite> runningManSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("RunningManSheetPSD");
@@ -73,9 +79,9 @@ public class DemoEffectRun : DemoEffectBase
         txt.alignment = TextAlignmentOptions.MidlineRight;
         txt.enableVertexGradient = true;        
         txt.colorGradient = gradientLeft;
-        txt.text = "RIGHT LEFT RIGHT LEFT RIGHT SPEED: " + (int)(currentSpeedPercent * 100) + "%";
-                
+        txt.text = "RIGHT LEFT RIGHT LEFT RIGHT SPEED: " + (int)(currentSpeedPercent * 100) + "%";                
         AddToGeneratedObjectsDict(txtRect.gameObject.name, txtRect.gameObject);
+
         return base.Init();
     }
 
@@ -83,10 +89,10 @@ public class DemoEffectRun : DemoEffectBase
     {
         yield return base.Run(endDemoCallback);
 
+        goalReached = false;
         startTime = Time.time;
-
         currentSpeedPercent = minSpeedPercent = .1f;
-        
+
         Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[0];
         CameraFunctions.SetCameraSettings(Camera.main, ApplicationController.Instance.CameraSettings["orthoPixel"]);
 
@@ -107,10 +113,19 @@ public class DemoEffectRun : DemoEffectBase
         currentSpeedPercent = Mathf.Clamp(currentSpeedPercent - speedDecrement * Time.deltaTime, minSpeedPercent, 1f);
         float animDelay = Mathf.Lerp(0.01f, 0.1f, 1f - currentSpeedPercent);
         manSpriteAnimator.AnimationFrameDelay = animDelay;
+        runningManRendererClone.GetComponent<SimpleSpriteAnimator>().AnimationFrameDelay = animDelay;
 
         float s = (Mathf.Sin(Time.time * 2f) + 1) * .5f;
         quadRenderer.sharedMaterial.SetTextureOffset("_BaseMap", new Vector2(0f, s));
         quadRenderer.sharedMaterial.SetTextureOffset("_DetailAlbedoMap", new Vector2(0f, 1f-s));
+
+        if (currentSpeedPercent > .5f)
+        {
+            rmTransformSpeed = Mathf.Lerp(0.01f, rmMaxTransformSpeed, currentSpeedPercent);
+            runningManRenderer.gameObject.transform.Translate(Vector3.right * rmTransformSpeed * Time.deltaTime);
+            runningManRendererClone.gameObject.transform.Translate(Vector3.right * rmTransformSpeed * Time.deltaTime);
+            txtRect.gameObject.transform.Translate(Vector3.right * rmTransformSpeed * Time.deltaTime);
+        }
 
         //Scroll ground
         if (groundRenderer.transform.position.x < -groundHalfWidth + groundStartPos.x)
@@ -123,6 +138,17 @@ public class DemoEffectRun : DemoEffectBase
         txt.text = "RIGHT LEFT RIGHT LEFT RIGHT SPEED: " + ((int)(currentSpeedPercent * 100f)).ToString("000") + "%";
         TextFunctions.TextMeshEffect(txt, startTime, new TextEffectSettings { EffectType = TextEffectSettings.TextEffectType.SinCurve, SinCurveSpeed = 4f, SinCurveMagnitude = 8f, SinCurveScale = 0.05f });
 
+        if (!goalReached && runningManRenderer.gameObject.transform.position.x > CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position).max.x)
+        {
+            goalReached = true;
+            quad.transform.DOLocalMoveY(quadPos.y - 1f, .5f).SetEase(Ease.OutBounce);
+            ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[0], () =>
+            {
+                //End the demo by exiting last coroutine and calling base.End();
+                ExecuteInUpdate = false;
+                base.End();
+            }, null);
+        }
         base.DoUpdate();
     }
 
