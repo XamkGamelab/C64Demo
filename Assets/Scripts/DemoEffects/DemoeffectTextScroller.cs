@@ -98,7 +98,8 @@ public class DemoeffectTextScroller : DemoEffectBase
 
         Rect camRect = CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position);
         //Ship sprite        
-        shipRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("SpaceShip", new Vector3(camRect.xMin + .16f, camRect.center.y, 1f), GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("SpaceShipHorizontal")));        
+        shipRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("SpaceShip", new Vector3(camRect.xMin + .16f, camRect.center.y, 1f), GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("SpaceShipHorizontal")));
+        shipRenderer.sortingOrder = 100000;
         AddToGeneratedObjectsDict(shipRenderer.gameObject.name, shipRenderer.gameObject);
 
         //Create star field
@@ -145,22 +146,51 @@ public class DemoeffectTextScroller : DemoEffectBase
 
     private void MoveShip(Vector2 input)
     {
-        shipRenderer.transform.Translate(new Vector3(input.x * shipSpeed * Time.deltaTime, input.y * shipSpeed * Time.deltaTime, 0f));
+        //DOESN'T WORK CORRECTLY, FIX RECT!!
+
+        Vector3 nextPosition = shipRenderer.transform.position + new Vector3(input.x * shipSpeed * Time.deltaTime, input.y * shipSpeed * Time.deltaTime, 0f);
+        
+        Rect rect = CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position);
+        rect.center += new Vector2(0, rect.height * 0.2f);
+        rect.height *= 0.6f;
+
+        if (nextPosition.y < rect.yMin || nextPosition.y > rect.yMax)
+            nextPosition.y = shipRenderer.transform.position.y;
+
+        if (nextPosition.x < rect.xMin || nextPosition.x > rect.xMax)
+            nextPosition.x = shipRenderer.transform.position.x;
+
+        shipRenderer.transform.position = nextPosition;
+
+        Debug.DrawLine(new Vector3(rect.xMin, rect.yMax, 1f), new Vector3(rect.xMax, rect.yMax, 1f), Color.green);
+        Debug.DrawLine(new Vector3(rect.xMin, rect.yMin, 1f), new Vector3(rect.xMax, rect.yMin, 1f), Color.red);
+        
     }
 
     private void HandleFireInput(bool b)
     {
         if (!FirePressed && b)
         {
+            InstantiateLaserShot(shipRenderer.transform.position);
+            /*
             ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[0], () =>
             {
                 //End the demo by exiting last coroutine and calling base.End();
                 loopScroller = false;
                 base.End();
             }, null);
+            */
         }
         FirePressed = b;
     }
+
+    private void InstantiateLaserShot(Vector3 pos)
+    {
+        SpriteRenderer laserRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("Laser", pos, GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("LaserGreen")));
+        GenericBullet bullet = laserRenderer.AddComponent<GenericBullet>().Init(new Vector2(4f, 0), true);
+    }
+
+
 
     private void InstantiateStarFieldSprites(int amount)
     {

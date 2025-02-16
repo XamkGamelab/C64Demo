@@ -18,12 +18,7 @@ public static class CameraFunctions
         //Is min/max points both within camera viewport
         return cameraRect.Contains(_bounds.min) || cameraRect.Contains(_bounds.max);
     }
-    /**
-    * Check if position is within camera's viewport.
-    * @param cam Camera to check.    
-    * @param nextCameraPosition Camera's position in next frame.
-    * @param point Vector2 point to check.
-    */
+
     public static bool IsPointWithinViewport(Camera cam, Vector3 nextCameraPosition, Vector2 point)
     {
         Rect cameraRect = GetCameraRect(cam, nextCameraPosition);
@@ -32,12 +27,12 @@ public static class CameraFunctions
         return cameraRect.Contains(point);
     }
 
-    /**
-    * Check if renderer bounds are within camera's viewport
-    * @param cam Camera to check.    
-    * @param nextCameraPosition Camera's position in next frame.
-    * @param rendererBounds Renderer bounds to check.
-    */
+    public static bool IsPointWithinRect(Rect rect, Vector2 point)
+    {
+        //Is point within rect
+        return rect.Contains(point);
+    }
+
     public static bool IsRendererBoundsWithinViewport(Camera cam, Vector3 nextCameraPosition, Bounds rendererBounds)
     {
         Rect cameraRect = GetCameraRect(cam, nextCameraPosition);
@@ -47,11 +42,14 @@ public static class CameraFunctions
             return false;
     }
 
-    /**
-    * Return given camera's orthographicSize as Rect
-    * @param cam Camera to use.    
-    * @param nextCameraPosition Rect's center is camera's position in next frame.
-    */
+    public static bool IsRendererBoundsWithinRect(Rect rect, Bounds rendererBounds)
+    {
+        if (rect.Contains(rendererBounds.min) || rect.Contains(rendererBounds.max))
+            return true;
+        else
+            return false;
+    }
+
     public static Rect GetCameraRect(Camera cam, Vector3 nextCameraPosition)
     {
         Rect cameraRect = new Rect(nextCameraPosition, new Vector2(cam.orthographicSize * 2f * cam.aspect, cam.orthographicSize * 2f));
