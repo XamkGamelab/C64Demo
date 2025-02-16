@@ -45,8 +45,11 @@ public class DemoeffectTextScroller : DemoEffectBase
     private List<Transform> stars = new List<Transform>();
     private float starMoveSpeed = 60f;
     private float starsDistance = 1f;
-
     private bool loopScroller = true;
+
+    //Gameplay
+    private Vector2 moveInput = Vector2.zero;
+    private float shipSpeed = 2f;
     
     public override DemoEffectBase Init()
     {
@@ -64,10 +67,10 @@ public class DemoeffectTextScroller : DemoEffectBase
         AddToGeneratedObjectsDict(bottomGradientRect.gameObject.name, bottomGradientRect.gameObject);
 
         //Bottom scrolling text and it's clone
-        txtRect = ApplicationController.Instance.UI.CreateRectTransformObject("Text_scroller", new Vector2(UIController.GetCanvasSize().Value.x, 8), new Vector3(0, 24f, 0), Vector2.zero, Vector2.zero);
+        txtRect = ApplicationController.Instance.UI.CreateRectTransformObject("Text_scroller", new Vector2(320f, 8), new Vector3(0, 24f, 0), Vector2.zero, Vector2.zero);
         txtRect.pivot = Vector2.zero;
         txt = TextFunctions.AddTextMeshProTextComponent(txtRect, "8-BIT_WONDER", 12, ApplicationController.Instance.C64PaletteArr[13]);
-        txt.text = " ( SEE YOU ON THE OTHER SIDE! ) ( YEAH! )";
+        txt.text = " ( SEE YOU ON THE OTHER SIDE )";        
         textWidth = txtRect.sizeDelta.x;
         //txtRect.anchoredPosition3D += new Vector3(0, 16f, 0); 
         startPosition = txtRect.anchoredPosition3D;
@@ -110,8 +113,14 @@ public class DemoeffectTextScroller : DemoEffectBase
 
         loopScroller = true;
 
+        moveInput = Vector2.zero;
+
+        ExecuteInUpdate = true;
+
         //Subscribe to input
         InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
+        InputController.Instance.Horizontal.Subscribe(f => moveInput.x = f).AddTo(Disposables);
+        InputController.Instance.Vertical.Subscribe(f => moveInput.y = f).AddTo(Disposables);
 
         Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[0];
         
@@ -120,6 +129,23 @@ public class DemoeffectTextScroller : DemoEffectBase
 
         AudioController.Instance.PlayTrack("Track2", 1f, 4f);
         yield return AnimateSpriteScroll();        
+    }
+
+    public override void DoUpdate()
+    {
+        MoveShip(moveInput);
+        base.DoUpdate();
+    }
+
+    public override void End(bool dispose = true)
+    {
+        moveInput = Vector2.zero;
+        base.End(dispose);
+    }
+
+    private void MoveShip(Vector2 input)
+    {
+        shipRenderer.transform.Translate(new Vector3(input.x * shipSpeed * Time.deltaTime, input.y * shipSpeed * Time.deltaTime, 0f));
     }
 
     private void HandleFireInput(bool b)
