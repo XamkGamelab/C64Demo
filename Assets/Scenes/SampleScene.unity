@@ -293,8 +293,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 76, y: 7}
-  m_SizeDelta: {x: 360, y: 40}
+  m_AnchoredPosition: {x: -87.8, y: 108.600006}
+  m_SizeDelta: {x: 8, y: 40}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &319024422
 MonoBehaviour:
@@ -316,7 +316,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 10%rt
+  m_text: 10%rtyhgffghfghf
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0f43a4fd86c2ea74284fd38a1f0f2d83, type: 2}
   m_sharedMaterial: {fileID: 3320820496152271372, guid: 0f43a4fd86c2ea74284fd38a1f0f2d83,
@@ -328,7 +328,7 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 4294967295
   m_fontColor: {r: 1, g: 1, b: 1, a: 1}
-  m_enableVertexGradient: 1
+  m_enableVertexGradient: 0
   m_colorMode: 1
   m_fontColorGradient:
     topLeft: {r: 0, g: 0, b: 0, a: 1}
@@ -344,8 +344,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 45
-  m_fontSizeBase: 45
+  m_fontSize: 8
+  m_fontSizeBase: 8
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -356,7 +356,7 @@ MonoBehaviour:
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
-  m_lineSpacing: 0
+  m_lineSpacing: 8
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
@@ -912,7 +912,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &914840587
 RectTransform:
   m_ObjectHideFlags: 0
