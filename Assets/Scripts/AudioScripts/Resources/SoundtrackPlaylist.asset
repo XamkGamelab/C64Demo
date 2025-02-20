@@ -19,3 +19,5 @@ MonoBehaviour:
     MusicClip: {fileID: 8300000, guid: 889bab2e3c91f58478e73dea4179432e, type: 3}
   - Name: Track2
     MusicClip: {fileID: 8300000, guid: 42bb6be5f7a68d544a9562f8cba34a77, type: 3}
+  - Name: Jing3
+    MusicClip: {fileID: 8300000, guid: 6e1c1e1df8903f1418941460bf38a931, type: 3}

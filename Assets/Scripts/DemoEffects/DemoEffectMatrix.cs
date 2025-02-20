@@ -2,20 +2,36 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
 using System.Linq;
+using Unity.VisualScripting;
+using DG.Tweening;
 public class DemoEffectMatrix : DemoEffectBase
 {
     private TMP_Text txt;
     private List<MatrixText> matrixTexts = new List<MatrixText>();
-    
+
+    private Image handRed;
+    private Image handBlue;
+
     private const float characterSize = 8;
     public override DemoEffectBase Init()
     {
         float steps = UIController.GetCanvasSize().Value.x / characterSize * 2f;
         for (int i = 0; i < steps; i++)
             matrixTexts.Add(new MatrixText { TmpText = InstantiateMatrixText("MatrixText_" + i, i * characterSize * 2 - UIController.GetCanvasSize().Value.x * .5f), Speed = UnityEngine.Random.Range(1, 4), Letters = UnityEngine.Random.Range(16, 24) });
+
+        RectTransform rectHandRed = ApplicationController.Instance.UI.CreateRectTransformObject("Hand_red", new Vector2(128, 128), new Vector3(-100f, 0, 0), Vector2.one * .5f, Vector2.one * .5f);
+        handRed = rectHandRed.AddComponent<Image>();
+        handRed.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("Images/HandRedPill"));
+        AddToGeneratedObjectsDict(rectHandRed.gameObject.name, rectHandRed.gameObject);
+
+        RectTransform rectHandBlue = ApplicationController.Instance.UI.CreateRectTransformObject("Hand_blue", new Vector2(128, 128), new Vector3(100f, 0, 0), Vector2.one * .5f, Vector2.one * .5f);
+        handBlue = rectHandBlue.AddComponent<Image>();
+        handBlue.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("Images/HandBluePill"));
+        AddToGeneratedObjectsDict(rectHandBlue.gameObject.name, rectHandBlue.gameObject);
 
         return base.Init();
     }
@@ -28,9 +44,27 @@ public class DemoEffectMatrix : DemoEffectBase
 
         Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[0];
 
+        AudioController.Instance.PlayTrack("Jing3");
+
+        yield return new WaitForSeconds(4f);
+
+        handRed.color = new Color(1f, 1f, 1f, 0f);
+        handBlue.color = new Color(1f, 1f, 1f, 0f);
+
+        handRed.gameObject.SetActive(true);
+        handBlue.gameObject.SetActive(true);
+
+        handRed.DOFade(1f, 2f).SetDelay(1f);
+        handBlue.DOFade(1f, 2f).SetDelay(3f).OnComplete(() => 
+        {
+            handBlue.DOFade(0f, 2f);
+            handRed.rectTransform.DOLocalMove(new Vector3(-75f, -50f, 0), 4f, true);
+            handRed.DOFade(0, 2f).SetDelay(6f);
+        });
+
+        yield return new WaitForSeconds(12f);
         //Enable all generated objects        
         GeneratedObjectsSetActive(true);
-
         yield return AnimateMatrixTexts();
     }
 
