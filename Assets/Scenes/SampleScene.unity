@@ -316,7 +316,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 10%rtyhgffghfghf
+  m_text: sdfdfsdfsdfsfsf
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0f43a4fd86c2ea74284fd38a1f0f2d83, type: 2}
   m_sharedMaterial: {fileID: 3320820496152271372, guid: 0f43a4fd86c2ea74284fd38a1f0f2d83,
@@ -352,7 +352,7 @@ MonoBehaviour:
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_VerticalAlignment: 1024
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
