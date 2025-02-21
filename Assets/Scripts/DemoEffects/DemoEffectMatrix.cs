@@ -19,9 +19,16 @@ public class DemoEffectMatrix : DemoEffectBase
     private const float characterSize = 8;
     public override DemoEffectBase Init()
     {
-        float steps = UIController.GetCanvasSize().Value.x / characterSize * 2f;
+        float steps = UIController.GetCanvasSize().Value.x / characterSize / 2f;
         for (int i = 0; i < steps; i++)
-            matrixTexts.Add(new MatrixText { TmpText = InstantiateMatrixText("MatrixText_" + i, i * characterSize * 2 - UIController.GetCanvasSize().Value.x * .5f), Speed = UnityEngine.Random.Range(1, 4), Letters = UnityEngine.Random.Range(16, 24) });
+            matrixTexts.Add(new MatrixText { TmpText = InstantiateMatrixText("MatrixText_" + i, i * characterSize * 2 - UIController.GetCanvasSize().Value.x * .5f), Speed = UnityEngine.Random.Range(1, 4), Letters = UnityEngine.Random.Range(20, 30) });
+
+        //One random text is collectable and slow
+        var rmt = matrixTexts[UnityEngine.Random.Range(0, matrixTexts.Count)];
+        rmt.Collectable = true;
+        rmt.Letters = 30;
+        rmt.Speed = 1;
+        
 
         RectTransform rectHandRed = ApplicationController.Instance.UI.CreateRectTransformObject("Hand_red", new Vector2(128, 128), new Vector3(-100f, 0, 0), Vector2.one * .5f, Vector2.one * .5f);
         handRed = rectHandRed.AddComponent<Image>();
@@ -46,6 +53,7 @@ public class DemoEffectMatrix : DemoEffectBase
 
         AudioController.Instance.PlayTrack("Jing3");
 
+        /*
         yield return new WaitForSeconds(4f);
 
         handRed.color = new Color(1f, 1f, 1f, 0f);
@@ -63,8 +71,16 @@ public class DemoEffectMatrix : DemoEffectBase
         });
 
         yield return new WaitForSeconds(12f);
+        */
+
+        
+
         //Enable all generated objects        
         GeneratedObjectsSetActive(true);
+
+        handBlue.gameObject.SetActive(false);
+        handRed.gameObject.SetActive(false);
+
         yield return AnimateMatrixTexts();
     }
 
@@ -93,14 +109,24 @@ public class DemoEffectMatrix : DemoEffectBase
                 {
                     mt.Shorten = true;
                     
+                    
                     if (counter % 2 == 0)
-                    mtString = mtString.Substring(1);
-                    mtString = mtString.Remove(mtString.Length - 1, 1) + (char)UnityEngine.Random.Range(32, 90);
+                        mtString = mtString.Substring(1);
+
+                    char addChar = mt.Collectable ? 'E' : (char)UnityEngine.Random.Range(32, 90);
+                    mtString = mtString.Remove(mtString.Length - 1, 1) + addChar;
                     mt.TmpText.transform.localPosition += new Vector3(0, -mt.Speed * characterSize, 0);
                 }
                 else
                 {
                     //RESET POSITION BACK AND SHORTEN TO FALSE!!!
+
+                    /*
+                     * Okay, here's what we have to do... at this point some other text must assigned to be the 
+                     * collectable, but that would also have to be invisible. Other option is to set new random
+                     * position, but that has issue of overlapping with other text. FIGURE THIS OUT!
+                     */ 
+
                     mt.TmpText.transform.localPosition = new Vector3(mt.TmpText.transform.localPosition.x, UIController.GetCanvasSize().Value.y, mt.TmpText.transform.localPosition.z);                    
                     mt.TmpText.text = "";
                     mt.Shorten = false;
@@ -108,19 +134,24 @@ public class DemoEffectMatrix : DemoEffectBase
 
                 mt.TmpText.text = mtString;
 
-                //Colorize
-                TextFunctions.TmpTextColor(mt.TmpText, mtString.Length - 1, ApplicationController.Instance.C64PaletteArr[11], ApplicationController.Instance.C64PaletteArr[10]);
+                //Default green color combo
+                (Color dark, Color light) colorCombo = (ApplicationController.Instance.C64PaletteArr[11], ApplicationController.Instance.C64PaletteArr[10]);                
+                
+                if (mt.Collectable) //collectable flickers white/yellow
+                    colorCombo = (ApplicationController.Instance.C64PaletteArr[10], counter % 2 == 0 ? ApplicationController.Instance.C64PaletteArr[1] : ApplicationController.Instance.C64PaletteArr[9]);
+
+                TextFunctions.TmpTextColor(mt.TmpText, mtString.Length - 1, colorCombo.dark, colorCombo.light);
 
             }
 
             counter++;
-            yield return new WaitForSeconds(.08f);
+            yield return new WaitForSeconds(.1f);
         }
     }
 
     private TMP_Text InstantiateMatrixText(string goName, float xpos)
     {
-        RectTransform txtRect = ApplicationController.Instance.UI.CreateRectTransformObject(goName, new Vector2(characterSize, characterSize), new Vector3(xpos, UIController.GetCanvasSize().Value.y + UnityEngine.Random.Range(0,32)* characterSize, 0), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f));
+        RectTransform txtRect = ApplicationController.Instance.UI.CreateRectTransformObject(goName, new Vector2(characterSize, characterSize), new Vector3(xpos, UIController.GetCanvasSize().Value.y + UnityEngine.Random.Range(0,40)* characterSize, 0), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f));
         txtRect.pivot = new Vector2(0.5f, 0f);
         txt = TextFunctions.AddTextMeshProTextComponent(txtRect, "C64_Pro_Mono-STYLE", (int)characterSize, ApplicationController.Instance.C64PaletteArr[1]);
         txt.alignment = TextAlignmentOptions.Top;
@@ -134,6 +165,7 @@ public class DemoEffectMatrix : DemoEffectBase
 public class MatrixText
 {
     public bool Shorten;
+    public bool Collectable;
     public int Speed;
     public int Letters;
     public TMP_Text TmpText;
