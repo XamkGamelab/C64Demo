@@ -7,7 +7,8 @@ using TMPro;
 using DG.Tweening;
 using System.Linq;
 using Unity.VisualScripting;
-using DG.Tweening;
+using UniRx;
+
 public class DemoEffectMatrix : DemoEffectBase
 {
     private TMP_Text txt;
@@ -15,8 +16,17 @@ public class DemoEffectMatrix : DemoEffectBase
 
     private Image handRed;
     private Image handBlue;
+    private Image catcherHand;
+
+    RectTransform rectCatcher;
+
+    //Gameplay
+    private Vector2 moveInput = Vector2.zero;
+    private float handSpeed = 120f;
 
     private const float characterSize = 8;
+
+
     public override DemoEffectBase Init()
     {
         float steps = UIController.GetCanvasSize().Value.x / characterSize / 2f;
@@ -39,6 +49,12 @@ public class DemoEffectMatrix : DemoEffectBase
         handBlue = rectHandBlue.AddComponent<Image>();
         handBlue.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("Images/HandBluePill"));
         AddToGeneratedObjectsDict(rectHandBlue.gameObject.name, rectHandBlue.gameObject);
+
+        
+        rectCatcher = ApplicationController.Instance.UI.CreateRectTransformObject("CatchingHand2", new Vector2(24, 21), new Vector3(0, -UIController.GetCanvasSize().Value.y*0.5f + 8f, 0), Vector2.one * .5f, Vector2.one * .5f);
+        catcherHand = rectCatcher.AddComponent<Image>();
+        catcherHand.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("CatchingHand"));
+        AddToGeneratedObjectsDict(rectCatcher.gameObject.name, rectCatcher.gameObject);
 
         return base.Init();
     }
@@ -81,12 +97,47 @@ public class DemoEffectMatrix : DemoEffectBase
         handBlue.gameObject.SetActive(false);
         handRed.gameObject.SetActive(false);
 
+        //Subscribe to input        
+        InputController.Instance.Horizontal.Subscribe(f => moveInput.x = f).AddTo(Disposables);
+        
+
         yield return AnimateMatrixTexts();
     }
 
     public override void DoUpdate()
     {
+        MoveHand(moveInput);
         base.DoUpdate();
+    }
+
+    public override void End(bool dispose = true)
+    {
+        moveInput = Vector2.zero;
+        base.End(dispose);
+    }
+
+    private void MoveHand(Vector2 input)
+    {
+        Vector3 nextPosition = rectCatcher.anchoredPosition3D + new Vector3(input.x * handSpeed * Time.deltaTime, input.y * handSpeed * Time.deltaTime, 0f);
+
+        //THESE NEED TO BE UI CANVAS BOUNDS
+        /*
+        Rect rect = CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position);        
+        rect.height *= 0.6f;
+
+        if (nextPosition.x < rect.xMin || nextPosition.x > rect.xMax)
+            nextPosition.x = catcherRenderer.transform.position.x;
+        */
+        rectCatcher.anchoredPosition3D = nextPosition;
+
+        /*
+         * - Okay, and this is how this shit is going to go down. Now we need be sure
+         * - that both text and cather anchoredPositions match (or offset in rect).
+         * - Then we can simply do rect overlaps: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Rect.Overlaps.html
+         * - This shoud be working way to check for collisions, but the rects just need to pivoted correctly!!!
+         * 
+         */
+
     }
 
     private IEnumerator AnimateMatrixTexts()
@@ -97,6 +148,13 @@ public class DemoEffectMatrix : DemoEffectBase
 
             foreach (MatrixText mt in matrixTexts)
             {
+                /*
+                if (mt.Collectable)
+                {
+                    Rect rect = TextFunctions.GetTextMeshCharacterWorldBounds(mt.TmpText, mt.TmpText.text.Length - 1);
+                    Debug.Log("TEXT LENGH: " + mt.TmpText.text.Length);
+                }
+                */
 
                 string mtString = mt.TmpText.text;
                 
@@ -121,12 +179,6 @@ public class DemoEffectMatrix : DemoEffectBase
                 {
                     //RESET POSITION BACK AND SHORTEN TO FALSE!!!
 
-                    /*
-                     * Okay, here's what we have to do... at this point some other text must assigned to be the 
-                     * collectable, but that would also have to be invisible. Other option is to set new random
-                     * position, but that has issue of overlapping with other text. FIGURE THIS OUT!
-                     */ 
-
                     mt.TmpText.transform.localPosition = new Vector3(mt.TmpText.transform.localPosition.x, UIController.GetCanvasSize().Value.y, mt.TmpText.transform.localPosition.z);                    
                     mt.TmpText.text = "";
                     mt.Shorten = false;
@@ -135,10 +187,19 @@ public class DemoEffectMatrix : DemoEffectBase
                 mt.TmpText.text = mtString;
 
                 //Default green color combo
-                (Color dark, Color light) colorCombo = (ApplicationController.Instance.C64PaletteArr[11], ApplicationController.Instance.C64PaletteArr[10]);                
-                
-                if (mt.Collectable) //collectable flickers white/yellow
+                (Color dark, Color light) colorCombo = (ApplicationController.Instance.C64PaletteArr[11], ApplicationController.Instance.C64PaletteArr[10]);
+
+                if (mt.Collectable)
+                { 
+                    //collectable flickers white/yellow
                     colorCombo = (ApplicationController.Instance.C64PaletteArr[10], counter % 2 == 0 ? ApplicationController.Instance.C64PaletteArr[1] : ApplicationController.Instance.C64PaletteArr[9]);
+                    Rect rect = TextFunctions.GetTextMeshLastCharacterLocalBounds(mt.TmpText);
+                    
+                    rect.position = mt.TmpText.transform.localPosition;
+                    //Debug.DrawLine(new Vector3(rect.xMin, rect.yMin, 0), new Vector3(rect.xMax, rect.yMin, 0), Color.cyan, 1f);
+                    Debug.Log("RECT: " + rect);
+                    // ^ and this needs to in scope of MoveHand function, so that we can check the collision there!
+                }
 
                 TextFunctions.TmpTextColor(mt.TmpText, mtString.Length - 1, colorCombo.dark, colorCombo.light);
 

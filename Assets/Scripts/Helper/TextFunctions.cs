@@ -51,6 +51,28 @@ public static class TextFunctions
         UpdateTextMeshGeom(textComponent, textInfo);        
     }
 
+    public static Rect GetTextMeshLastCharacterLocalBounds(TMP_Text textComponent)
+    {
+        TMP_Text tmp;
+        TMP_TextInfo tmpInfo;
+
+        tmpInfo = textComponent.textInfo;
+        textComponent.ForceMeshUpdate();
+
+        Rect characterRect = new Rect();
+
+        if (tmpInfo.characterCount > 1)
+        {
+            TMP_CharacterInfo cInfo = tmpInfo.characterInfo[tmpInfo.characterCount - 1];
+            //Debug.Log(">>> cur char: " + cInfo.character.ToString() + " vertex index: " + cInfo.vertexIndex + " vertex br: " + cInfo.vertex_BR.position);
+            characterRect.min = cInfo.vertex_TL.position;
+            characterRect.max = cInfo.vertex_BR.position;
+        }
+
+        return characterRect;
+    }
+
+
     public static void UpdateTextMeshGeom(TMP_Text textComp, TMP_TextInfo textInfo)
     {
         for (int i = 0; i < textInfo.meshInfo.Length; ++i)
