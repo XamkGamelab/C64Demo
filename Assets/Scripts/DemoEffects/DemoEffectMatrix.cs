@@ -8,6 +8,7 @@ using DG.Tweening;
 using System.Linq;
 using Unity.VisualScripting;
 using UniRx;
+using System.Threading.Tasks;
 
 public class DemoEffectMatrix : DemoEffectBase
 {
@@ -23,12 +24,22 @@ public class DemoEffectMatrix : DemoEffectBase
     //Gameplay
     private Vector2 moveInput = Vector2.zero;
     private float handSpeed = 120f;
+    private Rect collectableCharacterRect;
+    private Queue<char> collectTextQueue = new Queue<char>();
+    private char currentCollectChar;
+    private bool collectOnCoolDown = false;
 
     private const float characterSize = 8;
-
+    private const string collectText = "ENTERTHEMATRIX";
 
     public override DemoEffectBase Init()
     {
+        //Enqueue the text to be collected and init first character
+        char[] charArray = collectText.ToCharArray();        
+        for (int i = 0; i < charArray.Length; i++)
+            collectTextQueue.Enqueue(charArray[i]);
+        currentCollectChar = collectTextQueue.Dequeue();
+        
         float steps = UIController.GetCanvasSize().Value.x / characterSize / 2f;
         for (int i = 0; i < steps; i++)
             matrixTexts.Add(new MatrixText { TmpText = InstantiateMatrixText("MatrixText_" + i, i * characterSize * 2 - UIController.GetCanvasSize().Value.x * .5f), Speed = UnityEngine.Random.Range(1, 4), Letters = UnityEngine.Random.Range(20, 30) });
@@ -39,7 +50,6 @@ public class DemoEffectMatrix : DemoEffectBase
         rmt.Letters = 30;
         rmt.Speed = 1;
         
-
         RectTransform rectHandRed = ApplicationController.Instance.UI.CreateRectTransformObject("Hand_red", new Vector2(128, 128), new Vector3(-100f, 0, 0), Vector2.one * .5f, Vector2.one * .5f);
         handRed = rectHandRed.AddComponent<Image>();
         handRed.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("Images/HandRedPill"));
@@ -51,7 +61,8 @@ public class DemoEffectMatrix : DemoEffectBase
         AddToGeneratedObjectsDict(rectHandBlue.gameObject.name, rectHandBlue.gameObject);
 
         
-        rectCatcher = ApplicationController.Instance.UI.CreateRectTransformObject("CatchingHand2", new Vector2(24, 21), new Vector3(0, -UIController.GetCanvasSize().Value.y*0.5f + 8f, 0), Vector2.one * .5f, Vector2.one * .5f);
+        rectCatcher = ApplicationController.Instance.UI.CreateRectTransformObject("CatchingHand2", new Vector2(24, 21), new Vector3(0, 0, 0), new Vector2(0.5f, 0), new Vector2(0.5f, 0));
+        rectCatcher.pivot = new Vector2(0.5f, 0f);
         catcherHand = rectCatcher.AddComponent<Image>();
         catcherHand.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("CatchingHand"));
         AddToGeneratedObjectsDict(rectCatcher.gameObject.name, rectCatcher.gameObject);
@@ -130,14 +141,24 @@ public class DemoEffectMatrix : DemoEffectBase
         */
         rectCatcher.anchoredPosition3D = nextPosition;
 
-        /*
-         * - Okay, and this is how this shit is going to go down. Now we need be sure
-         * - that both text and cather anchoredPositions match (or offset in rect).
-         * - Then we can simply do rect overlaps: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Rect.Overlaps.html
-         * - This shoud be working way to check for collisions, but the rects just need to pivoted correctly!!!
-         * 
-         */
-
+        Rect rect = rectCatcher.rect;
+        rect.position = rectCatcher.anchoredPosition3D;
+        
+        if (rect.Overlaps(collectableCharacterRect) && !collectOnCoolDown)
+        {
+            if (collectTextQueue.Count > 0)
+            {
+                Debug.Log("COLLECTED CHAR: " + currentCollectChar);
+                ResetTextFallPosition(matrixTexts.Where(mt => mt.Collectable).First());
+                currentCollectChar = collectTextQueue.Dequeue();
+                collectOnCoolDown = true;
+                Task.Delay(1000).ContinueWith(_ => collectOnCoolDown = false);
+            }
+            else
+            {
+                Debug.Log("ALL CHARACTERS ARE NOW COLLECTED, END OF DEMO!");
+            }
+        }
     }
 
     private IEnumerator AnimateMatrixTexts()
@@ -145,19 +166,9 @@ public class DemoEffectMatrix : DemoEffectBase
         int counter = 0;
         while(true)
         {
-
             foreach (MatrixText mt in matrixTexts)
             {
-                /*
-                if (mt.Collectable)
-                {
-                    Rect rect = TextFunctions.GetTextMeshCharacterWorldBounds(mt.TmpText, mt.TmpText.text.Length - 1);
-                    Debug.Log("TEXT LENGH: " + mt.TmpText.text.Length);
-                }
-                */
-
                 string mtString = mt.TmpText.text;
-                
 
                 if (mtString.Length < mt.Letters && mt.Shorten == false)
                 {
@@ -166,23 +177,16 @@ public class DemoEffectMatrix : DemoEffectBase
                 else if (mtString.Length > 1)
                 {
                     mt.Shorten = true;
-                    
-                    
+
                     if (counter % 2 == 0)
                         mtString = mtString.Substring(1);
 
-                    char addChar = mt.Collectable ? 'E' : (char)UnityEngine.Random.Range(32, 90);
+                    char addChar = mt.Collectable ? currentCollectChar : (char)UnityEngine.Random.Range(32, 90);
                     mtString = mtString.Remove(mtString.Length - 1, 1) + addChar;
                     mt.TmpText.transform.localPosition += new Vector3(0, -mt.Speed * characterSize, 0);
                 }
                 else
-                {
-                    //RESET POSITION BACK AND SHORTEN TO FALSE!!!
-
-                    mt.TmpText.transform.localPosition = new Vector3(mt.TmpText.transform.localPosition.x, UIController.GetCanvasSize().Value.y, mt.TmpText.transform.localPosition.z);                    
-                    mt.TmpText.text = "";
-                    mt.Shorten = false;
-                }
+                    ResetTextFallPosition(mt);
 
                 mt.TmpText.text = mtString;
 
@@ -191,23 +195,29 @@ public class DemoEffectMatrix : DemoEffectBase
 
                 if (mt.Collectable)
                 { 
-                    //collectable flickers white/yellow
+                    //Collectable character flickers white/yellow
                     colorCombo = (ApplicationController.Instance.C64PaletteArr[10], counter % 2 == 0 ? ApplicationController.Instance.C64PaletteArr[1] : ApplicationController.Instance.C64PaletteArr[9]);
-                    Rect rect = TextFunctions.GetTextMeshLastCharacterLocalBounds(mt.TmpText);
                     
-                    rect.position = mt.TmpText.transform.localPosition;
-                    //Debug.DrawLine(new Vector3(rect.xMin, rect.yMin, 0), new Vector3(rect.xMax, rect.yMin, 0), Color.cyan, 1f);
-                    Debug.Log("RECT: " + rect);
-                    // ^ and this needs to in scope of MoveHand function, so that we can check the collision there!
+                    //Collectable character collision rect
+                    collectableCharacterRect = TextFunctions.GetTextMeshLastCharacterLocalBounds(mt.TmpText);
+                    
+                    float offset = collectableCharacterRect.y + collectableCharacterRect.height;
+                    collectableCharacterRect.position = new Vector2( mt.TmpText.transform.localPosition.x, mt.TmpText.rectTransform.anchoredPosition3D.y + offset);                    
                 }
 
                 TextFunctions.TmpTextColor(mt.TmpText, mtString.Length - 1, colorCombo.dark, colorCombo.light);
-
             }
 
             counter++;
             yield return new WaitForSeconds(.1f);
         }
+    }
+
+    private void ResetTextFallPosition(MatrixText matrixText)
+    {
+        matrixText.TmpText.transform.localPosition = new Vector3(matrixText.TmpText.transform.localPosition.x, UIController.GetCanvasSize().Value.y, matrixText.TmpText.transform.localPosition.z);
+        matrixText.TmpText.text = "";
+        matrixText.Shorten = false;
     }
 
     private TMP_Text InstantiateMatrixText(string goName, float xpos)
