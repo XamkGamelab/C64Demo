@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using UniRx;
 using DG.Tweening;
 using System;
+using System.Globalization;
 
 public static class TextFunctions
 {
@@ -15,7 +16,7 @@ public static class TextFunctions
     public static void TextMeshEffect(TMP_Text textComponent, float startTime, TextEffectSettings textEffectSettings /*Vector3 explosionPoint, float explosionSpeed*/)
     {
         textComponent.ForceMeshUpdate();
-        var textInfo = textComponent.textInfo;
+        TMP_TextInfo textInfo = textComponent.textInfo;
 
         for (int i = 0; i < textInfo.characterCount; ++i)
         {
@@ -50,13 +51,37 @@ public static class TextFunctions
         UpdateTextMeshGeom(textComponent, textInfo);        
     }
 
+    public static Rect GetTextMeshLastCharacterLocalBounds(TMP_Text textComponent)
+    {
+        TMP_Text tmp;
+        TMP_TextInfo tmpInfo;
+
+        tmpInfo = textComponent.textInfo;
+        textComponent.ForceMeshUpdate();
+
+        Rect characterRect = new Rect();
+
+        if (tmpInfo.characterCount > 1)
+        {
+            TMP_CharacterInfo cInfo = tmpInfo.characterInfo[tmpInfo.characterCount - 1];
+            //Debug.Log(">>> cur char: " + cInfo.character.ToString() + " vertex index: " + cInfo.vertexIndex + " vertex br: " + cInfo.vertex_BR.position);
+            characterRect.min = cInfo.vertex_TL.position;
+            characterRect.max = cInfo.vertex_BR.position;
+        }
+
+        return characterRect;
+    }
+
+
     public static void UpdateTextMeshGeom(TMP_Text textComp, TMP_TextInfo textInfo)
     {
         for (int i = 0; i < textInfo.meshInfo.Length; ++i)
         {
             TMP_MeshInfo meshInfo = textInfo.meshInfo[i];
             meshInfo.mesh.vertices = textInfo.meshInfo[i].vertices;
+            textComp.UpdateVertexData(TMP_VertexDataUpdateFlags.All);
             textComp.UpdateGeometry(meshInfo.mesh, i);
+            
         }
     }        
 
@@ -67,6 +92,32 @@ public static class TextFunctions
         txt.fontSize = fontSize;
         txt.color = color;
         return txt;
+    }
+
+    public static void TmpTextColor(TMP_Text textComponent, int secondColorStartIndex, Color color1, Color color2)
+    {
+        //This is important, or the text will flicker because of internal stupidity of TextMesh "Pro"
+        textComponent.ForceMeshUpdate();
+
+        TMP_TextInfo textInfo = textComponent.textInfo;
+
+        for (int i = 0; i < textComponent.textInfo.characterCount; ++i)
+        {
+            //Ignore invisible characters
+            TMP_CharacterInfo charInfo = textInfo.characterInfo[i];
+            if (!charInfo.isVisible)
+                continue;
+
+            int meshIndex = textComponent.textInfo.characterInfo[i].materialReferenceIndex;
+            int vertexIndex = textComponent.textInfo.characterInfo[i].vertexIndex;
+            Color32[] vertexColors = textComponent.textInfo.meshInfo[meshIndex].colors32;
+            for (int j = 0; j <= 3; j++)            
+                vertexColors[vertexIndex + j] = i >= secondColorStartIndex ? color2 : color1;
+            
+        }
+
+        //Update vertex data
+        UpdateTextMeshGeom(textComponent, textInfo);
     }
 
 }

@@ -72,7 +72,7 @@ public class DemoEffectRun : DemoEffectBase
         groundRenderer.size = new Vector2(groundHalfWidth * 2f, 0.42f);        
         AddToGeneratedObjectsDict(groundRenderer.gameObject.name, groundRenderer.gameObject);
 
-        //Bottom scrolling text and it's clone
+        //Waving text
         txtRect = ApplicationController.Instance.UI.CreateRectTransformObject("Text_scroller", new Vector2(UIController.GetCanvasSize().Value.x, 8), new Vector3(-30f, -30f, 0), Vector2.one * .5f, Vector2.one * .5f);
         txtRect.pivot = new Vector2(1f, 0.5f);
         txt = TextFunctions.AddTextMeshProTextComponent(txtRect, "C64_Pro_Mono-STYLE", 8, ApplicationController.Instance.C64PaletteArr[1]);
