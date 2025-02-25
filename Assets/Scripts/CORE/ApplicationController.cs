@@ -43,11 +43,12 @@ public class ApplicationController : SingletonMono<ApplicationController>
             new DemoeffectTextScroller().Init(),            
             new DemoEffectEyeBalls().Init(),            
             new DemoEffectTimeBomb().Init(),
-            new DemoEffectMatrix().Init()
+            new DemoEffectMatrix().Init(),
+            new DemoEffectSunset().Init()
             
         };
 
-        RunAllDemoEffects(5);
+        RunAllDemoEffects(6);
 
         InputController.Instance.EscDown.Subscribe(b => { if (b) QuitApp(); });
     }
