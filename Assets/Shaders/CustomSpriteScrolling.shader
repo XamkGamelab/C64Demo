@@ -3,7 +3,7 @@ Shader "Custom/Sprite Scrolling" {
     Properties {
         [PerRendererData] _MainTex("Sprite Texture", 2D) = "white" {}
         _Color("Tint", Color) = (1,1,1,1)
-        _ScrollSpeed("Scroll Speed", Vector) = (0,0,0,0)
+        _Offset("Offset", Vector) = (0,0,0,0)
         [MaterialToggle] PixelSnap("Pixel snap", Float) = 0
         [HideInInspector] _RendererColor("RendererColor", Color) = (1,1,1,1)
         [HideInInspector] _Flip("Flip", Vector) = (1,1,1,1)
@@ -35,7 +35,7 @@ Shader "Custom/Sprite Scrolling" {
             #pragma multi_compile _ ETC1_EXTERNAL_ALPHA
             #include "UnitySprites.cginc"
 
-            float2 _ScrollSpeed;
+            float2 _Offset;
 
             // A copy of SpriteVert() from builtin_shaders-2019.1.7f1/CGIncludes/UnitySprites.cginc
             v2f SpriteVertScrolling(appdata_t IN) {
@@ -47,8 +47,8 @@ Shader "Custom/Sprite Scrolling" {
                 OUT.vertex = UnityFlipSprite(IN.vertex, _Flip);
                 OUT.vertex = UnityObjectToClipPos(OUT.vertex);
                 OUT.texcoord = IN.texcoord;
-                OUT.texcoord.x += _Time * _ScrollSpeed.x;
-                OUT.texcoord.y += _Time * _ScrollSpeed.y;
+                OUT.texcoord.x += _Offset.x;
+                OUT.texcoord.y += _Offset.y;
                 OUT.color = IN.color * _Color * _RendererColor;
 
                 #ifdef PIXELSNAP_ON
