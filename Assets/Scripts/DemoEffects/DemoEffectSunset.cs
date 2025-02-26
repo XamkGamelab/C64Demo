@@ -6,6 +6,8 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
+using DG.Tweening;
+using System.Linq;
 
 public class DemoEffectSunset : DemoEffectBase
 {
@@ -20,10 +22,10 @@ public class DemoEffectSunset : DemoEffectBase
     private SpriteRenderer mountainRenderer;
     private SpriteRenderer imgLogoTxtSS;
     private SpriteRenderer imgLogoTxtOverride;
-    private SpriteRenderer palm_0;
 
-    //This probably needs to be a list for all palms or even a Palm class!
-    private Vector3 palmInitPos;
+    private Dictionary<GameObject, Vector3> palms = new Dictionary<GameObject, Vector3>();
+    private (float MinZ, float MaxZ) palmDistance = (-1f, 2f);
+    private Vector3 sunInitPos;
 
     //Gameplay
     private Vector2 gridOffset = Vector2.zero;
@@ -52,24 +54,24 @@ public class DemoEffectSunset : DemoEffectBase
         }
 
         sunRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("Sun", new Vector3(0f, 0.16f, 1f), "Sunset/SunsetSun");
+        sunRenderer.sortingOrder = 1;
+        sunInitPos = sunRenderer.transform.position;
         AddToGeneratedObjectsDict(sunRenderer.gameObject.name, sunRenderer.gameObject);
 
         mountainRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("Mountains", new Vector3(0, -0.16f, 1f), "Sunset/SunsetMountains");
+        mountainRenderer.sortingOrder = 2;
         mountainRenderer.material = spriteScrollMaterial;
         AddToGeneratedObjectsDict(mountainRenderer.gameObject.name, mountainRenderer.gameObject);
 
-        imgLogoTxtSS = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("LogoTxtSS", new Vector3(0.8f, 0.72f, 1.2f), "Sunset/SunsetTextSS");
+        imgLogoTxtSS = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("LogoTxtSS", new Vector3(0.8f, 0.8f, 1.2f), "Sunset/SunsetTextSS");
+        imgLogoTxtSS.sortingOrder = 3;
         AddToGeneratedObjectsDict(imgLogoTxtSS.gameObject.name, imgLogoTxtSS.gameObject);
 
-        imgLogoTxtOverride = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("LogoTxtOverride", new Vector3(0.8f, 0.48f, 1.2f), "Sunset/SunsetTextOverride");
+        imgLogoTxtOverride = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("LogoTxtOverride", new Vector3(0.8f, 0.72f, 1.2f), "Sunset/SunsetTextOverride");
+        imgLogoTxtOverride.sortingOrder = 4;
         AddToGeneratedObjectsDict(imgLogoTxtOverride.gameObject.name, imgLogoTxtOverride.gameObject);
 
-        //Move z from 2 to 0 x is like 0.64 and y = quadpos.y
-        palm_0 = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("PalmTree", new Vector3(0.64f, quadPos.y, 2f), "Sunset/Palm_0");
-        palm_0.sortingOrder = 10000;
-        palmInitPos = palm_0.transform.position;
-
-        AddToGeneratedObjectsDict(palm_0.gameObject.name, palm_0.gameObject);
+        InstantiatePalms(5, -2.56f, 1.28f, true);
 
         return base.Init();
     }
@@ -80,7 +82,9 @@ public class DemoEffectSunset : DemoEffectBase
 
         Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[0];
         CameraFunctions.SetCameraSettings(Camera.main, ApplicationController.Instance.CameraSettings["perspectiveFov90"]);
-        
+
+        AudioController.Instance.PlayTrack("BattleIntro");
+
         //Enable all generated objects        
         GeneratedObjectsSetActive(true);
 
@@ -89,6 +93,9 @@ public class DemoEffectSunset : DemoEffectBase
         //Subscribe to input        
         InputController.Instance.Horizontal.Subscribe(f => moveInput.x = f).AddTo(Disposables);
 
+        //Start animating logo tweens
+        imgLogoTxtSS.transform.DOLocalMoveY(0.96f, 1f, false).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine);
+        imgLogoTxtOverride.transform.DOLocalMoveY(0.64f, 1f, false).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine);
     }
 
     public override void DoUpdate()
@@ -96,7 +103,25 @@ public class DemoEffectSunset : DemoEffectBase
         Steer(moveInput);
         MoveGrid();        
         MovePalmTrees();
+        MoveSun();
         base.DoUpdate();
+    }
+
+    private void InstantiatePalms(int count, float startPos, float step, bool skipCenterPalm)
+    {
+        int center = (int)(count * .5f);
+        float xPos = startPos;
+        for (int i = 0; i < count; i++)
+        {
+            if (skipCenterPalm && i == center)
+                continue;
+
+            float palmPosZ = Mathf.Clamp(UnityEngine.Random.Range(palmDistance.MinZ, palmDistance.MaxZ), palmDistance.MinZ, palmDistance.MaxZ);
+            SpriteRenderer palm = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("PalmTree_" + i, new Vector3(xPos + i * step, quadPos.y, palmPosZ), "Sunset/Palm_0");
+            palm.sortingOrder = 1000 + i;            
+            palms.Add(palm.gameObject, new Vector3(palm.transform.position.x, palm.transform.position.y, palmDistance.MaxZ));             
+            AddToGeneratedObjectsDict(palm.gameObject.name, palm.gameObject);
+        }
     }
 
     private void MoveGrid()
@@ -105,14 +130,20 @@ public class DemoEffectSunset : DemoEffectBase
         gridMaterial.SetTextureOffset("_BaseMap", gridOffset);
     }
 
+    private void MoveSun()
+    {
+        sunRenderer.transform.position = new Vector3(sunInitPos.x + mountainsOffsetX * 1f, sunInitPos.y, sunInitPos.z);
+    }
+
     private void MovePalmTrees()
     {
-        if (palm_0.transform.position.z > -1f)
+        palms.ToList().ForEach(kvp =>
         {
-            palm_0.transform.position = new Vector3(palmInitPos.x + mountainsOffsetX * 0.01f, palm_0.transform.position.y, palm_0.transform.position.z - Time.deltaTime);
-        }
-        else
-            palm_0.transform.position = palmInitPos;
+            if (kvp.Key.transform.position.z > palmDistance.MinZ)            
+                kvp.Key.transform.position = new Vector3(kvp.Value.x + mountainsOffsetX * 0.01f, kvp.Key.transform.position.y, kvp.Key.transform.position.z - Time.deltaTime);            
+            else
+                kvp.Key.transform.position = kvp.Value;
+        });        
     }
 
     private void Steer(Vector2 input)

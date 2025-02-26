@@ -21,3 +21,5 @@ MonoBehaviour:
     MusicClip: {fileID: 8300000, guid: 42bb6be5f7a68d544a9562f8cba34a77, type: 3}
   - Name: Jing3
     MusicClip: {fileID: 8300000, guid: 6e1c1e1df8903f1418941460bf38a931, type: 3}
+  - Name: BattleIntro
+    MusicClip: {fileID: 8300000, guid: b018132574fd165469df61b182df243a, type: 3}
