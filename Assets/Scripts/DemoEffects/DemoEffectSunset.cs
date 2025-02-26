@@ -20,6 +20,10 @@ public class DemoEffectSunset : DemoEffectBase
     private SpriteRenderer mountainRenderer;
     private SpriteRenderer imgLogoTxtSS;
     private SpriteRenderer imgLogoTxtOverride;
+    private SpriteRenderer palm_0;
+
+    //This probably needs to be a list for all palms or even a Palm class!
+    private Vector3 palmInitPos;
 
     //Gameplay
     private Vector2 gridOffset = Vector2.zero;
@@ -60,6 +64,13 @@ public class DemoEffectSunset : DemoEffectBase
         imgLogoTxtOverride = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("LogoTxtOverride", new Vector3(0.8f, 0.48f, 1.2f), "Sunset/SunsetTextOverride");
         AddToGeneratedObjectsDict(imgLogoTxtOverride.gameObject.name, imgLogoTxtOverride.gameObject);
 
+        //Move z from 2 to 0 x is like 0.64 and y = quadpos.y
+        palm_0 = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("PalmTree", new Vector3(0.64f, quadPos.y, 2f), "Sunset/Palm_0");
+        palm_0.sortingOrder = 10000;
+        palmInitPos = palm_0.transform.position;
+
+        AddToGeneratedObjectsDict(palm_0.gameObject.name, palm_0.gameObject);
+
         return base.Init();
     }
 
@@ -82,10 +93,26 @@ public class DemoEffectSunset : DemoEffectBase
 
     public override void DoUpdate()
     {
+        Steer(moveInput);
+        MoveGrid();        
+        MovePalmTrees();
+        base.DoUpdate();
+    }
+
+    private void MoveGrid()
+    {
         gridOffset.y += Time.deltaTime;
         gridMaterial.SetTextureOffset("_BaseMap", gridOffset);
-        Steer(moveInput);
-        base.DoUpdate();
+    }
+
+    private void MovePalmTrees()
+    {
+        if (palm_0.transform.position.z > -1f)
+        {
+            palm_0.transform.position = new Vector3(palmInitPos.x + mountainsOffsetX * 0.01f, palm_0.transform.position.y, palm_0.transform.position.z - Time.deltaTime);
+        }
+        else
+            palm_0.transform.position = palmInitPos;
     }
 
     private void Steer(Vector2 input)
@@ -97,4 +124,9 @@ public class DemoEffectSunset : DemoEffectBase
 
         mountainRenderer.material.SetVector("_Offset", new Vector4(mountainsOffsetX, 0, 0, 0));
     }
+}
+
+public class PalmTree
+{
+    public Vector3 InitPosition;
 }
