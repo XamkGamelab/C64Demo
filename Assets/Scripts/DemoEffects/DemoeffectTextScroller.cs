@@ -119,6 +119,7 @@ public class DemoeffectTextScroller : DemoEffectBase
         ExecuteInUpdate = true;
 
         //Subscribe to input
+        
         InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
         InputController.Instance.Horizontal.Subscribe(f => moveInput.x = f).AddTo(Disposables);
         InputController.Instance.Vertical.Subscribe(f => moveInput.y = f).AddTo(Disposables);
@@ -169,6 +170,7 @@ public class DemoeffectTextScroller : DemoEffectBase
 
     private void HandleFireInput(bool b)
     {
+        Debug.Log("text scroller fire");
         if (!FirePressed && b)
         {
             InstantiateLaserShot(shipRenderer.transform.position);

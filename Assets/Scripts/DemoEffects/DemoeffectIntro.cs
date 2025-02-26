@@ -27,7 +27,7 @@ public class DemoeffectIntro : DemoEffectBase
     {
         loopSnake = true;
 
-        RectTransform rect = ApplicationController.Instance.UI.CreateRectTransformObject("Image_bg", new Vector2(320, 200), new Vector3(0, 0, 0), Vector2.zero, Vector2.one, new Vector2(24, 8), new Vector2(-24, -8));
+        RectTransform rect = ApplicationController.Instance.UI.CreateRectTransformObject("Image_bg", new Vector2(320, 200), new Vector3(0, 0, 0), Vector2.zero, Vector2.one, new Vector2(8, 8), new Vector2(-8, -8));
         rect.SetAsFirstSibling();
         img = rect.AddComponent<Image>();
         img.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("white_32x32"));
@@ -50,6 +50,7 @@ public class DemoeffectIntro : DemoEffectBase
 
     private void HandleFireInput(bool b)
     {
+        Debug.Log("INTRO SPACE PRESSED!!!");
         if (!FirePressed && b && !inputOnCooldown)
         {
             if (pressSpaceCount < pressSpaceStrings.Length - 1)
@@ -64,11 +65,14 @@ public class DemoeffectIntro : DemoEffectBase
             }
             else
             {
+                //This is a bit special, but input needs to be disposed here!
+                Disposables?.Dispose();
+
                 ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[0], () =>
                 {
                     //End the demo by exiting last coroutine and calling base.End();
                     loopSnake = false;
-                    base.End();
+                    base.End(true);
                 }, null);
             }
         }

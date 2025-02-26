@@ -41,13 +41,13 @@ public abstract class DemoEffectBase: IDemoEffect
 
     public virtual void End(bool dispose = true) 
     {
-        //Dispose disposables if dispose ;)
-        if (dispose)
-            Disposables?.Dispose();
-
         //Reset input values;
         HorizontalInput = VerticalInput = 0f;
         FirePressed = false;
+
+        //Dispose disposables if dispose ;)
+        if (dispose)
+            Disposables?.Dispose();
 
         GeneratedObjectsSetActive(false);
         EndDemoCallback.Invoke();

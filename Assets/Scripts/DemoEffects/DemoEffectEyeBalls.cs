@@ -54,6 +54,7 @@ public class DemoEffectEyeBalls : DemoEffectBase
         yield return new WaitForSeconds(1f);
 
         //Subscribe to input
+        
         InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
 
 
@@ -99,6 +100,7 @@ public class DemoEffectEyeBalls : DemoEffectBase
 
     private void HandleFireInput(bool b)
     {
+        Debug.Log("ye ball fire");
         if (!FirePressed && b)
         {
             ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[0], () =>
