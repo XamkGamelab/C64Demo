@@ -33,7 +33,8 @@ public class ApplicationController : SingletonMono<ApplicationController>
         CameraSettings = new Dictionary<string, CameraSettings>()
         {
             { "orthoPixel", new CameraSettings { Orthographic = true, OrthographicSize = 1.2f } },
-            { "perspectiveFov60", new CameraSettings { Orthographic = false, FOV = 60f } }
+            { "perspectiveFov60", new CameraSettings { Orthographic = false, FOV = 60f } },
+            { "perspectiveFov90", new CameraSettings { Orthographic = false, FOV = 90f } }
         };
 
         demoEffects = new List<DemoEffectBase>()
