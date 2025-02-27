@@ -16,6 +16,10 @@ public class DemoeffectIntro : DemoEffectBase
     private TMP_Text txt2;
     private Image img;
     private Image imgGirl;
+    private Image imgGirlMouth;
+    private Image imgGirlSpeech1;
+    private Image imgGirlSpeech2;
+
     private RectTransform rectGirl;
 
     private int pressSpaceCount = 0;         
@@ -60,9 +64,26 @@ public class DemoeffectIntro : DemoEffectBase
         rectGirlMouth.SetParent(rectGirl);
         rectGirlMouth.localScale = Vector3.one;
         rectGirlMouth.anchoredPosition3D = new Vector3(135f, 102f, 0f);
-        imgGirl = rectGirlMouth.AddComponent<Image>();
-        imgGirl.sprite = GameObject.Instantiate<Sprite>(girlMouthSprites[2]);
-        //AddToGeneratedObjectsDict(rectGirlMouth.gameObject.name, rectGirlMouth.gameObject);
+        imgGirlMouth = rectGirlMouth.AddComponent<Image>();
+        imgGirlMouth.sprite = girlMouthSprites[0];
+
+        RectTransform rectSpeech1 = ApplicationController.Instance.UI.CreateRectTransformObject("Image_girl_speech_1", new Vector2(70f, 26f), new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(0f, 0f));
+        rectSpeech1.pivot = new Vector2(0f, 0f);
+        rectSpeech1.SetParent(rectGirl);
+        rectSpeech1.localScale = Vector3.one;
+        rectSpeech1.anchoredPosition3D = new Vector3(192f, 136f, 0f);
+        imgGirlSpeech1 = rectSpeech1.AddComponent<Image>();
+        imgGirlSpeech1.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("GirlSpeechBubbleNow"));
+        imgGirlSpeech1.gameObject.SetActive(false);
+
+        RectTransform rectSpeech2 = ApplicationController.Instance.UI.CreateRectTransformObject("Image_girl_speech_2", new Vector2(70f, 26f), new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(0f, 0f));
+        rectSpeech2.pivot = new Vector2(0f, 0f);
+        rectSpeech2.SetParent(rectGirl);
+        rectSpeech2.localScale = Vector3.one;
+        rectSpeech2.anchoredPosition3D = new Vector3(208f, 144f, 0f);
+        imgGirlSpeech2 = rectSpeech2.AddComponent<Image>();
+        imgGirlSpeech2.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("GirlSpeechBubbleRun"));
+        imgGirlSpeech2.gameObject.SetActive(false);
 
         return base.Init();
     }
@@ -87,7 +108,8 @@ public class DemoeffectIntro : DemoEffectBase
                 rectGirl.gameObject.SetActive(true);
                 rectGirl.DOAnchorPos3DY(0f, 2f, true).SetEase(Ease.OutQuint).OnComplete(() => 
                 {
-                    Debug.Log("Start speech animation");
+                    Debug.Log("Start speech animation in RUN by stopping snake anim");
+                    loopSnake = false;
                 });
                 
 
@@ -133,6 +155,7 @@ public class DemoeffectIntro : DemoEffectBase
 
         txt2.gameObject.SetActive(true);
         yield return AnimateLoadingSnake();
+        yield return GirlAnimation();
     }
 
     public override void DoUpdate()
@@ -141,7 +164,27 @@ public class DemoeffectIntro : DemoEffectBase
         base.DoUpdate();
     }
 
-    IEnumerator AnimateStartText()
+    private IEnumerator GirlAnimation()
+    {
+        Debug.Log("GIRL ANIMATION");
+        imgGirlSpeech1.gameObject.SetActive(true);
+        float startTime = Time.time;
+        bool secondBubbleActive = false;
+        while (Time.time - startTime < 6f)
+        {
+            imgGirlMouth.sprite = girlMouthSprites[UnityEngine.Random.Range(0, girlMouthSprites.Count)];
+            //Like if time - start > 2f --> then show the other bubble...
+            if (!secondBubbleActive && Time.time - startTime > 3f)
+            {
+                secondBubbleActive = true;
+                imgGirlSpeech1.gameObject.SetActive(false);
+                imgGirlSpeech2.gameObject.SetActive(true);
+            }
+            yield return new WaitForSeconds(0.1f);
+        }
+        imgGirlMouth.sprite = girlMouthSprites[0];
+    }
+    private IEnumerator AnimateStartText()
     {
         string c64typewriter = "";
         for (int i = 0; i < c64default.Length; i++)
@@ -152,7 +195,7 @@ public class DemoeffectIntro : DemoEffectBase
         }
     }
 
-    IEnumerator AnimateLoadingSnake()
+    private IEnumerator AnimateLoadingSnake()
     {
         List<string> spriteStrings = TextureAndGaphicsFunctions.LoadSpriteSheet("IntroSnakeSpriteSheetPSD").Select(s => TextureAndGaphicsFunctions.ConvertToAscii(s.texture, s.textureRect)).ToList();
 
