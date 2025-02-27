@@ -25,18 +25,20 @@ public class DemoeffectIntro : DemoEffectBase
     private bool inputOnCooldown = false;
     private bool loopSnake = true;
 
+    private List<Sprite> girlMouthSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("GirlMouthSheet");
+
     public override DemoEffectBase Init()
     {
         loopSnake = true;
 
-        RectTransform rect = ApplicationController.Instance.UI.CreateRectTransformObject("Image_bg", new Vector2(320, 200), new Vector3(0, 0, 0), Vector2.zero, Vector2.one, new Vector2(8, 8), new Vector2(-8, -8));
+        RectTransform rect = ApplicationController.Instance.UI.CreateRectTransformObject("Image_bg", new Vector2(320f, 200f), new Vector3(0, 0, 0), Vector2.zero, Vector2.one, new Vector2(8, 8), new Vector2(-8, -8));
         rect.SetAsFirstSibling();
         img = rect.AddComponent<Image>();
         img.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("white_32x32"));
         img.color = ApplicationController.Instance.C64PaletteArr[14];
         AddToGeneratedObjectsDict(rect.gameObject.name, rect.gameObject);
 
-        RectTransform rect2 = ApplicationController.Instance.UI.CreateRectTransformObject("Text_intro", new Vector2(320, 200), new Vector3(0, 0, 0), Vector2.one * .5f, Vector2.one * .5f);        
+        RectTransform rect2 = ApplicationController.Instance.UI.CreateRectTransformObject("Text_intro", new Vector2(320f, 200f), new Vector3(0, 0, 0), Vector2.one * .5f, Vector2.one * .5f);        
         txt = TextFunctions.AddTextMeshProTextComponent(rect2, "C64_Pro_Mono-STYLE", 8, ApplicationController.Instance.C64PaletteArr[13]);
         AddToGeneratedObjectsDict(rect2.gameObject.name, rect2.gameObject);
 
@@ -47,11 +49,20 @@ public class DemoeffectIntro : DemoEffectBase
         txt2.gameObject.SetActive(false);
         AddToGeneratedObjectsDict(txt2.gameObject.name, txt2.gameObject);
 
-        rectGirl = ApplicationController.Instance.UI.CreateRectTransformObject("Image_girl", new Vector2(320, 400), new Vector2(0, -400f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f));
+        rectGirl = ApplicationController.Instance.UI.CreateRectTransformObject("Image_girl", new Vector2(320f, 400f), new Vector2(0f, -400f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f));
         rectGirl.pivot = new Vector2(0.5f, 0f);
         imgGirl = rectGirl.AddComponent<Image>();        
         imgGirl.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("Images/GirlYellow"));
         AddToGeneratedObjectsDict(rectGirl.gameObject.name, rectGirl.gameObject);
+
+        RectTransform rectGirlMouth = ApplicationController.Instance.UI.CreateRectTransformObject("Image_girl_mouth", new Vector2(64f, 64f), new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(0f, 0f));
+        rectGirlMouth.pivot = new Vector2(0f, 0f);
+        rectGirlMouth.SetParent(rectGirl);
+        rectGirlMouth.localScale = Vector3.one;
+        rectGirlMouth.anchoredPosition3D = new Vector3(135f, 102f, 0f);
+        imgGirl = rectGirlMouth.AddComponent<Image>();
+        imgGirl.sprite = GameObject.Instantiate<Sprite>(girlMouthSprites[2]);
+        //AddToGeneratedObjectsDict(rectGirlMouth.gameObject.name, rectGirlMouth.gameObject);
 
         return base.Init();
     }
