@@ -15,6 +15,8 @@ public class DemoeffectIntro : DemoEffectBase
     private TMP_Text txt;
     private TMP_Text txt2;
     private Image img;
+    private Image imgGirl;
+    private RectTransform rectGirl;
 
     private int pressSpaceCount = 0;         
     private float startTime;
@@ -45,6 +47,12 @@ public class DemoeffectIntro : DemoEffectBase
         txt2.gameObject.SetActive(false);
         AddToGeneratedObjectsDict(txt2.gameObject.name, txt2.gameObject);
 
+        rectGirl = ApplicationController.Instance.UI.CreateRectTransformObject("Image_girl", new Vector2(320, 400), new Vector2(0, -400f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f));
+        rectGirl.pivot = new Vector2(0.5f, 0f);
+        imgGirl = rectGirl.AddComponent<Image>();        
+        imgGirl.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("Images/GirlYellow"));
+        AddToGeneratedObjectsDict(rectGirl.gameObject.name, rectGirl.gameObject);
+
         return base.Init();
     }
 
@@ -65,6 +73,14 @@ public class DemoeffectIntro : DemoEffectBase
             }
             else
             {
+                rectGirl.gameObject.SetActive(true);
+                rectGirl.DOAnchorPos3DY(0f, 2f, true).SetEase(Ease.OutQuint).OnComplete(() => 
+                {
+                    Debug.Log("Start speech animation");
+                });
+                
+
+                /*
                 //This is a bit special, but input needs to be disposed here!
                 Disposables?.Dispose();
 
@@ -74,6 +90,7 @@ public class DemoeffectIntro : DemoEffectBase
                     loopSnake = false;
                     base.End(true);
                 }, null);
+                */
             }
         }
         FirePressed = b;        

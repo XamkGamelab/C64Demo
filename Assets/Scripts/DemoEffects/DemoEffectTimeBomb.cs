@@ -34,7 +34,6 @@ public class DemoEffectTimeBomb : DemoEffectBase
 
     private void HandleFireInput(bool b)
     {
-        Debug.Log("Time bomb fire");
         if (!FirePressed && b)
         {
             ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[0], () =>

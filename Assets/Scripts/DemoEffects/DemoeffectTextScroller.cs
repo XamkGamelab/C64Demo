@@ -170,7 +170,6 @@ public class DemoeffectTextScroller : DemoEffectBase
 
     private void HandleFireInput(bool b)
     {
-        Debug.Log("text scroller fire");
         if (!FirePressed && b)
         {
             InstantiateLaserShot(shipRenderer.transform.position);
@@ -191,8 +190,6 @@ public class DemoeffectTextScroller : DemoEffectBase
         SpriteRenderer laserRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("Laser", pos, GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("LaserGreen")));
         GenericBullet bullet = laserRenderer.AddComponent<GenericBullet>().Init(new Vector2(4f, 0), true);
     }
-
-
 
     private void InstantiateStarFieldSprites(int amount)
     {
