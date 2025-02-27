@@ -119,6 +119,7 @@ public class DemoeffectTextScroller : DemoEffectBase
         ExecuteInUpdate = true;
 
         //Subscribe to input
+        
         InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
         InputController.Instance.Horizontal.Subscribe(f => moveInput.x = f).AddTo(Disposables);
         InputController.Instance.Vertical.Subscribe(f => moveInput.y = f).AddTo(Disposables);
@@ -189,8 +190,6 @@ public class DemoeffectTextScroller : DemoEffectBase
         SpriteRenderer laserRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("Laser", pos, GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("LaserGreen")));
         GenericBullet bullet = laserRenderer.AddComponent<GenericBullet>().Init(new Vector2(4f, 0), true);
     }
-
-
 
     private void InstantiateStarFieldSprites(int amount)
     {

@@ -56,6 +56,10 @@ public class TextureAndGaphicsFunctions
         return Resources.LoadAll<Sprite>(imageName).ToList();
     }
 
+    public static SpriteRenderer InstantiateSpriteRendererGO(string goName, Vector3 pos, string spritePath)
+    {
+        return InstantiateSpriteRendererGO(goName, pos, Resources.Load<Sprite>(spritePath));
+    }
     public static SpriteRenderer InstantiateSpriteRendererGO(string goName, Vector3 pos, Sprite sprite)
     {
         GameObject go = new GameObject(goName);
