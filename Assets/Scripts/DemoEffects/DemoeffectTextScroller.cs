@@ -27,6 +27,8 @@ public class DemoeffectTextScroller : DemoEffectBase
 
     //Sprites
     private SpriteRenderer shipRenderer;
+    private SpriteRenderer explosionRenderer;
+    private SimpleSpriteAnimator explosionSpriteAnimator;
 
     public float scrollSpeed = 2000f;
     private float textWidth;
@@ -50,7 +52,9 @@ public class DemoeffectTextScroller : DemoEffectBase
     //Gameplay
     private Vector2 moveInput = Vector2.zero;
     private float shipSpeed = 2f;
-    
+
+    private List<Sprite> bigExplosion => TextureAndGaphicsFunctions.LoadSpriteSheet("BigExplosionSheet");
+
     public override DemoEffectBase Init()
     {
         //Top gradients
@@ -104,6 +108,12 @@ public class DemoeffectTextScroller : DemoEffectBase
 
         //Create star field
         InstantiateStarFieldSprites(30);
+
+        //Explosion
+        explosionRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("Explosion", new Vector3(0f, 0f, 1.5f), bigExplosion.First());
+        explosionSpriteAnimator = explosionRenderer.gameObject.AddComponent<SimpleSpriteAnimator>();
+        explosionSpriteAnimator.Sprites = bigExplosion;
+        AddToGeneratedObjectsDict(explosionRenderer.gameObject.name, explosionRenderer.gameObject);
 
         return base.Init();
     }

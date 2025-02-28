@@ -49,7 +49,7 @@ public class ApplicationController : SingletonMono<ApplicationController>
             
         };
 
-        RunAllDemoEffects(0);
+        RunAllDemoEffects(2);
 
         InputController.Instance.EscDown.Subscribe(b => { if (b) QuitApp(); });
     }

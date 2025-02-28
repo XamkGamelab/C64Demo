@@ -51,15 +51,14 @@ public class SimpleSpriteAnimator : MonoBehaviour
     public int Loops = 0;
 
     public bool IsAnimating { get; private set; } = false;
-    public SpriteRenderer spriteRenderer { get; private set; }
+    public SpriteRenderer spriteRenderer => GetComponent<SpriteRenderer>();
 
     public ReactiveProperty<Sprite> CurrentSprite = new ReactiveProperty<Sprite>();
     private int totalFrames = 0;
     private int currentFrame = 0;
     
     private Image image;
-    private int loopsPlayed;
-    private Collider2D lastDisabledCollider;    
+    private int loopsPlayed;    
     private Dictionary<string, Sprite> currentRenderSpriteSheet;        //Current sprite sheet to render animation with
 
     //Values that need to be reset to initial values on Reset
@@ -93,8 +92,7 @@ public class SimpleSpriteAnimator : MonoBehaviour
 
         //if GameObject has UI Image component, update image sprite:
         image = GetComponent<Image>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
-
+        
         totalFrames = Sprites.Count;
 
         if (Reversed)        
@@ -130,10 +128,6 @@ public class SimpleSpriteAnimator : MonoBehaviour
 
         loopsPlayed = 0;
         currentFrame = StartFromFrame;
-
-        //TODO: fix dirty hack to circumvent Unity timing issue with OnEnable, reset still needs to call Initialize and SetCurrentSprite        
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        SetCurrentSprite();        
     }
 
     private void LateUpdate()
