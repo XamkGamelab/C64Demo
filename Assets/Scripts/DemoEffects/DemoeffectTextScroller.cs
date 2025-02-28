@@ -29,6 +29,8 @@ public class DemoeffectTextScroller : DemoEffectBase
     private SpriteRenderer shipRenderer;
     private SpriteRenderer explosionRenderer;
     private SimpleSpriteAnimator explosionSpriteAnimator;
+    private SpriteRenderer asteroidRenderer;
+    private SimpleSpriteAnimator asteroidSpriteAnimator;
 
     public float scrollSpeed = 2000f;
     private float textWidth;
@@ -53,7 +55,8 @@ public class DemoeffectTextScroller : DemoEffectBase
     private Vector2 moveInput = Vector2.zero;
     private float shipSpeed = 2f;
 
-    private List<Sprite> bigExplosion => TextureAndGaphicsFunctions.LoadSpriteSheet("BigExplosionSheet");
+    private List<Sprite> bigExplosionSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("BigExplosionSheet");
+    private List<Sprite> asteroidBrownSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("AsteroidBrownSheet");
 
     public override DemoEffectBase Init()
     {
@@ -110,10 +113,16 @@ public class DemoeffectTextScroller : DemoEffectBase
         InstantiateStarFieldSprites(30);
 
         //Explosion
-        explosionRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("Explosion", new Vector3(0f, 0f, 1.5f), bigExplosion.First());
+        explosionRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("Explosion", new Vector3(0f, 0f, 1.5f), bigExplosionSprites.First());
         explosionSpriteAnimator = explosionRenderer.gameObject.AddComponent<SimpleSpriteAnimator>();
-        explosionSpriteAnimator.Sprites = bigExplosion;
+        explosionSpriteAnimator.Sprites = bigExplosionSprites;
         AddToGeneratedObjectsDict(explosionRenderer.gameObject.name, explosionRenderer.gameObject);
+
+        //Asteroid Brown
+        asteroidRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("Asteroid", new Vector3(.64f, 0f, 1.5f), asteroidBrownSprites.First());
+        asteroidSpriteAnimator = asteroidRenderer.gameObject.AddComponent<SimpleSpriteAnimator>();
+        asteroidSpriteAnimator.Sprites = asteroidBrownSprites;
+        AddToGeneratedObjectsDict(asteroidRenderer.gameObject.name, asteroidRenderer.gameObject);
 
         return base.Init();
     }
