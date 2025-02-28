@@ -90,7 +90,6 @@ public class DemoeffectIntro : DemoEffectBase
 
     private void HandleFireInput(bool b)
     {
-        Debug.Log("INTRO SPACE PRESSED!!!");
         if (!FirePressed && b && !inputOnCooldown)
         {
             if (pressSpaceCount < pressSpaceStrings.Length - 1)
@@ -105,25 +104,14 @@ public class DemoeffectIntro : DemoEffectBase
             }
             else
             {
+                //Dispose input, rest is just demo ending
+                Disposables?.Dispose();
                 rectGirl.gameObject.SetActive(true);
                 rectGirl.DOAnchorPos3DY(0f, 2f, true).SetEase(Ease.OutQuint).OnComplete(() => 
                 {
-                    Debug.Log("Start speech animation in RUN by stopping snake anim");
+                    //Start speech animation in RUN by stopping snake anim
                     loopSnake = false;
-                });
-                
-
-                /*
-                //This is a bit special, but input needs to be disposed here!
-                Disposables?.Dispose();
-
-                ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[0], () =>
-                {
-                    //End the demo by exiting last coroutine and calling base.End();
-                    loopSnake = false;
-                    base.End(true);
-                }, null);
-                */
+                });                
             }
         }
         FirePressed = b;        
@@ -156,6 +144,11 @@ public class DemoeffectIntro : DemoEffectBase
         txt2.gameObject.SetActive(true);
         yield return AnimateLoadingSnake();
         yield return GirlAnimation();
+
+        ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[0], () =>
+        {
+            base.End(true);
+        }, null);
     }
 
     public override void DoUpdate()
