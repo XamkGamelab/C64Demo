@@ -112,17 +112,9 @@ public class DemoeffectTextScroller : DemoEffectBase
         //Create star field
         InstantiateStarFieldSprites(30);
 
-        //Explosion
-        explosionRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("Explosion", new Vector3(0f, 0f, 1.5f), bigExplosionSprites.First());
-        explosionSpriteAnimator = explosionRenderer.gameObject.AddComponent<SimpleSpriteAnimator>();
-        explosionSpriteAnimator.Sprites = bigExplosionSprites;
-        AddToGeneratedObjectsDict(explosionRenderer.gameObject.name, explosionRenderer.gameObject);
 
-        //Asteroid Brown
-        asteroidRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("Asteroid", new Vector3(.64f, 0f, 1.5f), asteroidBrownSprites.First());
-        asteroidSpriteAnimator = asteroidRenderer.gameObject.AddComponent<SimpleSpriteAnimator>();
-        asteroidSpriteAnimator.Sprites = asteroidBrownSprites;
-        AddToGeneratedObjectsDict(asteroidRenderer.gameObject.name, asteroidRenderer.gameObject);
+
+        
 
         return base.Init();
     }
@@ -149,6 +141,10 @@ public class DemoeffectTextScroller : DemoEffectBase
         GeneratedObjectsSetActive(true);
 
         AudioController.Instance.PlayTrack("Track2", 1f, 4f);
+
+        //Start spawning asteroids on interval
+        Observable.Interval(TimeSpan.FromMilliseconds(3000)).Subscribe(_ => SpawnAsteroid()).AddTo(Disposables);
+
         yield return AnimateSpriteScroll();        
     }
 
@@ -170,9 +166,10 @@ public class DemoeffectTextScroller : DemoEffectBase
 
         Vector3 nextPosition = shipRenderer.transform.position + new Vector3(input.x * shipSpeed * Time.deltaTime, input.y * shipSpeed * Time.deltaTime, 0f);
         
+        //MOVE THIS TO INIT AND CALL IT PLAYAREA RECT!!!!!
         Rect rect = CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position);
         rect.center += new Vector2(0, rect.height * 0.2f);
-        rect.height *= 0.6f;
+        rect.height *= 0.5f;
 
         if (nextPosition.y < rect.yMin || nextPosition.y > rect.yMax)
             nextPosition.y = shipRenderer.transform.position.y;
@@ -191,23 +188,47 @@ public class DemoeffectTextScroller : DemoEffectBase
     {
         if (!FirePressed && b)
         {
-            InstantiateLaserShot(shipRenderer.transform.position);
-            /*
-            ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[0], () =>
-            {
-                //End the demo by exiting last coroutine and calling base.End();
-                loopScroller = false;
-                base.End();
-            }, null);
-            */
+            InstantiateLaserShot(shipRenderer.transform.position);            
         }
         FirePressed = b;
     }
 
+    private void SpawnAsteroid()
+    {
+        InstantiateAsteroid(new Vector3(.64f, 0f, 1.5f)).DeathPosition.Subscribe(pos => 
+        {
+            //Instantiate explosion effect
+            if (pos.HasValue) 
+                InstantiateExplosion(pos.Value); 
+        }
+        );
+    }
     private void InstantiateLaserShot(Vector3 pos)
     {
         SpriteRenderer laserRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("Laser", pos, GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("LaserGreen")));
-        GenericBullet bullet = laserRenderer.AddComponent<GenericBullet>().Init(new Vector2(4f, 0), true);
+        /*GenericBullet bullet =*/ laserRenderer.AddComponent<GenericBullet>().Init(new Vector2(4f, 0), true);
+    }
+
+    private SpriteRenderer InstantiateExplosion(Vector3 pos)
+    {
+        //Explosion
+        SpriteRenderer explosionRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("Explosion", pos, bigExplosionSprites.First());
+        explosionSpriteAnimator = explosionRenderer.gameObject.AddComponent<SimpleSpriteAnimator>();
+        explosionSpriteAnimator.Loops = 1;
+        explosionSpriteAnimator.DestroyAfterLoops = true;
+        explosionSpriteAnimator.Sprites = bigExplosionSprites;
+        return explosionRenderer;
+    }
+
+    private GenericEnemy InstantiateAsteroid(Vector3 pos)
+    {
+        //Asteroid Brown
+        SpriteRenderer asteroidRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("Asteroid", pos, asteroidBrownSprites.First());
+        asteroidSpriteAnimator = asteroidRenderer.gameObject.AddComponent<SimpleSpriteAnimator>();
+        asteroidSpriteAnimator.Sprites = asteroidBrownSprites;
+        GenericEnemy enemy = asteroidRenderer.gameObject.AddComponent<GenericEnemy>().Init(new Vector2(-.5f, 0), true, true);
+        //enemy.DeathPosition.su
+        return enemy;
     }
 
     private void InstantiateStarFieldSprites(int amount)
