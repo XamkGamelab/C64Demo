@@ -26,10 +26,8 @@ public class DemoeffectTextScroller : DemoEffectBase
     private TMP_Text txtClone;
 
     //Sprites
-    private SpriteRenderer shipRenderer;
-    private SpriteRenderer explosionRenderer;
-    private SimpleSpriteAnimator explosionSpriteAnimator;
-    private SpriteRenderer asteroidRenderer;
+    private SpriteRenderer shipRenderer;    
+    private SimpleSpriteAnimator explosionSpriteAnimator;    
     private SimpleSpriteAnimator asteroidSpriteAnimator;
 
     public float scrollSpeed = 2000f;
@@ -54,7 +52,9 @@ public class DemoeffectTextScroller : DemoEffectBase
     //Gameplay
     private Vector2 moveInput = Vector2.zero;
     private float shipSpeed = 2f;
-
+    private float spawnAsteroidIntervalMs = 1000f;
+    private Rect playAreaRect;
+    
     private List<Sprite> bigExplosionSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("BigExplosionSheet");
     private List<Sprite> asteroidBrownSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("AsteroidBrownSheet");
 
@@ -112,9 +112,10 @@ public class DemoeffectTextScroller : DemoEffectBase
         //Create star field
         InstantiateStarFieldSprites(30);
 
-
-
-        
+        //Play are rect        
+        playAreaRect = CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position);
+        playAreaRect.center += new Vector2(0, playAreaRect.height * 0.2f);
+        playAreaRect.height *= 0.5f;
 
         return base.Init();
     }
@@ -143,7 +144,7 @@ public class DemoeffectTextScroller : DemoEffectBase
         AudioController.Instance.PlayTrack("Track2", 1f, 4f);
 
         //Start spawning asteroids on interval
-        Observable.Interval(TimeSpan.FromMilliseconds(3000)).Subscribe(_ => SpawnAsteroid()).AddTo(Disposables);
+        Observable.Interval(TimeSpan.FromMilliseconds(spawnAsteroidIntervalMs)).Subscribe(_ => SpawnAsteroid()).AddTo(Disposables);
 
         yield return AnimateSpriteScroll();        
     }
@@ -162,25 +163,18 @@ public class DemoeffectTextScroller : DemoEffectBase
 
     private void MoveShip(Vector2 input)
     {
-        //DOESN'T WORK CORRECTLY, FIX RECT!!
-
         Vector3 nextPosition = shipRenderer.transform.position + new Vector3(input.x * shipSpeed * Time.deltaTime, input.y * shipSpeed * Time.deltaTime, 0f);
         
-        //MOVE THIS TO INIT AND CALL IT PLAYAREA RECT!!!!!
-        Rect rect = CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position);
-        rect.center += new Vector2(0, rect.height * 0.2f);
-        rect.height *= 0.5f;
-
-        if (nextPosition.y < rect.yMin || nextPosition.y > rect.yMax)
+        if (nextPosition.y < playAreaRect.yMin || nextPosition.y > playAreaRect.yMax)
             nextPosition.y = shipRenderer.transform.position.y;
 
-        if (nextPosition.x < rect.xMin || nextPosition.x > rect.xMax)
+        if (nextPosition.x < playAreaRect.xMin || nextPosition.x > playAreaRect.xMax)
             nextPosition.x = shipRenderer.transform.position.x;
 
         shipRenderer.transform.position = nextPosition;
 
-        Debug.DrawLine(new Vector3(rect.xMin, rect.yMax, 1f), new Vector3(rect.xMax, rect.yMax, 1f), Color.green);
-        Debug.DrawLine(new Vector3(rect.xMin, rect.yMin, 1f), new Vector3(rect.xMax, rect.yMin, 1f), Color.red);
+        Debug.DrawLine(new Vector3(playAreaRect.xMin, playAreaRect.yMax, 1f), new Vector3(playAreaRect.xMax, playAreaRect.yMax, 1f), Color.green);
+        Debug.DrawLine(new Vector3(playAreaRect.xMin, playAreaRect.yMin, 1f), new Vector3(playAreaRect.xMax, playAreaRect.yMin, 1f), Color.red);
         
     }
 
@@ -195,7 +189,8 @@ public class DemoeffectTextScroller : DemoEffectBase
 
     private void SpawnAsteroid()
     {
-        InstantiateAsteroid(new Vector3(.64f, 0f, 1.5f)).DeathPosition.Subscribe(pos => 
+        float rndY = UnityEngine.Random.Range(playAreaRect.yMin, playAreaRect.yMax);
+        InstantiateAsteroid(new Vector3(playAreaRect.xMax, rndY, 1.5f)).DeathPosition.Subscribe(pos => 
         {
             //Instantiate explosion effect
             if (pos.HasValue) 
