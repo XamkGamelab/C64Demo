@@ -36,7 +36,7 @@ public class GenericEnemy : MonoBehaviour
             
     }
 
-    protected virtual void Die(bool destroyGO)
+    public virtual void Die(bool destroyGO)
     {
         DeathPosition.Value = transform.position;
         if (destroyGO)

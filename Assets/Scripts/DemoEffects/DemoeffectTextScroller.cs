@@ -50,11 +50,15 @@ public class DemoeffectTextScroller : DemoEffectBase
     private bool loopScroller = true;
 
     //Gameplay
+    private List<GenericEnemy> asteroids = new List<GenericEnemy>();
     private Vector2 moveInput = Vector2.zero;
     private float shipSpeed = 2f;
     private float spawnAsteroidIntervalMs = 1000f;
     private Rect playAreaRect;
+    private int asteroidsDestroyed = 0;
     
+    private const int asteroidsRequired = 10;
+
     private List<Sprite> bigExplosionSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("BigExplosionSheet");
     private List<Sprite> asteroidBrownSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("AsteroidBrownSheet");
 
@@ -125,6 +129,8 @@ public class DemoeffectTextScroller : DemoEffectBase
         yield return base.Run(callbackEnd);
 
         loopScroller = true;
+        asteroidsDestroyed = 0;
+        asteroids = new List<GenericEnemy>();
 
         moveInput = Vector2.zero;
 
@@ -173,9 +179,6 @@ public class DemoeffectTextScroller : DemoEffectBase
 
         shipRenderer.transform.position = nextPosition;
 
-        Debug.DrawLine(new Vector3(playAreaRect.xMin, playAreaRect.yMax, 1f), new Vector3(playAreaRect.xMax, playAreaRect.yMax, 1f), Color.green);
-        Debug.DrawLine(new Vector3(playAreaRect.xMin, playAreaRect.yMin, 1f), new Vector3(playAreaRect.xMax, playAreaRect.yMin, 1f), Color.red);
-        
     }
 
     private void HandleFireInput(bool b)
@@ -190,11 +193,33 @@ public class DemoeffectTextScroller : DemoEffectBase
     private void SpawnAsteroid()
     {
         float rndY = UnityEngine.Random.Range(playAreaRect.yMin, playAreaRect.yMax);
-        InstantiateAsteroid(new Vector3(playAreaRect.xMax, rndY, 1.5f)).DeathPosition.Subscribe(pos => 
+        GenericEnemy asteroid = InstantiateAsteroid(new Vector3(playAreaRect.xMax, rndY, 1.5f));
+        asteroids.Add(asteroid);
+        asteroid.DeathPosition.Subscribe(pos => 
         {
             //Instantiate explosion effect
-            if (pos.HasValue) 
-                InstantiateExplosion(pos.Value); 
+            if (pos.HasValue)
+            {
+                InstantiateExplosion(pos.Value);
+                asteroidsDestroyed++;
+                if (asteroidsDestroyed >= asteroidsRequired)
+                {
+                    //Unsubsribe from input and asteroid spawning
+                    Disposables.Dispose();
+
+                    //TODO: this is kind of stupid, because list keeps growing with null values
+                    asteroids.Where(a => a != null).ToList().ForEach(a => a.Die(true));
+
+                    //Move ship to right and fade in transition
+                    shipRenderer.transform.DOMoveX(playAreaRect.xMax, 2f, false).SetEase(Ease.Linear).OnComplete(() => { 
+
+                        ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[1], () =>
+                        {
+                            base.End(false);
+                        }, null);
+                    });
+                }
+            }
         }
         );
     }
