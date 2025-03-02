@@ -185,6 +185,7 @@ public class DemoeffectTextScroller : DemoEffectBase
     {
         if (!FirePressed && b)
         {
+            AudioController.Instance.PlaySoundEffect("Laser_Shoot_1");
             InstantiateLaserShot(shipRenderer.transform.position);            
         }
         FirePressed = b;
@@ -200,6 +201,7 @@ public class DemoeffectTextScroller : DemoEffectBase
             //Instantiate explosion effect
             if (pos.HasValue)
             {
+                AudioController.Instance.PlaySoundEffect("Explosion_1");
                 InstantiateExplosion(pos.Value);
                 asteroidsDestroyed++;
                 if (asteroidsDestroyed >= asteroidsRequired)
@@ -211,7 +213,7 @@ public class DemoeffectTextScroller : DemoEffectBase
                     asteroids.Where(a => a != null).ToList().ForEach(a => a.Die(true));
 
                     //Move ship to right and fade in transition
-                    shipRenderer.transform.DOMoveX(playAreaRect.xMax, 2f, false).SetEase(Ease.Linear).OnComplete(() => { 
+                    shipRenderer.transform.DOMoveX(playAreaRect.xMax, 2f, false).SetEase(Ease.InExpo).OnComplete(() => { 
 
                         ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[1], () =>
                         {
