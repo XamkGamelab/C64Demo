@@ -12,6 +12,10 @@ public class DemoEffectEyeBalls : DemoEffectBase
     private Image img;
     private Image imgBall;
     private List<RectTransform> balls;
+    //private Renderer ballRenderer;
+    private List<Renderer> ballRenderers = new List<Renderer>();
+
+    private List<Sprite> eyeSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("EyeSheet");
     public override DemoEffectBase Init()
     {
         balls = new List<RectTransform>();
@@ -26,17 +30,17 @@ public class DemoEffectEyeBalls : DemoEffectBase
         imgBall = rectBall_1.AddComponent<Image>();
         imgBall.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("whiteBall"));
         AddToGeneratedObjectsDict(rectBall_1.gameObject.name, rectBall_1.gameObject);
-
         balls.Add(rectBall_1);
 
-        int amount = 4;
-        for (int i = 1; i < amount; i++)
+        int amount = 5;
+        
+
+        //Eye ball sprites
+        for (int i = 0; i < amount; i++)
         {
-            RectTransform ball = GameObject.Instantiate(imgBall.gameObject).GetComponent<RectTransform>();
-            ball.gameObject.name = "Ball_" + i;
-            ApplicationController.Instance.UI.ParentTransformToUI(ball.transform, null, new Vector3(0, 0, 0));
-            AddToGeneratedObjectsDict(ball.gameObject.name, ball.gameObject);
-            balls.Add(ball);
+            SpriteRenderer ballRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("EyeBall_" + i, new Vector3(0f, 0f, 1f), eyeSprites[1]);
+            ballRenderer.sortingOrder = 1000 + i;
+            ballRenderers.Add(ballRenderer);
         }
 
         return base.Init();
@@ -45,6 +49,11 @@ public class DemoEffectEyeBalls : DemoEffectBase
     public override IEnumerator Run(System.Action callbackEnd)
     {
         yield return base.Run(callbackEnd);
+
+        float xpos = 0.64f * Mathf.Cos(Mathf.PI * 22.5f / 180f);
+        float ypos = 0.64f * Mathf.Sin(Mathf.PI * 22.5f / 180f);
+
+        Debug.Log("Point on circle: " + xpos + " y: " + ypos);
 
         Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[0];
 
@@ -57,39 +66,47 @@ public class DemoEffectEyeBalls : DemoEffectBase
         
         InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
 
+        //45 deg - 0.4525483f
+        //22.5 deg - 0,5912828 y: 0,2449174
 
-        balls[0].gameObject.SetActive(true);
-        balls[0].DOLocalMove(new Vector3(64, 0, 0), 1f, true).OnComplete(() =>
+        ballRenderers[0].gameObject.SetActive(true);
+        ballRenderers[0].transform.DOLocalMove(new Vector3(0.64f, 0, 1f), 1f, false).OnComplete(() =>
         {
-            balls[0].DOLocalMove(new Vector3(-64, 0, 0), 1f, true).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
+            ballRenderers[0].transform.DOLocalMove(new Vector3(-0.64f, 0, 1f), 1f, false).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
         });
-
-        float d = Vector3.Distance(new Vector3(-64, 0, 0), new Vector3(64, 0, 0));
-        Debug.Log("VECT S DIST: " + d);
-
-        d = Vector3.Distance(new Vector3(43, 43, 0), new Vector3(-43, -43, 0));
-        Debug.Log("VECT DIST: " + d);
+        
 
         yield return new WaitForSeconds(2.5f);
-        balls[1].gameObject.SetActive(true);
-        balls[1].DOLocalMove(new Vector3(0, 64f, 0), 1f, true).OnComplete(() => 
+        
+        ballRenderers[1].gameObject.SetActive(true);
+        ballRenderers[1].transform.DOLocalMove(new Vector3(0, 0.64f, 1f), 1f, false).OnComplete(() =>
         {
-            balls[1].DOLocalMove(new Vector3(0, -64f, 0), 1f, true).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
+            ballRenderers[1].transform.DOLocalMove(new Vector3(0, -0.64f, 1f), 1f, false).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
         });
 
         yield return new WaitForSeconds(3.25f);
-        balls[2].gameObject.SetActive(true);
-        balls[2].DOLocalMove(new Vector3(50, -50f, 0), 1f, true).OnComplete(() =>
+        
+        ballRenderers[2].gameObject.SetActive(true);
+        ballRenderers[2].transform.DOLocalMove(new Vector3(0.452f, -0.452f, 1f), 1f, false).OnComplete(() =>
         {
-            balls[2].DOLocalMove(new Vector3(-50, 50f, 0), 1f, true).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
+            ballRenderers[2].transform.DOLocalMove(new Vector3(-0.452f, 0.452f, 1f), 1f, false).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
         });
 
-        
+
         yield return new WaitForSeconds(4.5f);
-        balls[3].gameObject.SetActive(true);
-        balls[3].DOLocalMove(new Vector3(50, 50, 0), 1f, true).OnComplete(() =>
+        
+        ballRenderers[3].gameObject.SetActive(true);
+        ballRenderers[3].transform.DOLocalMove(new Vector3(0.452f, 0.452f, 1f), 1f, false).OnComplete(() =>
         {
-            balls[3].DOLocalMove(new Vector3(-50, -50, 0), 1f, true).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
+            ballRenderers[3].transform.DOLocalMove(new Vector3(-0.452f, -0.452f, 1f), 1f, false).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
+        });
+
+        yield return new WaitForSeconds(1f);
+
+        ballRenderers[4].gameObject.SetActive(true);
+        ballRenderers[4].transform.DOLocalMove(new Vector3(0.24491f, 0.591f, 1f), 1f, false).OnComplete(() =>
+        {
+            ballRenderers[4].transform.DOLocalMove(new Vector3(-0.24491f, -0.591f, 1f), 1f, false).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
         });
     }
     
@@ -100,7 +117,6 @@ public class DemoEffectEyeBalls : DemoEffectBase
 
     private void HandleFireInput(bool b)
     {
-        Debug.Log("ye ball fire");
         if (!FirePressed && b)
         {
             ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[0], () =>
