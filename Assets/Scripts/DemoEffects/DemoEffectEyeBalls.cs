@@ -108,13 +108,33 @@ public class DemoEffectEyeBalls : DemoEffectBase
     private IEnumerator AnimateBalls()
     {
         //r * cos/sin of rad angle if movement step:
-        float ypos = 0.64f * Mathf.Cos(Mathf.PI * 67.5f / 180f);
-        float xpos = 0.64f * Mathf.Sin(Mathf.PI * 67.5f / 180f);
+        //float ypos = 0.64f * Mathf.Cos(Mathf.PI * 67.5f / 180f);
+        //float xpos = 0.64f * Mathf.Sin(Mathf.PI * 67.5f / 180f);
 
-        Debug.Log("Point on circle: " + xpos + " y: " + ypos);
-
+        
         /* correct time step is: full movement time (e.g. 2 sec) / amount of balls * 2 ( = e.g. 16) which gives current hard-coded step of 0.125f */
 
+        /*
+        float angleStep = 22.5f;
+        float radius = 0.64f;
+        float fullMoveTime = 2f;
+        for (int i = 0; i < ballRenderers.Count(); i++)
+        {
+            float ypos = radius * Mathf.Cos(Mathf.PI * angleStep * i / 180f);
+            float xpos = radius * Mathf.Sin(Mathf.PI * angleStep * i / 180f);
+            Vector2 posMovePoint = new Vector2(xpos, ypos);
+            Vector2 negMovePoint = posMovePoint * -1f;
+
+            yield return new WaitForSeconds(fullMoveTime / ballRenderers.Count() * 2f);
+
+            ballRenderers[i].gameObject.SetActive(true);
+            ballRenderers[i].transform.DOLocalMove(new Vector3(posMovePoint.x, posMovePoint.y, 1f), 1f, false).OnComplete(() =>
+            {
+                ballRenderers[i].transform.DOLocalMove(new Vector3(negMovePoint.x, negMovePoint.y, 1f), 1f, false).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
+            });
+        }
+        */
+        
         //UP
         ballRenderers[0].gameObject.SetActive(true);
         ballRenderers[0].transform.DOLocalMove(new Vector3(0, 0.64f, 1f), 1f, false).OnComplete(() =>
@@ -177,5 +197,6 @@ public class DemoEffectEyeBalls : DemoEffectBase
         {
             ballRenderers[7].transform.DOLocalMove(new Vector3(-0.24491f, 0.591f, 1f), 1f, false).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
         });
+        
     }
 }
