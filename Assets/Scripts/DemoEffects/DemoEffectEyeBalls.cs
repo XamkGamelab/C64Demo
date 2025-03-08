@@ -11,7 +11,7 @@ public class DemoEffectEyeBalls : DemoEffectBase
 {
     private Image img;    
     private SpriteRenderer shipRenderer;    
-    private List<Renderer> ballRenderers = new List<Renderer>();
+    private List<SimpleSpriteAnimator> ballRenderers = new List<SimpleSpriteAnimator>();
 
     private List<Sprite> eyeSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("EyeSheet");
 
@@ -28,7 +28,7 @@ public class DemoEffectEyeBalls : DemoEffectBase
         img.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("Images/LizardEye"));        
         AddToGeneratedObjectsDict(rect.gameObject.name, rect.gameObject);
 
-        int amount = 8;
+        int amount = 16;
         
 
         //Eye ball sprites
@@ -36,7 +36,10 @@ public class DemoEffectEyeBalls : DemoEffectBase
         {
             SpriteRenderer ballRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("EyeBall_" + i, new Vector3(0f, 0f, 1f), eyeSprites[1]);
             ballRenderer.sortingOrder = 100 + i;
-            ballRenderers.Add(ballRenderer);
+            SimpleSpriteAnimator ballSpriteAnimator = ballRenderer.gameObject.AddComponent<SimpleSpriteAnimator>();
+            ballSpriteAnimator.Sprites = eyeSprites;
+
+            ballRenderers.Add(ballSpriteAnimator);            
         }
 
         //Play are rect        
@@ -110,93 +113,29 @@ public class DemoEffectEyeBalls : DemoEffectBase
         //r * cos/sin of rad angle if movement step:
         //float ypos = 0.64f * Mathf.Cos(Mathf.PI * 67.5f / 180f);
         //float xpos = 0.64f * Mathf.Sin(Mathf.PI * 67.5f / 180f);
-
         
         /* correct time step is: full movement time (e.g. 2 sec) / amount of balls * 2 ( = e.g. 16) which gives current hard-coded step of 0.125f */
 
-        /*
         float angleStep = 22.5f;
         float radius = 0.64f;
-        float fullMoveTime = 2f;
+        float fullMoveTime = .6f;
+        
         for (int i = 0; i < ballRenderers.Count(); i++)
         {
             float ypos = radius * Mathf.Cos(Mathf.PI * angleStep * i / 180f);
             float xpos = radius * Mathf.Sin(Mathf.PI * angleStep * i / 180f);
-            Vector2 posMovePoint = new Vector2(xpos, ypos);
-            Vector2 negMovePoint = posMovePoint * -1f;
+            
+            Vector2 posMovePoint = new Vector2(xpos, ypos);            
+            GameObject currentBallRenderer = ballRenderers[i].gameObject;
 
-            yield return new WaitForSeconds(fullMoveTime / ballRenderers.Count() * 2f);
-
-            ballRenderers[i].gameObject.SetActive(true);
-            ballRenderers[i].transform.DOLocalMove(new Vector3(posMovePoint.x, posMovePoint.y, 1f), 1f, false).OnComplete(() =>
+            currentBallRenderer.SetActive(true);
+            currentBallRenderer.transform.DOLocalMove(new Vector3(posMovePoint.x, posMovePoint.y, 1f), fullMoveTime, false).SetDelay(fullMoveTime / ballRenderers.Count() * 2f * i).OnComplete(() =>
             {
-                ballRenderers[i].transform.DOLocalMove(new Vector3(negMovePoint.x, negMovePoint.y, 1f), 1f, false).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
+                currentBallRenderer.transform.DOLocalMove(new Vector3(posMovePoint.x * -1f, posMovePoint.y * -1f, 1f), fullMoveTime * 2f, false).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);                
             });
         }
-        */
         
-        //UP
-        ballRenderers[0].gameObject.SetActive(true);
-        ballRenderers[0].transform.DOLocalMove(new Vector3(0, 0.64f, 1f), 1f, false).OnComplete(() =>
-        {
-            ballRenderers[0].transform.DOLocalMove(new Vector3(0, -0.64f, 1f), 1f, false).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
-        });
-
-        //UP 22.5 RIGHT
-        yield return new WaitForSeconds(0.125f); //was 1f
-        ballRenderers[1].gameObject.SetActive(true);
-        ballRenderers[1].transform.DOLocalMove(new Vector3(0.24491f, 0.591f, 1f), 1f, false).OnComplete(() =>
-        {
-            ballRenderers[1].transform.DOLocalMove(new Vector3(-0.24491f, -0.591f, 1f), 1f, false).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
-        });
-
-        //UP 45 RIGHT
-        yield return new WaitForSeconds(0.125f); //was 4.5        
-        ballRenderers[2].gameObject.SetActive(true);
-        ballRenderers[2].transform.DOLocalMove(new Vector3(0.452f, 0.452f, 1f), 1f, false).OnComplete(() =>
-        {
-            ballRenderers[2].transform.DOLocalMove(new Vector3(-0.452f, -0.452f, 1f), 1f, false).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
-        });
-
-        //UP 67.5 RIGHT
-        yield return new WaitForSeconds(0.125f); //was 4.5        
-        ballRenderers[3].gameObject.SetActive(true);
-        ballRenderers[3].transform.DOLocalMove(new Vector3(0.591f, 0.24491f, 1f), 1f, false).OnComplete(() =>
-        {
-            ballRenderers[3].transform.DOLocalMove(new Vector3(-0.591f, -0.24491f, 1f), 1f, false).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
-        });
-
-        //RIGHT
-        yield return new WaitForSeconds(0.125f); //< was 2.5        
-        ballRenderers[4].gameObject.SetActive(true);
-        ballRenderers[4].transform.DOLocalMove(new Vector3(0.64f, 0, 1f), 1f, false).OnComplete(() =>
-        {
-            ballRenderers[4].transform.DOLocalMove(new Vector3(-0.64f, 0, 1f), 1f, false).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
-        });
-
-        //DOWN 22.5 RIGHT
-        yield return new WaitForSeconds(0.125f); //was 1f
-        ballRenderers[5].gameObject.SetActive(true);
-        ballRenderers[5].transform.DOLocalMove(new Vector3(0.591f, -0.24491f, 1f), 1f, false).OnComplete(() =>
-        {
-            ballRenderers[5].transform.DOLocalMove(new Vector3(-0.591f, 0.24491f, 1f), 1f, false).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
-        });
-
-        //DOWN 45 RIGHT
-        yield return new WaitForSeconds(0.125f); //was 3.25        
-        ballRenderers[6].gameObject.SetActive(true);
-        ballRenderers[6].transform.DOLocalMove(new Vector3(0.452f, -0.452f, 1f), 1f, false).OnComplete(() =>
-        {
-            ballRenderers[6].transform.DOLocalMove(new Vector3(-0.452f, 0.452f, 1f), 1f, false).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
-        });
-
-        //DOWN 22.5 LEFT
-        yield return new WaitForSeconds(0.125f); //was 1f
-        ballRenderers[7].gameObject.SetActive(true);
-        ballRenderers[7].transform.DOLocalMove(new Vector3(0.24491f, -0.591f, 1f), 1f, false).OnComplete(() =>
-        {
-            ballRenderers[7].transform.DOLocalMove(new Vector3(-0.24491f, 0.591f, 1f), 1f, false).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
-        });
+        yield return null;
         
     }
 }
