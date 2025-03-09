@@ -34,11 +34,14 @@ public class DemoEffectEyeBalls : DemoEffectBase
         //Eye ball sprites
         for (int i = 0; i < amount; i++)
         {
-            SpriteRenderer ballRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("EyeBall_" + i, new Vector3(0f, 0f, 1f), eyeSprites[1]);
+            SpriteRenderer ballRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("EyeBall_" + i, new Vector3(0f, 0f, 1f), eyeSprites[0]);
             ballRenderer.sortingOrder = 100 + i;
             SimpleSpriteAnimator ballSpriteAnimator = ballRenderer.gameObject.AddComponent<SimpleSpriteAnimator>();
+            ballSpriteAnimator.DontAutoPlay = true;            
+            ballSpriteAnimator.StopToLastFrame = true;
+            ballSpriteAnimator.Loops = 1;
             ballSpriteAnimator.Sprites = eyeSprites;
-
+            ballSpriteAnimator.Play(false);
             ballRenderers.Add(ballSpriteAnimator);            
         }
 
