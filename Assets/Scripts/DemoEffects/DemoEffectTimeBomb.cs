@@ -29,7 +29,7 @@ public class DemoEffectTimeBomb : DemoEffectBase
         headingTxt.gameObject.SetActive(true);
 
         //Subscribe to input
-        InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
+        //InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
     }
 
     private void HandleFireInput(bool b)

@@ -208,6 +208,7 @@ public class DemoeffectTextScroller : DemoEffectBase
                 {
                     //Unsubsribe from input and asteroid spawning
                     Disposables.Dispose();
+                    moveInput = Vector2.zero;
 
                     //TODO: this is kind of stupid, because list keeps growing with null values
                     asteroids.Where(a => a != null).ToList().ForEach(a => a.Die(true));

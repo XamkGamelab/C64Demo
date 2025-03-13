@@ -11,7 +11,7 @@ public class DemoEffectEyeBalls : DemoEffectBase
 {
     private Image img;    
     private SpriteRenderer shipRenderer;    
-    private List<SimpleSpriteAnimator> ballRenderers = new List<SimpleSpriteAnimator>();
+    private List<GenericEnemy> ballEnemies = new List<GenericEnemy>();
 
     private List<Sprite> eyeSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("EyeSheet");
 
@@ -36,13 +36,20 @@ public class DemoEffectEyeBalls : DemoEffectBase
         {
             SpriteRenderer ballRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("EyeBall_" + i, new Vector3(0f, 0f, 1f), eyeSprites[0]);
             ballRenderer.sortingOrder = 100 + i;
+            GenericEnemy enemy = ballRenderer.gameObject.
+                AddComponent<GenericEnemy>().
+                Init(null, typeof(CircleCollider2D), true, false).
+                AddBulletHitAction(HandleBulletHitBall);
+
             SimpleSpriteAnimator ballSpriteAnimator = ballRenderer.gameObject.AddComponent<SimpleSpriteAnimator>();
             ballSpriteAnimator.DontAutoPlay = true;            
             ballSpriteAnimator.StopToLastFrame = true;
             ballSpriteAnimator.Loops = 1;
             ballSpriteAnimator.Sprites = eyeSprites;
             ballSpriteAnimator.Play(false);
-            ballRenderers.Add(ballSpriteAnimator);            
+
+            ballEnemies.Add(enemy);
+            AddToGeneratedObjectsDict(ballRenderer.gameObject.name, ballRenderer.gameObject);
         }
 
         //Play are rect        
@@ -110,6 +117,34 @@ public class DemoEffectEyeBalls : DemoEffectBase
         shipRenderer.transform.position = nextPosition;
     }
 
+    private void HandleBulletHitBall(GenericEnemy ballEnemy)
+    {
+        ballEnemy.GetComponent<SimpleSpriteAnimator>().Play(true);
+
+        DOTween.Kill(ballEnemy.transform);
+
+        ballEnemy.transform.DOLocalMove(new Vector3(0, 0, 1f), 2f, false);
+
+        if (ballEnemies.All(be => be.BulletHitCount > 0))
+        {
+            //Should all hit actions for all balls be removed?
+
+            Debug.Log("ALL BALLS HAVE BEEN HIT, END DEMO!!!!");
+            //Unsubsribe from input and asteroid spawning
+            Disposables.Dispose();
+            moveInput = Vector2.zero;
+
+            //Move ship to up? and fade in transition
+            shipRenderer.transform.DOMoveY(playAreaRect.yMax, 2f, false).SetEase(Ease.InExpo).OnComplete(() => {
+
+                ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[1], () =>
+                {
+                    base.End(false);
+                }, null);
+            });
+        }
+    }
+
     //TODO: Make a proper function of this crap
     private IEnumerator AnimateBalls()
     {
@@ -123,18 +158,18 @@ public class DemoEffectEyeBalls : DemoEffectBase
         float radius = 0.64f;
         float fullMoveTime = .6f;
         
-        for (int i = 0; i < ballRenderers.Count(); i++)
+        for (int i = 0; i < ballEnemies.Count(); i++)
         {
             float ypos = radius * Mathf.Cos(Mathf.PI * angleStep * i / 180f);
             float xpos = radius * Mathf.Sin(Mathf.PI * angleStep * i / 180f);
             
             Vector2 posMovePoint = new Vector2(xpos, ypos);            
-            GameObject currentBallRenderer = ballRenderers[i].gameObject;
+            GameObject currentBallRenderer = ballEnemies[i].gameObject;
 
             currentBallRenderer.SetActive(true);
-            currentBallRenderer.transform.DOLocalMove(new Vector3(posMovePoint.x, posMovePoint.y, 1f), fullMoveTime, false).SetDelay(fullMoveTime / ballRenderers.Count() * 2f * i).OnComplete(() =>
+            currentBallRenderer.transform.DOLocalMove(new Vector3(posMovePoint.x, posMovePoint.y, 1f), fullMoveTime, false).SetDelay(fullMoveTime / ballEnemies.Count() * 2f * i).OnComplete(() =>
             {
-                currentBallRenderer.transform.DOLocalMove(new Vector3(posMovePoint.x * -1f, posMovePoint.y * -1f, 1f), fullMoveTime * 2f, false).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);                
+                currentBallRenderer.transform.DOLocalMove(new Vector3(posMovePoint.x * -1f, posMovePoint.y * -1f, 1f), fullMoveTime * 2f, false).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);                  
             });
         }
         

@@ -42,14 +42,14 @@ public class ApplicationController : SingletonMono<ApplicationController>
             new DemoeffectIntro().Init() ,
             new DemoEffectRun().Init(),
             new DemoeffectTextScroller().Init(),            
-            new DemoEffectEyeBalls().Init(),            
-            new DemoEffectTimeBomb().Init(),
+            new DemoEffectEyeBalls().Init(), //<-- MIKSI SKIPATAAN!=?!=!=                        
+            new DemoEffectSunset().Init(),
             new DemoEffectMatrix().Init(),
-            new DemoEffectSunset().Init()
-            
+            new DemoEffectTimeBomb().Init()
+
         };
 
-        RunAllDemoEffects(2);
+        RunAllDemoEffects(0);
 
         InputController.Instance.EscDown.Subscribe(b => { if (b) QuitApp(); });
     }

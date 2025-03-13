@@ -5,12 +5,15 @@ using System;
 public class GenericEnemy : MonoBehaviour
 {
     public ReactiveProperty<Vector3?> DeathPosition = new ReactiveProperty<Vector3?>(null);
+    public int BulletHitCount = 0;
     private SpriteRenderer spriteRenderer => GetComponent<SpriteRenderer>();
     private new Collider2D collider2D = null;
     private Rigidbody2D rb;
-    private Vector2 moveSpeed = Vector2.zero;
+    private Vector2? moveSpeed = Vector2.zero;
     private bool dieOnBulletCollision;
-    public GenericEnemy Init(Vector2 speed, Type colliderType, bool isTrigger = true, bool dieOnBullet = true)
+    private Action<GenericEnemy> hitAction = null;
+    
+    public GenericEnemy Init(Vector2? speed, Type colliderType, bool isTrigger = true, bool dieOnBullet = true)
     {
         if (colliderType == typeof(BoxCollider2D) || colliderType == typeof(CircleCollider2D))
         {
@@ -30,13 +33,28 @@ public class GenericEnemy : MonoBehaviour
         return this;
     }
 
+    public GenericEnemy AddBulletHitAction(Action<GenericEnemy> action)
+    {
+        hitAction = action;
+        return this;
+    }
+
     public void OnTriggerEnter2D(Collider2D collision)
     {
         GenericBullet bullet = collision.GetComponent<GenericBullet>();
-        if (dieOnBulletCollision && bullet != null)
+        if (bullet != null)
         {
+            //Increment hit count
+            BulletHitCount++;
+
+            //Invoke Bullet hit triggered action with this enemy as parameter. If any.
+            hitAction?.Invoke(this);
+
+            //And also die if dieOnBulletCollision
+            if (dieOnBulletCollision)            
+                Die(true);
+
             bullet.Die();
-            Die(true);
         }
             
     }
@@ -50,6 +68,7 @@ public class GenericEnemy : MonoBehaviour
 
     protected virtual void Update()
     {
-        transform.Translate(moveSpeed * Time.deltaTime);
+        if (moveSpeed.HasValue)
+            transform.Translate(moveSpeed.Value * Time.deltaTime);
     }
 }
