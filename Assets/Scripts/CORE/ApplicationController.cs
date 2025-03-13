@@ -40,9 +40,9 @@ public class ApplicationController : SingletonMono<ApplicationController>
         demoEffects = new List<DemoEffectBase>()
         {
             new DemoeffectIntro().Init() ,
-            new DemoEffectRun().Init(),
-            new DemoeffectTextScroller().Init(),            
-            new DemoEffectEyeBalls().Init(), //<-- MIKSI SKIPATAAN!=?!=!=                        
+            new DemoEffectRun().Init(),            
+            new DemoeffectTextScroller().Init(),
+            new DemoEffectEyeBalls().Init(), //<-- MIKSI SKIPATAAN!=?!=!=         
             new DemoEffectSunset().Init(),
             new DemoEffectMatrix().Init(),
             new DemoEffectTimeBomb().Init()

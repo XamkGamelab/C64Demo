@@ -7,6 +7,7 @@ using Unity.VisualScripting;
 using DG.Tweening;
 using System.Linq;
 using UniRx;
+
 public class DemoEffectEyeBalls : DemoEffectBase
 {
     private Image img;    
@@ -19,6 +20,7 @@ public class DemoEffectEyeBalls : DemoEffectBase
     private Vector2 moveInput = Vector2.zero;
     private Rect playAreaRect;
     private float shipSpeed = 2f;
+    private bool isEnding = false;
 
     public override DemoEffectBase Init()
     {
@@ -70,6 +72,7 @@ public class DemoEffectEyeBalls : DemoEffectBase
         Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[0];
 
         moveInput = Vector2.zero;
+        isEnding = false;
 
         ExecuteInUpdate = true;
 
@@ -125,8 +128,10 @@ public class DemoEffectEyeBalls : DemoEffectBase
 
         ballEnemy.transform.DOLocalMove(new Vector3(0, 0, 1f), 2f, false);
 
-        if (ballEnemies.All(be => be.BulletHitCount > 0))
+        if (ballEnemies.All(be => be.BulletHitCount > 0) && !isEnding)
         {
+            isEnding = true;
+
             //Should all hit actions for all balls be removed?
 
             Debug.Log("ALL BALLS HAVE BEEN HIT, END DEMO!!!!");
