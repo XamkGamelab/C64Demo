@@ -40,9 +40,9 @@ public class DemoEffectMatrix : DemoEffectBase
             collectTextQueue.Enqueue(charArray[i]);
         currentCollectChar = collectTextQueue.Dequeue();
         
-        float steps = UIController.GetCanvasSize().Value.x / characterSize / 2f;
+        float steps = ApplicationController.Instance.UI.GetCanvasSize().Value.x / characterSize / 2f;
         for (int i = 0; i < steps; i++)
-            matrixTexts.Add(new MatrixText { TmpText = InstantiateMatrixText("MatrixText_" + i, i * characterSize * 2 - UIController.GetCanvasSize().Value.x * .5f), Speed = UnityEngine.Random.Range(1, 4), Letters = UnityEngine.Random.Range(20, 30) });
+            matrixTexts.Add(new MatrixText { TmpText = InstantiateMatrixText("MatrixText_" + i, i * characterSize * 2 - ApplicationController.Instance.UI.GetCanvasSize().Value.x * .5f), Speed = UnityEngine.Random.Range(1, 4), Letters = UnityEngine.Random.Range(20, 30) });
 
         //One random text is collectable and slow
         var rmt = matrixTexts[UnityEngine.Random.Range(0, matrixTexts.Count)];
@@ -211,14 +211,14 @@ public class DemoEffectMatrix : DemoEffectBase
 
     private void ResetTextFallPosition(MatrixText matrixText)
     {
-        matrixText.TmpText.transform.localPosition = new Vector3(matrixText.TmpText.transform.localPosition.x, UIController.GetCanvasSize().Value.y, matrixText.TmpText.transform.localPosition.z);
+        matrixText.TmpText.transform.localPosition = new Vector3(matrixText.TmpText.transform.localPosition.x, ApplicationController.Instance.UI.GetCanvasSize().Value.y, matrixText.TmpText.transform.localPosition.z);
         matrixText.TmpText.text = "";
         matrixText.Shorten = false;
     }
 
     private TMP_Text InstantiateMatrixText(string goName, float xpos)
     {
-        RectTransform txtRect = ApplicationController.Instance.UI.CreateRectTransformObject(goName, new Vector2(characterSize, characterSize), new Vector3(xpos, UIController.GetCanvasSize().Value.y + UnityEngine.Random.Range(0,40)* characterSize, 0), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f));
+        RectTransform txtRect = ApplicationController.Instance.UI.CreateRectTransformObject(goName, new Vector2(characterSize, characterSize), new Vector3(xpos, ApplicationController.Instance.UI.GetCanvasSize().Value.y + UnityEngine.Random.Range(0,40)* characterSize, 0), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f));
         txtRect.pivot = new Vector2(0.5f, 0f);
         txt = TextFunctions.AddTextMeshProTextComponent(txtRect, "C64_Pro_Mono-STYLE", (int)characterSize, ApplicationController.Instance.C64PaletteArr[1]);
         txt.alignment = TextAlignmentOptions.Top;

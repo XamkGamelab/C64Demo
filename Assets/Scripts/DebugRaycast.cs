@@ -16,7 +16,7 @@ public class DebugRaycast : MonoBehaviour
     void Start()
     {
         //Fetch the Raycaster from the GameObject (the Canvas)
-        m_Raycaster = UIController.Instance.UICanvas.GetComponent<GraphicRaycaster>();
+        m_Raycaster = ApplicationController.Instance.UI.UILoResCanvas.GetComponent<GraphicRaycaster>();
         //Fetch the Event System from the Scene
         m_EventSystem = GetComponent<EventSystem>();
     }

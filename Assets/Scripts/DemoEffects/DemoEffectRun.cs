@@ -73,7 +73,7 @@ public class DemoEffectRun : DemoEffectBase
         AddToGeneratedObjectsDict(groundRenderer.gameObject.name, groundRenderer.gameObject);
 
         //Waving text
-        txtRect = ApplicationController.Instance.UI.CreateRectTransformObject("Text_scroller", new Vector2(UIController.GetCanvasSize().Value.x, 8), new Vector3(-30f, -30f, 0), Vector2.one * .5f, Vector2.one * .5f);
+        txtRect = ApplicationController.Instance.UI.CreateRectTransformObject("Text_scroller", new Vector2(ApplicationController.Instance.UI.GetCanvasSize().Value.x, 8), new Vector3(-30f, -30f, 0), Vector2.one * .5f, Vector2.one * .5f);
         txtRect.pivot = new Vector2(1f, 0.5f);
         txt = TextFunctions.AddTextMeshProTextComponent(txtRect, "C64_Pro_Mono-STYLE", 8, ApplicationController.Instance.C64PaletteArr[1]);
         txt.alignment = TextAlignmentOptions.MidlineRight;

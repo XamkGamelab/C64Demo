@@ -68,7 +68,7 @@ public class DemoeffectTextScroller : DemoEffectBase
         InstantiateGradientImages(8, (4, 32));
 
         //Bottom gradient bg
-        RectTransform bottomGradientRect = ApplicationController.Instance.UI.CreateRectTransformObject("Image_gradient_bottom", new Vector2(UIController.GetCanvasSize().Value.x, gradientBottomHeight), new Vector3(0, 8, 0), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f));
+        RectTransform bottomGradientRect = ApplicationController.Instance.UI.CreateRectTransformObject("Image_gradient_bottom", new Vector2(ApplicationController.Instance.UI.GetCanvasSize().Value.x, gradientBottomHeight), new Vector3(0, 8, 0), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f));
         bottomGradientRect.pivot = new Vector2(0.5f, 0f);
         bottomGradientRect.SetAsFirstSibling();        
         Image bottomImg = bottomGradientRect.AddComponent<Image>();
@@ -206,7 +206,6 @@ public class DemoeffectTextScroller : DemoEffectBase
                 asteroidsDestroyed++;
                 if (asteroidsDestroyed >= asteroidsRequired)
                 {
-                    Debug.Log("DOES TEXT SCROLLER END MULTIPLE TIMES?!?!?");
                     //Unsubsribe from input and asteroid spawning
                     Disposables.Dispose();
                     moveInput = Vector2.zero;

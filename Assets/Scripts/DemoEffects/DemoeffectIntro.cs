@@ -159,7 +159,6 @@ public class DemoeffectIntro : DemoEffectBase
 
     private IEnumerator GirlAnimation()
     {
-        Debug.Log("GIRL ANIMATION");
         imgGirlSpeech1.gameObject.SetActive(true);
         float startTime = Time.time;
         bool secondBubbleActive = false;
