@@ -448,7 +448,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Views:
   - UiLayer: 2
-    View: {fileID: 2417558121342576875, guid: 8cdbdb7d5b49f2a4ba01603f5aa3d5eb, type: 3}
+    View: {fileID: 7423603878756014553, guid: 8cdbdb7d5b49f2a4ba01603f5aa3d5eb, type: 3}
 --- !u!1 &9090076491676440208
 GameObject:
   m_ObjectHideFlags: 0

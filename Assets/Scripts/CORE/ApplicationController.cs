@@ -49,10 +49,15 @@ public class ApplicationController : SingletonMono<ApplicationController>
 
         };
 
-        RunAllDemoEffects(0);
+        //RunAllDemoEffects(0);
 
         //Can't simply just quit app, but should open UIView for pause, from where user can quit to desktop
         //InputController.Instance.EscDown.Subscribe(b => { if (b) QuitApp(); });
+    }
+
+    public void StartNewGame()
+    {
+        RunAllDemoEffects(0);
     }
 
     public void FadeImageInOut(float duration, Color color, System.Action callBack, System.Action callBackEnd)

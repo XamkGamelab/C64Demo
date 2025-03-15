@@ -131,7 +131,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7983736367460695912}
   - component: {fileID: 3595123523814278966}
-  - component: {fileID: 2417558121342576875}
+  - component: {fileID: 7423603878756014553}
   m_Layer: 5
   m_Name: UiViewMainMenu
   m_TagString: Untagged
@@ -168,7 +168,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2279827519563480106}
   m_CullTransparentMesh: 1
---- !u!114 &2417558121342576875
+--- !u!114 &7423603878756014553
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -177,16 +177,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 2279827519563480106}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4314ce0340ec5214aabe19ce8eaaa719, type: 3}
+  m_Script: {fileID: 11500000, guid: d3a73f125a4d7d140818ec208c095326, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   DefaultState: 0
   HideChildObject: {fileID: 0}
-  AllowToggle: 0
+  AllowToggle: 1
   CloseWithCancel: 0
   CloseWhenAnotherViewOpens: 0
   IsOpen:
     value: 0
+  ButtonStartGame: {fileID: 6749376494634481192}
 --- !u!1 &5543734062852733299
 GameObject:
   m_ObjectHideFlags: 0
