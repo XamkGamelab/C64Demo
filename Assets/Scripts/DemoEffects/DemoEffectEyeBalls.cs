@@ -159,8 +159,9 @@ public class DemoEffectEyeBalls : DemoEffectBase
         
         /* correct time step is: full movement time (e.g. 2 sec) / amount of balls * 2 ( = e.g. 16) which gives current hard-coded step of 0.125f */
 
+        
         float angleStep = 22.5f;
-        float radius = 0.64f;
+        float radius = 0.64f;        
         float fullMoveTime = .6f;
         
         for (int i = 0; i < ballEnemies.Count(); i++)
