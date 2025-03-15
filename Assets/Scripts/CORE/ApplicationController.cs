@@ -40,16 +40,16 @@ public class ApplicationController : SingletonMono<ApplicationController>
         demoEffects = new List<DemoEffectBase>()
         {
             new DemoeffectIntro().Init() ,
-            new DemoEffectRun().Init(),
-            new DemoeffectTextScroller().Init(),            
-            new DemoEffectEyeBalls().Init(),            
-            new DemoEffectTimeBomb().Init(),
+            new DemoEffectRun().Init(),            
+            new DemoeffectTextScroller().Init(),
+            new DemoEffectEyeBalls().Init(), //<-- MIKSI SKIPATAAN!=?!=!=         
+            new DemoEffectSunset().Init(),
             new DemoEffectMatrix().Init(),
-            new DemoEffectSunset().Init()
-            
+            new DemoEffectTimeBomb().Init()
+
         };
 
-        RunAllDemoEffects(2);
+        RunAllDemoEffects(3);
 
         InputController.Instance.EscDown.Subscribe(b => { if (b) QuitApp(); });
     }

@@ -28,7 +28,7 @@ public class DemoEffectRun : DemoEffectBase
 
     private float groundHalfWidth = 9.6f;
     private float groundScrollSpeedMin = .5f;
-    private float groundScrollSpeedMax = 2f;
+    private float groundScrollSpeedMax = 2.2f;
 
     private float minSpeedPercent = .1f;
     private float currentSpeedPercent = .1f;
@@ -36,7 +36,7 @@ public class DemoEffectRun : DemoEffectBase
     private float speedIncrecrement = 0.05f;
 
     private float rmTransformSpeed = 0f;
-    private float rmMaxTransformSpeed = .1f;
+    private float rmMaxTransformSpeed = .12f;
 
     private Vector3 groundStartPos;    
     private bool nextInputLeft = true;

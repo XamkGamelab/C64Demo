@@ -80,7 +80,6 @@ public class DemoEffectMatrix : DemoEffectBase
 
         AudioController.Instance.PlayTrack("Jing3");
 
-        /*
         yield return new WaitForSeconds(4f);
 
         handRed.color = new Color(1f, 1f, 1f, 0f);
@@ -98,10 +97,7 @@ public class DemoEffectMatrix : DemoEffectBase
         });
 
         yield return new WaitForSeconds(12f);
-        */
-
         
-
         //Enable all generated objects        
         GeneratedObjectsSetActive(true);
 

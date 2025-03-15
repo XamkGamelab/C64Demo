@@ -123,9 +123,9 @@ public class SimpleSpriteAnimator : MonoBehaviour
     private void Initialize()
     {
         //Start coroutine in OnEnable, so that coroutine resets for PlatformerObjects that are disabled (e.g. Coin)
-        if (!StartWhenInCamViewport && !DontAutoPlay)
+        if (!StartWhenInCamViewport && !DontAutoPlay)        
             Play(true);
-
+        
         loopsPlayed = 0;
         currentFrame = StartFromFrame;
     }
