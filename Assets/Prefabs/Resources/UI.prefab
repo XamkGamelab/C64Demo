@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7176172026181247368}
   - component: {fileID: 4228976934239980959}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: RootContext
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56,7 +56,7 @@ GameObject:
   - component: {fileID: 2251783578500648228}
   - component: {fileID: 6690140329990453796}
   - component: {fileID: 5354463731654130661}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: UI-hi-res
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -343,7 +343,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5307254869646910690}
   - component: {fileID: 7840152549595876330}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: RootFullScreen
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -459,7 +459,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6365468710625184910}
   - component: {fileID: 4631134606058091181}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: RootHUD
   m_TagString: Untagged
   m_Icon: {fileID: 0}
