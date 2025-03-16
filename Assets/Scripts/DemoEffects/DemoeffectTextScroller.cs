@@ -67,6 +67,8 @@ public class DemoeffectTextScroller : DemoEffectBase
         //Top gradients
         InstantiateGradientImages(8, (4, 32));
 
+        Debug.Log("Canvas size: " + ApplicationController.Instance.UI.GetCanvasSize().Value.x);
+
         //Bottom gradient bg
         RectTransform bottomGradientRect = ApplicationController.Instance.UI.CreateRectTransformObject("Image_gradient_bottom", new Vector2(ApplicationController.Instance.UI.GetCanvasSize().Value.x, gradientBottomHeight), new Vector3(0, 8, 0), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f));
         bottomGradientRect.pivot = new Vector2(0.5f, 0f);

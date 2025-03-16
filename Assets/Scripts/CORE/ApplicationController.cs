@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using DG.Tweening;
 using System.Linq;
 using UniRx;
+using System.Threading.Tasks;
 
 public class ApplicationController : SingletonMono<ApplicationController>
 {
@@ -24,11 +25,14 @@ public class ApplicationController : SingletonMono<ApplicationController>
     {
         Instance.Init();
     }
-    public void Init()
+    public async void Init()
     {
         UI = InstantiateUIPrefab().Init();
         flashFadeImage = InstantiateFlashFadeImage();
         flashFadeImage.gameObject.SetActive(false);
+
+        //Because piece of shit unity haven't set CORRECT Canvas size until unknown delay
+        await Task.Delay(100);
 
         CameraSettings = new Dictionary<string, CameraSettings>()
         {
@@ -57,7 +61,7 @@ public class ApplicationController : SingletonMono<ApplicationController>
 
     public void StartNewGame()
     {
-        RunAllDemoEffects(0);
+        RunAllDemoEffects(2);
     }
 
     public void FadeImageInOut(float duration, Color color, System.Action callBack, System.Action callBackEnd)
