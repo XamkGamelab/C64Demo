@@ -32,7 +32,7 @@ public class ApplicationController : SingletonMono<ApplicationController>
         flashFadeImage.gameObject.SetActive(false);
 
         //Because piece of shit unity haven't set CORRECT Canvas size until unknown delay
-        await Task.Delay(100);
+        await Task.Delay(1000);
 
         CameraSettings = new Dictionary<string, CameraSettings>()
         {
@@ -61,7 +61,7 @@ public class ApplicationController : SingletonMono<ApplicationController>
 
     public void StartNewGame()
     {
-        RunAllDemoEffects(2);
+        RunAllDemoEffects(0);
     }
 
     public void FadeImageInOut(float duration, Color color, System.Action callBack, System.Action callBackEnd)
