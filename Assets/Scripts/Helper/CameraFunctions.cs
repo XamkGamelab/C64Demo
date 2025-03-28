@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Linq;
+using UnityEditor.Rendering;
 
 public static class CameraFunctions
 {
@@ -9,6 +10,12 @@ public static class CameraFunctions
         cam.orthographic = cameraSettings.Orthographic;
         cam.orthographicSize = cameraSettings.OrthographicSize;
         cam.fieldOfView = cameraSettings.FOV;
+    }
+
+    public static float CameraDistanceFromObjectHeight(Camera cam, float objectHeight)
+    {
+        float distance = objectHeight * 0.5f / Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad);        
+        return distance;
     }
 
     public static bool IsBoundsWithinViewport(Camera cam, Vector3 nextCameraPosition, Bounds _bounds)

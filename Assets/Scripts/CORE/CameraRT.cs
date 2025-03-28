@@ -2,20 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using DG.Tweening;
 
 public class CameraRT : MonoBehaviour
 {
+    public GameObject RenderTextureObject;
     private Camera cameraRT => GetComponent<Camera>();
-    void Start()
-    {
-        //BECAUSE THE QUAD HEIGHT (SCALE) IS 2f, this would set the quad to correct place!!!
-        float distance = 2f * 0.5f / Mathf.Tan(cameraRT.fieldOfView * 0.5f * Mathf.Deg2Rad);
-        Debug.Log("Distance: " + distance);
-    }
 
-    // Update is called once per frame
-    void Update()
+    public void AnimateIntro()
     {
-        
+        //TODO: It would be best to align camera and target "screen" object position as well, since we are animating the camera transform position...
+        //Point being, that we wouldn't need to care neither about the camera's position nor the "screens" position.
+
+        float distanceToObject = CameraFunctions.CameraDistanceFromObjectHeight(cameraRT, RenderTextureObject.GetComponent<Renderer>().bounds.size.y);
+        Debug.Log("Target distance to object: " + distanceToObject);
+
+        Vector3 cameraTargetPosition = RenderTextureObject.transform.position;
+        cameraTargetPosition.z = -distanceToObject;
+
+        cameraRT.transform.DOMove(cameraTargetPosition, 1f);
     }
 }

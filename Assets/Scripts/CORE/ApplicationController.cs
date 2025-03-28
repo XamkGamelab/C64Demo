@@ -27,6 +27,8 @@ public class ApplicationController : SingletonMono<ApplicationController>
     }
     public async void Init()
     {
+        InitSceneCameraRT();
+
         UI = InstantiateUIPrefab().Init();
         flashFadeImage = InstantiateFlashFadeImage();
         flashFadeImage.gameObject.SetActive(false);
@@ -103,6 +105,14 @@ public class ApplicationController : SingletonMono<ApplicationController>
         }));
     }
 
+    private void InitSceneCameraRT()
+    {
+        CameraRT cameraRT = FindObjectOfType<CameraRT>(true);
+        if (cameraRT != null)        
+            cameraRT.AnimateIntro();        
+        else
+            Debug.LogError("Camera RT not found from scene!");
+    }
     private void QuitApp()
     {
         Debug.Log("QUIT");
