@@ -121,6 +121,8 @@ public class DemoeffectIntro : DemoEffectBase
     {
         yield return base.Run(callbackEnd);
 
+        Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[13];
+
         //Disable input and reset all values
         inputActive = false;
         pressSpaceCount = 0;

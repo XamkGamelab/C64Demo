@@ -18,8 +18,8 @@ public class CameraRT : MonoBehaviour
         Debug.Log("Target distance to object: " + distanceToObject);
 
         Vector3 cameraTargetPosition = RenderTextureObject.transform.position;
-        cameraTargetPosition.z = -distanceToObject;
+        cameraTargetPosition.z = RenderTextureObject.transform.position.z - distanceToObject;
 
-        cameraRT.transform.DOMove(cameraTargetPosition, 1f);
+        cameraRT.transform.DOMove(cameraTargetPosition, 5f);
     }
 }
