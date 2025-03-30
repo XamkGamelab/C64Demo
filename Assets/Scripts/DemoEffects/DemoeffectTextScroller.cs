@@ -217,17 +217,19 @@ public class DemoeffectTextScroller : DemoEffectBase
                     asteroids.Where(a => a != null).ToList().ForEach(a => a.Die(true));
 
                     //Move ship to right and fade in transition
-                    shipRenderer.transform.DOMoveX(playAreaRect.xMax, 2f, false).SetEase(Ease.InExpo).OnComplete(() => { 
+                    shipRenderer.transform.DOMoveX(playAreaRect.xMax, 2f, false).SetEase(Ease.InExpo).OnComplete(() => 
+                    { 
 
                         ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[1], () =>
                         {
-                            base.End(false);
+                            Debug.Log("END TEXT SCROLLER?!");
+                            base.End(true);
                         }, null);
                     });
                 }
             }
         }
-        );
+        ).AddTo(Disposables);
     }
     private void InstantiateLaserShot(Vector3 pos)
     {
