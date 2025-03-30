@@ -105,6 +105,12 @@ public class ApplicationController : SingletonMono<ApplicationController>
         }));
     }
 
+    public void QuitApp()
+    {
+        Debug.Log("QUIT");
+        Application.Quit();
+    }
+
     private void InitSceneCameraRT()
     {
         CameraRT cameraRT = FindObjectOfType<CameraRT>(true);
@@ -112,11 +118,6 @@ public class ApplicationController : SingletonMono<ApplicationController>
             cameraRT.AnimateIntro();        
         else
             Debug.LogError("Camera RT not found from scene!");
-    }
-    private void QuitApp()
-    {
-        Debug.Log("QUIT");
-        Application.Quit();
     }
 
     private void ActivateFlashFadeImage(Color color)

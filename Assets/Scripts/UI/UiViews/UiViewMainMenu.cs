@@ -1,47 +1,44 @@
 using System.Collections;
 using System.Collections.Generic;
-using static UnityEditor.Experimental.GraphView.GraphView;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
 public class UiViewMainMenu : UiView
 {
-    public Button ButtonStartGame;
+    public List<UiMainMenuButton> mainMenuButtons => GetComponentsInChildren<UiMainMenuButton>().ToList();
 
     protected override void Awake()
     {
         base.Awake();
 
-        ButtonStartGame.onClick.AddListener(HandleStartButton);
+        mainMenuButtons.ForEach(button => button.OnPointerClickEvent += HandleMenuButton);
     }
 
-    /**
-    * Extend UiView Show by selecting/deselecting the initially selected button.    
-    */
+
+    /// <summary>
+    /// Extend UiView Show by selecting/deselecting the initially selected button.    
+    /// </summary>
+    /// <param name="_showViewWhenThisHides"></param>    
     public override void Show(UiView _showViewWhenThisHides = null)
     {
-        base.Show(_showViewWhenThisHides);
-
-        /*
-        if (currentlySelectedButton != null)
-        {
-            currentlySelectedButton.Select();
-        }
-        else if (initSelectedButton != null)
-        {
-            initSelectedButton.Select();
-        }
-
-        //Load screen shot images
-
-        if (Saver.Instance.SaveSettings.Value != null)
-            saveSlotButtons.ForEach(button => button.LoadScreenShotImage());
-        */
+        base.Show(_showViewWhenThisHides);        
     }
 
-    private void HandleStartButton()
+    private void HandleMenuButton(UiMainMenuButton button)
     {
-        Debug.Log("START GAME BUTTON");
-        ApplicationController.Instance.StartNewGame();
         Hide();
+
+        switch (button.ButtonType)
+        {
+            case UiMainMenuButton.MainMenuButtonType.Start:
+                ApplicationController.Instance.StartNewGame();
+                break;
+            case UiMainMenuButton.MainMenuButtonType.Quit:
+                ApplicationController.Instance.QuitApp();
+                break;
+            default:
+                Debug.LogWarning("Button functionality not implemented yet!");
+                break;
+        }
     }
 }
