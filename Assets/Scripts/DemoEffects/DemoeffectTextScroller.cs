@@ -67,8 +67,10 @@ public class DemoeffectTextScroller : DemoEffectBase
         //Top gradients
         InstantiateGradientImages(8, (4, 32));
 
+        Debug.Log("Canvas size: " + ApplicationController.Instance.UI.GetCanvasSize().Value.x);
+
         //Bottom gradient bg
-        RectTransform bottomGradientRect = ApplicationController.Instance.UI.CreateRectTransformObject("Image_gradient_bottom", new Vector2(UIController.GetCanvasSize().Value.x, gradientBottomHeight), new Vector3(0, 8, 0), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f));
+        RectTransform bottomGradientRect = ApplicationController.Instance.UI.CreateRectTransformObject("Image_gradient_bottom", new Vector2(ApplicationController.Instance.UI.GetCanvasSize().Value.x, gradientBottomHeight), new Vector3(0, 8, 0), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f));
         bottomGradientRect.pivot = new Vector2(0.5f, 0f);
         bottomGradientRect.SetAsFirstSibling();        
         Image bottomImg = bottomGradientRect.AddComponent<Image>();
@@ -206,7 +208,6 @@ public class DemoeffectTextScroller : DemoEffectBase
                 asteroidsDestroyed++;
                 if (asteroidsDestroyed >= asteroidsRequired)
                 {
-                    Debug.Log("DOES TEXT SCROLLER END MULTIPLE TIMES?!?!?");
                     //Unsubsribe from input and asteroid spawning
                     Disposables.Dispose();
                     moveInput = Vector2.zero;
@@ -216,17 +217,19 @@ public class DemoeffectTextScroller : DemoEffectBase
                     asteroids.Where(a => a != null).ToList().ForEach(a => a.Die(true));
 
                     //Move ship to right and fade in transition
-                    shipRenderer.transform.DOMoveX(playAreaRect.xMax, 2f, false).SetEase(Ease.InExpo).OnComplete(() => { 
+                    shipRenderer.transform.DOMoveX(playAreaRect.xMax, 2f, false).SetEase(Ease.InExpo).OnComplete(() => 
+                    { 
 
                         ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[1], () =>
                         {
-                            base.End(false);
+                            Debug.Log("END TEXT SCROLLER?!");
+                            base.End(true);
                         }, null);
                     });
                 }
             }
         }
-        );
+        ).AddTo(Disposables);
     }
     private void InstantiateLaserShot(Vector3 pos)
     {

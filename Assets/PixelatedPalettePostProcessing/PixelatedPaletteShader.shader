@@ -89,18 +89,19 @@ Shader "Custom/URPPixelatedPaletteShader"
             half4 frag(Varyings IN) : SV_Target
             {
                 //Pixelate   
-                float2 blockPos = floor(IN.uv * _BlockCount);
-                float2 blockCenter = blockPos * _BlockSize + _HalfBlockSize;
-                half4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_point_clamp, blockCenter);            		        
-                float yPos = _LUT_TexelSize.w / _PaletteCellSize * _LUT_TexelSize.y;
-                half4 gradedCol = (1,1,1,1);
+                //float2 blockPos = floor(IN.uv * _BlockCount);
+                //float2 blockCenter = blockPos * _BlockSize + _HalfBlockSize;
+                half4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_point_clamp, IN.uv);            		        
+                
+                float yPos = _LUT_TexelSize.w / _PaletteCellSize * _LUT_TexelSize.y;                
+                float4 gradedCol = (1,1,1,1);
 
                 //Sample color from LUT palette
 	   			float dist = 10000000.0;
                 for (int i = _PaletteCellSize * 0.5; i < _LUT_TexelSize.z; i += _PaletteCellSize) 
                 {
                     float2 palettePos = float2(i * _LUT_TexelSize.x, yPos);
-                    half4 paletteCol = SAMPLE_TEXTURE2D(_LUT, sampler_point_clamp, palettePos);
+                    float4 paletteCol = SAMPLE_TEXTURE2D(_LUT, sampler_point_clamp, palettePos);
 
                     float d = distance(color, paletteCol);
 	   				if (d < dist) {
@@ -113,4 +114,4 @@ Shader "Custom/URPPixelatedPaletteShader"
             ENDHLSL
         }
     }
-}
+} //float4

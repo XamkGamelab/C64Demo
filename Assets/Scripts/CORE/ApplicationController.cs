@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using DG.Tweening;
 using System.Linq;
 using UniRx;
+using System.Threading.Tasks;
 
 public class ApplicationController : SingletonMono<ApplicationController>
 {
@@ -24,11 +25,16 @@ public class ApplicationController : SingletonMono<ApplicationController>
     {
         Instance.Init();
     }
-    public void Init()
+    public async void Init()
     {
+        InitSceneCameraRT();
+
         UI = InstantiateUIPrefab().Init();
         flashFadeImage = InstantiateFlashFadeImage();
         flashFadeImage.gameObject.SetActive(false);
+
+        //Because piece of shit unity haven't set CORRECT Canvas size until unknown delay
+        await Task.Delay(1000);
 
         CameraSettings = new Dictionary<string, CameraSettings>()
         {
@@ -49,9 +55,15 @@ public class ApplicationController : SingletonMono<ApplicationController>
 
         };
 
-        RunAllDemoEffects(3);
+        //RunAllDemoEffects(0);
 
-        InputController.Instance.EscDown.Subscribe(b => { if (b) QuitApp(); });
+        //Can't simply just quit app, but should open UIView for pause, from where user can quit to desktop
+        //InputController.Instance.EscDown.Subscribe(b => { if (b) QuitApp(); });
+    }
+
+    public void StartNewGame()
+    {
+        RunAllDemoEffects(0);
     }
 
     public void FadeImageInOut(float duration, Color color, System.Action callBack, System.Action callBackEnd)
@@ -93,10 +105,19 @@ public class ApplicationController : SingletonMono<ApplicationController>
         }));
     }
 
-    private void QuitApp()
+    public void QuitApp()
     {
         Debug.Log("QUIT");
         Application.Quit();
+    }
+
+    private void InitSceneCameraRT()
+    {
+        CameraRT cameraRT = FindObjectOfType<CameraRT>(true);
+        if (cameraRT != null)        
+            cameraRT.AnimateIntro();        
+        else
+            Debug.LogError("Camera RT not found from scene!");
     }
 
     private void ActivateFlashFadeImage(Color color)

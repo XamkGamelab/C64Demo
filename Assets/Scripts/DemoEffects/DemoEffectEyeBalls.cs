@@ -69,6 +69,8 @@ public class DemoEffectEyeBalls : DemoEffectBase
     {
         yield return base.Run(callbackEnd);
 
+        Debug.Log("Start eye balls!");
+
         Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[0];
 
         moveInput = Vector2.zero;
@@ -96,6 +98,8 @@ public class DemoEffectEyeBalls : DemoEffectBase
 
     private void HandleFireInput(bool b)
     {
+        Debug.Log("Eye balls FIRE -> " + b);
+
         if (!FirePressed && b)
         {
             AudioController.Instance.PlaySoundEffect("Laser_Shoot_1");
