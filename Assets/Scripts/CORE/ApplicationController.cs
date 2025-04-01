@@ -60,6 +60,10 @@ public class ApplicationController : SingletonMono<ApplicationController>
 
         demoEffects.ForEach(effect => 
         {
+            //Instead subscribe to Running (bool reactive, from demo base!) time when effect Runs!
+            
+            //Also update here updates the time value in UI (in game), if the effect is running
+
             effect.ScoreAndTime.Subscribe(sat =>
             {
                 Debug.Log("TUPLE VCALUES UPDATE -> " + sat);
@@ -151,9 +155,13 @@ public class ApplicationController : SingletonMono<ApplicationController>
 
     private void Update()
     {
-        if (currentDemoEffect?.ExecuteInUpdate == true)
+        if (currentDemoEffect != null)
         {
-            currentDemoEffect.DoUpdate();
+            if (currentDemoEffect.ExecuteInUpdate)
+                currentDemoEffect.DoUpdate();
+
+            if (currentDemoEffect.Started.Value)
+                uiViewInGame?.UpdateRunningTime();
         }
     }
 }

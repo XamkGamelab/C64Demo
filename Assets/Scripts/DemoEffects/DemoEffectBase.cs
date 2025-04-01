@@ -7,15 +7,17 @@ using UniRx;
 
 public abstract class DemoEffectBase: IDemoEffect
 {
-    /*
+    //DONT USE THIS
+    public ReactiveProperty<(int score, int hiscore, float runningTime, float parTime)> ScoreAndTime = new ReactiveProperty<(int score, int hiscore, float runningTime, float parTime)>();
+
+    //LETS DO THIS INSTEAD
     public ReactiveProperty<int> Score = new ReactiveProperty<int>(0);
     public ReactiveProperty<int> HiScore = new ReactiveProperty<int>(0);
-    public ReactiveProperty<float> RunningTime = new ReactiveProperty<float>(0f);
-    public ReactiveProperty<float> ParTime = new ReactiveProperty<float>(0f);
-    */
 
-    public ReactiveProperty<(int score, int hiscore, float runningTime, float parTime)> ScoreAndTime = new ReactiveProperty<(int score, int hiscore, float runningTime, float parTime)>();
-     
+    //PAR TIME IS JUST SET IN INIT?!?!?
+    public ReactiveProperty<float> ParTime = new ReactiveProperty<float>(0f);
+
+    public ReactiveProperty<bool> Started = new ReactiveProperty<bool>(false);
 
     public Dictionary<string, GameObject> GeneratedObjects = new Dictionary<string, GameObject>();
     public bool Initialized { get; private set; } = false;
@@ -44,8 +46,7 @@ public abstract class DemoEffectBase: IDemoEffect
 
     public virtual IEnumerator Run(System.Action endDemoCallback)
     {
-        //Reset running time and current score
-        ScoreAndTime.Value = (0, 0, 0f, 0f);
+        Started.Value = true;
 
         Disposables = new CompositeDisposable();
         EndDemoCallback = endDemoCallback;        
@@ -54,6 +55,8 @@ public abstract class DemoEffectBase: IDemoEffect
 
     public virtual void End(bool dispose = true) 
     {
+        Started.Value = false;
+
         //Reset input values;
         HorizontalInput = VerticalInput = 0f;
         FirePressed = false;

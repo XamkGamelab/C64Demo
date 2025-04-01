@@ -11,6 +11,9 @@ public class UiViewInGame : UiView
     public TMP_Text TextTime;
     public TMP_Text TextPar;
 
+    //Give this when effect starts (Run() in demo base )
+    private float startTime;
+
     protected override void Awake()
     {
         base.Awake();
@@ -28,5 +31,11 @@ public class UiViewInGame : UiView
         TextHiScore.text = hiscore.ToString();
         TextTime.text = currentTime.ToString("00:00.00");
         TextPar.text = parTime.ToString("00:00.00");
+    }
+
+    public void UpdateRunningTime()
+    {
+        float runningTime = Time.time - startTime;
+        TextTime.text = runningTime.ToString("00:00.00");
     }
 }
