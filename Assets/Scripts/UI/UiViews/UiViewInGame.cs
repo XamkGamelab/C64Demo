@@ -20,4 +20,13 @@ public class UiViewInGame : UiView
     {
         base.Show(_showViewWhenThisHides);        
     }
+
+    public void UpdateScoreAndTime(int score, int hiscore, float currentTime, float parTime)
+    {
+        Debug.Log("Update score and time values from DemoEffectBase tuple reactive values");
+        TextScore.text = score.ToString();
+        TextHiScore.text = hiscore.ToString();
+        TextTime.text = currentTime.ToString("00:00.00");
+        TextPar.text = parTime.ToString("00:00.00");
+    }
 }

@@ -164,5 +164,8 @@ public class DemoEffectRun : DemoEffectBase
             nextInputLeft = true;            
             currentSpeedPercent += speedIncrecrement;
         }
+
+        if (currentSpeedPercent > 0.95f)
+            ScoreAndTime.Value = (50, 0, 0, 0);
     }
 }

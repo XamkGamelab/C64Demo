@@ -85,7 +85,7 @@ GameObject:
   - component: {fileID: 8680469601299813491}
   - component: {fileID: 8508330389978807047}
   m_Layer: 6
-  m_Name: TextValue
+  m_Name: TextValue_hiscore
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -220,7 +220,7 @@ GameObject:
   - component: {fileID: 2301681591394942510}
   - component: {fileID: 3187267558905183449}
   m_Layer: 6
-  m_Name: TextValue
+  m_Name: TextValue_score
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -567,7 +567,7 @@ GameObject:
   - component: {fileID: 5852452899067950025}
   - component: {fileID: 1360509864361802607}
   m_Layer: 6
-  m_Name: TextValue
+  m_Name: TextValue_par
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -702,7 +702,7 @@ GameObject:
   - component: {fileID: 3261629436158869461}
   - component: {fileID: 1701890778062316570}
   m_Layer: 6
-  m_Name: TextValue
+  m_Name: TextValue_time
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -884,17 +884,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7970e547e93e45e43bd31aefc0dfac25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DefaultState: 0
+  DefaultState: 1
   HideChildObject: {fileID: 0}
   AllowToggle: 1
   CloseWithCancel: 0
   CloseWhenAnotherViewOpens: 0
   IsOpen:
     value: 0
-  TextScore: {fileID: 0}
-  TextHiScore: {fileID: 0}
-  TextTime: {fileID: 0}
-  TextPar: {fileID: 0}
+  TextScore: {fileID: 3187267558905183449}
+  TextHiScore: {fileID: 8508330389978807047}
+  TextTime: {fileID: 1701890778062316570}
+  TextPar: {fileID: 1360509864361802607}
 --- !u!1 &5141699392908302546
 GameObject:
   m_ObjectHideFlags: 0

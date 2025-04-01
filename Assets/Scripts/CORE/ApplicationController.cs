@@ -19,7 +19,11 @@ public class ApplicationController : SingletonMono<ApplicationController>
  
     //Instantiate and init effect to this list after UI is instantiated
     private List<DemoEffectBase> demoEffects;
-    
+
+    private UiViewInGame uiViewInGame;
+
+    private CompositeDisposable disposables = new CompositeDisposable();
+
     [RuntimeInitializeOnLoadMethod]
     static void OnInit()
     {
@@ -52,18 +56,24 @@ public class ApplicationController : SingletonMono<ApplicationController>
             new DemoEffectSunset().Init(),
             new DemoEffectMatrix().Init(),
             new DemoEffectTimeBomb().Init()
-
         };
 
-        //RunAllDemoEffects(0);
-
-        //Can't simply just quit app, but should open UIView for pause, from where user can quit to desktop
-        //InputController.Instance.EscDown.Subscribe(b => { if (b) QuitApp(); });
+        demoEffects.ForEach(effect => 
+        {
+            effect.ScoreAndTime.Subscribe(sat =>
+            {
+                Debug.Log("TUPLE VCALUES UPDATE -> " + sat);
+                uiViewInGame?.UpdateScoreAndTime(sat.score, sat.hiscore, sat.runningTime, sat.parTime);
+            }).AddTo(disposables);
+        });
     }
 
     public void StartNewGame()
     {
         RunAllDemoEffects(0);
+        
+        //Get instance to update scores and times
+        uiViewInGame = UI.ShowUiView<UiViewInGame>() as UiViewInGame;
     }
 
     public void FadeImageInOut(float duration, Color color, System.Action callBack, System.Action callBackEnd)
