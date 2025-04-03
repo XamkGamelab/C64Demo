@@ -34,7 +34,7 @@ public class DemoEffectSunset : DemoEffectBase
     
     private float mountainsOffsetX = 0f;
     
-    public override DemoEffectBase Init()
+    public override DemoEffectBase Init(float parTime, string tutorialText)
     {
         spriteScrollMaterial = GameObject.Instantiate<Material>(Resources.Load<Material>("CustomSpriteScrolling"));
         gridMaterial = GameObject.Instantiate<Material>(Resources.Load<Material>("GridMaterial"));
@@ -73,7 +73,7 @@ public class DemoEffectSunset : DemoEffectBase
 
         InstantiatePalms(5, -2.56f, 1.28f, true);
 
-        return base.Init();
+        return base.Init(parTime, tutorialText);
     }
 
     public override IEnumerator Run(Action endDemoCallback)

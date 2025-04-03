@@ -11,6 +11,9 @@ public class UiViewInGame : UiView
     public TMP_Text TextTime;
     public TMP_Text TextPar;
 
+    //TODO: Implement tutorial text
+    //public TMP_Text TextTutorial;
+
     //Give this when effect starts (Run() in demo base )
     private float startTime;
 
@@ -33,9 +36,18 @@ public class UiViewInGame : UiView
         TextPar.text = parTime.ToString("00:00.00");
     }
 
-    public void UpdateRunningTime()
+    public void UpdateScores(int score, int hiscore)
     {
-        float runningTime = Time.time - startTime;
+        TextScore.text = score.ToString("00000000");
+        TextHiScore.text = hiscore.ToString("00000000");
+    }
+    public void UpdateNewEffect(float parTime)
+    {
+        TextPar.text = parTime.ToString("00:00.00");
+        //Update and show tutorial text
+    }
+    public void UpdateRunningTime(float runningTime)
+    {
         TextTime.text = runningTime.ToString("00:00.00");
     }
 }

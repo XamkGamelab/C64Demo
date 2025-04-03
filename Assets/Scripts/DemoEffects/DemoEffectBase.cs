@@ -8,16 +8,14 @@ using UniRx;
 public abstract class DemoEffectBase: IDemoEffect
 {
     //DONT USE THIS
-    public ReactiveProperty<(int score, int hiscore, float runningTime, float parTime)> ScoreAndTime = new ReactiveProperty<(int score, int hiscore, float runningTime, float parTime)>();
+    //public ReactiveProperty<(int score, int hiscore, float runningTime, float parTime)> ScoreAndTime = new ReactiveProperty<(int score, int hiscore, float runningTime, float parTime)>();
 
-    //LETS DO THIS INSTEAD
     public ReactiveProperty<int> Score = new ReactiveProperty<int>(0);
     public ReactiveProperty<int> HiScore = new ReactiveProperty<int>(0);
-
-    //PAR TIME IS JUST SET IN INIT?!?!?
-    public ReactiveProperty<float> ParTime = new ReactiveProperty<float>(0f);
-
     public ReactiveProperty<bool> Started = new ReactiveProperty<bool>(false);
+
+    public float ParTime = 0f;
+    public string TutorialText = "";
 
     public Dictionary<string, GameObject> GeneratedObjects = new Dictionary<string, GameObject>();
     public bool Initialized { get; private set; } = false;
@@ -32,8 +30,13 @@ public abstract class DemoEffectBase: IDemoEffect
     protected float HorizontalInput = 0f;
     protected float VerticalInput = 0f;
 
-    public virtual DemoEffectBase Init()
+    public virtual DemoEffectBase Init(float parTime, string tutorialText)
     {
+        ParTime = parTime;
+        TutorialText = tutorialText;
+
+        Debug.Log("Par time: " + ParTime + " | text: " + TutorialText);
+
         Initialized = true;
         return this;
     }

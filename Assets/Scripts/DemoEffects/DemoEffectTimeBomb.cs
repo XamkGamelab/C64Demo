@@ -9,7 +9,7 @@ public class DemoEffectTimeBomb : DemoEffectBase
 {
     private RectTransform headingRect;
     private TMP_Text headingTxt;
-    public override DemoEffectBase Init()
+    public override DemoEffectBase Init(float parTime, string tutorialText)
     {
         //Timer clock text
         headingRect = ApplicationController.Instance.UI.CreateRectTransformObject("Text_timer_clock", new Vector2(82f, 82f), new Vector3(0, 32f, 0), new Vector2(.5f, .5f), new Vector2(.5f, .5f));        
@@ -19,7 +19,7 @@ public class DemoEffectTimeBomb : DemoEffectBase
         headingTxt.text = "00:12";
         AddToGeneratedObjectsDict(headingRect.gameObject.name, headingRect.gameObject);
 
-        return base.Init();
+        return base.Init(parTime, tutorialText);
     }
 
     public override IEnumerator Run(Action endDemoCallback)
