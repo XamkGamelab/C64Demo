@@ -38,7 +38,9 @@ public class DemoEffectRun : DemoEffectBase
     private float rmTransformSpeed = 0f;
     private float rmMaxTransformSpeed = .12f;
 
-    private Vector3 groundStartPos;    
+    private Vector3 runningManStartPos = new Vector3(0, -0.64f, 1.5f);
+    private Vector3 groundStartPos;
+    private Vector3 txtRectStartPos = new Vector3(-30f, -30f, 0);
     private bool nextInputLeft = true;
     private bool goalReached = false;
 
@@ -56,7 +58,7 @@ public class DemoEffectRun : DemoEffectBase
         quadRenderer.sharedMaterial = mat;
         AddToGeneratedObjectsDict(quad.name, quad);
 
-        runningManRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("RunningMan", new Vector3(0, -0.64f, 1.5f), runningManSprites.First());
+        runningManRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("RunningMan", runningManStartPos, runningManSprites.First());
         manSpriteAnimator = runningManRenderer.gameObject.AddComponent<SimpleSpriteAnimator>();
         manSpriteAnimator.Sprites = runningManSprites;
         AddToGeneratedObjectsDict(runningManRenderer.gameObject.name, runningManRenderer.gameObject);
@@ -73,7 +75,7 @@ public class DemoEffectRun : DemoEffectBase
         AddToGeneratedObjectsDict(groundRenderer.gameObject.name, groundRenderer.gameObject);
 
         //Waving text
-        txtRect = ApplicationController.Instance.UI.CreateRectTransformObject("Text_scroller", new Vector2(ApplicationController.Instance.UI.GetCanvasSize().Value.x, 8), new Vector3(-30f, -30f, 0), Vector2.one * .5f, Vector2.one * .5f);
+        txtRect = ApplicationController.Instance.UI.CreateRectTransformObject("Text_scroller", new Vector2(ApplicationController.Instance.UI.GetCanvasSize().Value.x, 8), txtRectStartPos, Vector2.one * .5f, Vector2.one * .5f);
         txtRect.pivot = new Vector2(1f, 0.5f);
         txt = TextFunctions.AddTextMeshProTextComponent(txtRect, "C64_Pro_Mono-STYLE", 8, ApplicationController.Instance.C64PaletteArr[1]);
         txt.alignment = TextAlignmentOptions.MidlineRight;
@@ -89,9 +91,14 @@ public class DemoEffectRun : DemoEffectBase
     {
         yield return base.Run(endDemoCallback);
 
+        //Reset everything
         goalReached = false;
         startTime = Time.time;
         currentSpeedPercent = minSpeedPercent = .1f;
+        runningManRenderer.transform.position = runningManStartPos;
+        runningManRendererClone.transform.position = runningManStartPos;
+        quad.transform.position = quadPos;
+        txtRect.anchoredPosition3D = txtRectStartPos;
 
         Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[0];
         CameraFunctions.SetCameraSettings(Camera.main, ApplicationController.Instance.CameraSettings["orthoPixel"]);

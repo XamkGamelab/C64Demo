@@ -28,6 +28,7 @@ public class DemoeffectIntro : DemoEffectBase
     private bool inputActive = false;
     private bool inputOnCooldown = false;
     private bool loopSnake = true;
+    private Vector2 girlRectInitPosition = new Vector2(0f, -400f);
 
     private List<Sprite> girlMouthSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("GirlMouthSheet");
 
@@ -53,7 +54,7 @@ public class DemoeffectIntro : DemoEffectBase
         txt2.gameObject.SetActive(false);
         AddToGeneratedObjectsDict(txt2.gameObject.name, txt2.gameObject);
 
-        rectGirl = ApplicationController.Instance.UI.CreateRectTransformObject("Image_girl", new Vector2(320f, 400f), new Vector2(0f, -400f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f));
+        rectGirl = ApplicationController.Instance.UI.CreateRectTransformObject("Image_girl", new Vector2(320f, 400f), girlRectInitPosition, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f));
         rectGirl.pivot = new Vector2(0.5f, 0f);
         imgGirl = rectGirl.AddComponent<Image>();        
         imgGirl.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("Images/GirlYellow"));
@@ -134,6 +135,10 @@ public class DemoeffectIntro : DemoEffectBase
         pressSpaceCount = 0;
         loopSnake = true;
         inputOnCooldown = false;
+        rectGirl.anchoredPosition = girlRectInitPosition;
+        imgGirlSpeech1.gameObject.SetActive(false);
+        imgGirlSpeech2.gameObject.SetActive(false);
+        imgGirlMouth.sprite = girlMouthSprites[0];
 
         AudioController.Instance.PlayTrack("Intro");
 

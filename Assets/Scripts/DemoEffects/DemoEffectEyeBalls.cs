@@ -21,9 +21,14 @@ public class DemoEffectEyeBalls : DemoEffectBase
     private Rect playAreaRect;
     private float shipSpeed = 2f;
     private bool isEnding = false;
+    private Vector3 shipStartPosition;
 
     public override DemoEffectBase Init(float parTime, string tutorialText)
     {
+        //Play are rect and ship start position
+        playAreaRect = CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position);
+        shipStartPosition = new Vector3(playAreaRect.center.x, playAreaRect.yMin + .16f, 1f);
+
         RectTransform rect = ApplicationController.Instance.UI.CreateRectTransformObject("Image_lizard_eye", new Vector2(320, 200), Vector2.zero, Vector2.one * .5f, Vector2.one * .5f); 
         rect.SetAsFirstSibling();
         img = rect.AddComponent<Image>();
@@ -54,11 +59,8 @@ public class DemoEffectEyeBalls : DemoEffectBase
             AddToGeneratedObjectsDict(ballRenderer.gameObject.name, ballRenderer.gameObject);
         }
 
-        //Play are rect        
-        playAreaRect = CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position);        
-        
         //Ship sprite        
-        shipRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("SpaceShip", new Vector3(playAreaRect.center.x, playAreaRect.yMin + .16f, 1f), GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("SpaceShipTopDown")));
+        shipRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("SpaceShip", shipStartPosition, GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("SpaceShipTopDown")));
         shipRenderer.sortingOrder = 1000;
         AddToGeneratedObjectsDict(shipRenderer.gameObject.name, shipRenderer.gameObject);
 
@@ -82,7 +84,15 @@ public class DemoEffectEyeBalls : DemoEffectBase
         InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
         InputController.Instance.Horizontal.Subscribe(f => moveInput.x = f).AddTo(Disposables);
 
+        //Reset everything and show ship
+        shipRenderer.transform.position = shipStartPosition;
         shipRenderer.gameObject.SetActive(true);
+        ballEnemies.ForEach(be => 
+        {
+            be.GetComponent<SimpleSpriteAnimator>().ResetState(0);
+            be.BulletHitCount = 0;
+        });
+        
 
         img.gameObject.SetActive(true);
         

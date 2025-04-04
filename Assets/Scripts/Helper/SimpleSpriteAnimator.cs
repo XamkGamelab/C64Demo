@@ -303,7 +303,7 @@ public class SimpleSpriteAnimator : MonoBehaviour
             image.sprite = CurrentSprite.Value;
     }
 
-    public void ResetState()
+    public void ResetState(int setFrame = -1)
     {
         //No need to reset, if object is Destroyed after n loops
         //also don't try to reset objects that have never been enabled:
@@ -326,6 +326,9 @@ public class SimpleSpriteAnimator : MonoBehaviour
         StartWhenInCamViewport = initStartWhenInCamViewport;
         DontAutoPlay = initDontAutoPlay;
         Loops = initLoops;
+
+        if (setFrame >= 0)
+            JumpToFrame(setFrame);
 
         Initialize();
     }
