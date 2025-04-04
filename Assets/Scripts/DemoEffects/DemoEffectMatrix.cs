@@ -32,7 +32,7 @@ public class DemoEffectMatrix : DemoEffectBase
     private const float characterSize = 8;
     private const string collectText = "ENTERTHEMATRIX";
 
-    public override DemoEffectBase Init()
+    public override DemoEffectBase Init(float parTime, string tutorialText)
     {
         //Enqueue the text to be collected and init first character
         char[] charArray = collectText.ToCharArray();        
@@ -67,7 +67,7 @@ public class DemoEffectMatrix : DemoEffectBase
         catcherHand.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("CatchingHand"));
         AddToGeneratedObjectsDict(rectCatcher.gameObject.name, rectCatcher.gameObject);
 
-        return base.Init();
+        return base.Init(parTime, tutorialText);
     }
 
     public override IEnumerator Run(Action endDemoCallback)

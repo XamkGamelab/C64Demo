@@ -22,7 +22,7 @@ public class DemoEffectEyeBalls : DemoEffectBase
     private float shipSpeed = 2f;
     private bool isEnding = false;
 
-    public override DemoEffectBase Init()
+    public override DemoEffectBase Init(float parTime, string tutorialText)
     {
         RectTransform rect = ApplicationController.Instance.UI.CreateRectTransformObject("Image_lizard_eye", new Vector2(320, 200), Vector2.zero, Vector2.one * .5f, Vector2.one * .5f); 
         rect.SetAsFirstSibling();
@@ -62,7 +62,7 @@ public class DemoEffectEyeBalls : DemoEffectBase
         shipRenderer.sortingOrder = 1000;
         AddToGeneratedObjectsDict(shipRenderer.gameObject.name, shipRenderer.gameObject);
 
-        return base.Init();
+        return base.Init(parTime, tutorialText);
     }
 
     public override IEnumerator Run(System.Action callbackEnd)
@@ -98,8 +98,6 @@ public class DemoEffectEyeBalls : DemoEffectBase
 
     private void HandleFireInput(bool b)
     {
-        Debug.Log("Eye balls FIRE -> " + b);
-
         if (!FirePressed && b)
         {
             AudioController.Instance.PlaySoundEffect("Laser_Shoot_1");

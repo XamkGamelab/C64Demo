@@ -15,7 +15,7 @@ public class ApplicationController : SingletonMono<ApplicationController>
 
     private Image flashFadeImage;
     private DemoEffectBase currentDemoEffect;
-    private int currentEffecIndex = 0;
+    private int currentEffectIndex = 0;
  
     //Instantiate and init effect to this list after UI is instantiated
     private List<DemoEffectBase> demoEffects;
@@ -23,6 +23,9 @@ public class ApplicationController : SingletonMono<ApplicationController>
     private UiViewInGame uiViewInGame;
 
     private CompositeDisposable disposables = new CompositeDisposable();
+
+    private float effectStartedTime;
+    private float runningTime;
 
     [RuntimeInitializeOnLoadMethod]
     static void OnInit()
@@ -38,7 +41,7 @@ public class ApplicationController : SingletonMono<ApplicationController>
         flashFadeImage.gameObject.SetActive(false);
 
         //Because piece of shit unity haven't set CORRECT Canvas size until unknown delay
-        await Task.Delay(1000);
+        await Task.Delay(100);
 
         CameraSettings = new Dictionary<string, CameraSettings>()
         {
@@ -49,31 +52,59 @@ public class ApplicationController : SingletonMono<ApplicationController>
 
         demoEffects = new List<DemoEffectBase>()
         {
-            new DemoeffectIntro().Init() ,
-            new DemoEffectRun().Init(),            
-            new DemoeffectTextScroller().Init(),
-            new DemoEffectEyeBalls().Init(), //<-- MIKSI SKIPATAAN!=?!=!=         
-            new DemoEffectSunset().Init(),
-            new DemoEffectMatrix().Init(),
-            new DemoEffectTimeBomb().Init()
+            new DemoeffectIntro().Init(20f, "Press Space or Fire") ,
+            new DemoEffectRun().Init(20f, "Toggle left/right rapidly to run"),            
+            new DemoeffectTextScroller().Init(20f, "Control ship with left/right and up/down. Press fire to shoot"),
+            new DemoEffectEyeBalls().Init(30f, "Left/right to control the ship. Press fire to shoot"),
+            /*
+            new DemoEffectSunset().Init(30f, "Left/right to control the character. Press fire to shoot"),
+            new DemoEffectMatrix().Init(30f, "Left/right to control the hand. Catch highlighted falling letters"),
+            new DemoEffectTimeBomb().Init(30f, "Defuse the bomb")
+            */
         };
 
         demoEffects.ForEach(effect => 
         {
-            effect.ScoreAndTime.Subscribe(sat =>
+            //Instead subscribe to Running (bool reactive, from demo base!) time when effect Runs!
+
+            //Also update here updates the time value in UI (in game), if the effect is running
+            effect.Score.Subscribe(score => 
             {
-                Debug.Log("TUPLE VCALUES UPDATE -> " + sat);
-                uiViewInGame?.UpdateScoreAndTime(sat.score, sat.hiscore, sat.runningTime, sat.parTime);
+                //Update runtime hiscore (TODO: I know, side effect)
+                if (score > effect.HiScore.Value)
+                    effect.HiScore.Value = score;
+
+                uiViewInGame?.UpdateScores(demoEffects.Select(effect => effect.Score.Value).Sum(), effect.HiScore.Value);
+            });
+            effect.Started.Subscribe(b =>
+            {
+                if (b)
+                {
+                    runningTime = 0;
+                    effectStartedTime = Time.time;
+
+                    //Update in-game UI when new effect starts running
+                    if (uiViewInGame != null)
+                    {
+                        uiViewInGame.UpdateNewEffect(effect.ParTime);
+                        uiViewInGame.ShowTutorial(effect.TutorialText);
+                    }
+                }
+                else
+                {
+                    //Show final time and score in UI when effect is finished
+                }
             }).AddTo(disposables);
         });
     }
 
     public void StartNewGame()
     {
-        RunAllDemoEffects(0);
-        
-        //Get instance to update scores and times
+        //Get instance to update scores and times before running any effects
         uiViewInGame = UI.ShowUiView<UiViewInGame>() as UiViewInGame;
+
+        //Start first effect
+        RunAllDemoEffects(0);        
     }
 
     public void FadeImageInOut(float duration, Color color, System.Action callBack, System.Action callBackEnd)
@@ -101,17 +132,18 @@ public class ApplicationController : SingletonMono<ApplicationController>
             //This is just for debugging
             Debug.LogWarning("INVALID INDEX OR DEMOS RAN THROUGH, STARTING AGAIN.");
             startFrom = 0;
+            Debug.LogWarning("EXCEPT NOW WE ARE GOING TO IMPLEMENT WIN SCREEN, AND ****** DO NOT ***** START EFFECTS AGAIN. USE UI IN WIN SCREEN, ANIMATE CAMERA OUT AND SHOW Main menu again");
         }
 
-        currentEffecIndex = startFrom;
-        currentDemoEffect = demoEffects[currentEffecIndex];
+        currentEffectIndex = startFrom;
+        currentDemoEffect = demoEffects[currentEffectIndex];
 
         StopAllCoroutines();
         StartCoroutine(currentDemoEffect.Run(() =>
         {
             //Move to next effect when this effect ends
-            currentEffecIndex++;
-            RunAllDemoEffects(currentEffecIndex);
+            currentEffectIndex++;
+            RunAllDemoEffects(currentEffectIndex);
         }));
     }
 
@@ -149,11 +181,22 @@ public class ApplicationController : SingletonMono<ApplicationController>
         return UIController.AddResourcesImageComponent(r, "white_32x32", C64PaletteArr[1]);
     }
 
+    private void UpdateRunningTime()
+    {
+        runningTime = Time.time - effectStartedTime;
+
+        if (currentDemoEffect.Started.Value)
+            uiViewInGame?.UpdateRunningTime(runningTime);
+    }
+
     private void Update()
     {
-        if (currentDemoEffect?.ExecuteInUpdate == true)
+        if (currentDemoEffect != null)
         {
-            currentDemoEffect.DoUpdate();
+            if (currentDemoEffect.ExecuteInUpdate)
+                currentDemoEffect.DoUpdate();
+
+            UpdateRunningTime();
         }
     }
 }

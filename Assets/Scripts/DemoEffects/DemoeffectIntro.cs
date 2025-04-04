@@ -31,7 +31,7 @@ public class DemoeffectIntro : DemoEffectBase
 
     private List<Sprite> girlMouthSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("GirlMouthSheet");
 
-    public override DemoEffectBase Init()
+    public override DemoEffectBase Init(float parTime, string tutorialText)
     {
         loopSnake = true;
 
@@ -85,7 +85,7 @@ public class DemoeffectIntro : DemoEffectBase
         imgGirlSpeech2.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("GirlSpeechBubbleRun"));
         imgGirlSpeech2.gameObject.SetActive(false);
 
-        return base.Init();
+        return base.Init(parTime, tutorialText);
     }
 
     private void HandleFireInput(bool b)
@@ -101,9 +101,15 @@ public class DemoeffectIntro : DemoEffectBase
                     inputOnCooldown = false;
                 });
                 pressSpaceCount++;
+
+                //Give score for each space press
+                Score.Value += 50;
             }
             else
             {
+                //Last bonus score
+                Score.Value += 500;
+
                 //Dispose input, rest is just demo ending
                 Disposables?.Dispose();
                 rectGirl.gameObject.SetActive(true);

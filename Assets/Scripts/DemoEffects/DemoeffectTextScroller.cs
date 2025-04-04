@@ -62,7 +62,7 @@ public class DemoeffectTextScroller : DemoEffectBase
     private List<Sprite> bigExplosionSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("BigExplosionSheet");
     private List<Sprite> asteroidBrownSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("AsteroidBrownSheet");
 
-    public override DemoEffectBase Init()
+    public override DemoEffectBase Init(float parTime, string tutorialText)
     {
         //Top gradients
         InstantiateGradientImages(8, (4, 32));
@@ -123,7 +123,7 @@ public class DemoeffectTextScroller : DemoEffectBase
         playAreaRect.center += new Vector2(0, playAreaRect.height * 0.2f);
         playAreaRect.height *= 0.5f;
 
-        return base.Init();
+        return base.Init(parTime, tutorialText);
     }
 
     public override IEnumerator Run(System.Action callbackEnd)

@@ -45,7 +45,7 @@ public class DemoEffectRun : DemoEffectBase
     private VertexGradient gradientLeft = new VertexGradient(ApplicationController.Instance.C64PaletteArr[6], ApplicationController.Instance.C64PaletteArr[0], ApplicationController.Instance.C64PaletteArr[9], ApplicationController.Instance.C64PaletteArr[0]);
     
     private List<Sprite> runningManSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("RunningManSheetPSD");
-    public override DemoEffectBase Init()
+    public override DemoEffectBase Init(float parTime, string tutorialText)
     {
         mat = GameObject.Instantiate<Material>(Resources.Load<Material>("RunMaterial"));
 
@@ -82,7 +82,7 @@ public class DemoEffectRun : DemoEffectBase
         txt.text = "RIGHT LEFT RIGHT LEFT RIGHT SPEED: " + (int)(currentSpeedPercent * 100) + "%";                
         AddToGeneratedObjectsDict(txtRect.gameObject.name, txtRect.gameObject);
 
-        return base.Init();
+        return base.Init(parTime, tutorialText);
     }
 
     public override IEnumerator Run(Action endDemoCallback)
@@ -165,7 +165,10 @@ public class DemoEffectRun : DemoEffectBase
             currentSpeedPercent += speedIncrecrement;
         }
 
-        if (currentSpeedPercent > 0.95f)
-            ScoreAndTime.Value = (50, 0, 0, 0);
+        //TODO: This needs something better!!!! Maybe move this to DoUpdate?
+        //Update score, if speed is high enough
+        if (currentSpeedPercent > 0.5f)        
+            Score.Value += (int)((1f - currentSpeedPercent) * 10f);
+        
     }
 }
