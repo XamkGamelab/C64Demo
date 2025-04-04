@@ -56,9 +56,11 @@ public class ApplicationController : SingletonMono<ApplicationController>
             new DemoEffectRun().Init(20f, "Toggle left/right rapidly to run"),            
             new DemoeffectTextScroller().Init(20f, "Control ship with left/right and up/down. Press fire to shoot"),
             new DemoEffectEyeBalls().Init(30f, "Left/right to control the ship. Press fire to shoot"),
+            /*
             new DemoEffectSunset().Init(30f, "Left/right to control the character. Press fire to shoot"),
             new DemoEffectMatrix().Init(30f, "Left/right to control the hand. Catch highlighted falling letters"),
             new DemoEffectTimeBomb().Init(30f, "Defuse the bomb")
+            */
         };
 
         demoEffects.ForEach(effect => 
@@ -76,7 +78,6 @@ public class ApplicationController : SingletonMono<ApplicationController>
             });
             effect.Started.Subscribe(b =>
             {
-                Debug.Log("------------------------------------------------EFFECT OBJECT -> " + effect + " STARTED SUBSCRIPTION FIRE VALUE -> " + b);
                 if (b)
                 {
                     runningTime = 0;
@@ -91,7 +92,7 @@ public class ApplicationController : SingletonMono<ApplicationController>
                 }
                 else
                 {
-                    Debug.Log("effect final time: " + runningTime);
+                    //Show final time and score in UI when effect is finished
                 }
             }).AddTo(disposables);
         });
@@ -131,6 +132,7 @@ public class ApplicationController : SingletonMono<ApplicationController>
             //This is just for debugging
             Debug.LogWarning("INVALID INDEX OR DEMOS RAN THROUGH, STARTING AGAIN.");
             startFrom = 0;
+            Debug.LogWarning("EXCEPT NOW WE ARE GOING TO IMPLEMENT WIN SCREEN, AND ****** DO NOT ***** START EFFECTS AGAIN. USE UI IN WIN SCREEN, ANIMATE CAMERA OUT AND SHOW Main menu again");
         }
 
         currentEffectIndex = startFrom;

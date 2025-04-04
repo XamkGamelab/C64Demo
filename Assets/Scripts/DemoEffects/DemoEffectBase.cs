@@ -7,9 +7,6 @@ using UniRx;
 
 public abstract class DemoEffectBase: IDemoEffect
 {
-    //DONT USE THIS
-    //public ReactiveProperty<(int score, int hiscore, float runningTime, float parTime)> ScoreAndTime = new ReactiveProperty<(int score, int hiscore, float runningTime, float parTime)>();
-
     public ReactiveProperty<int> Score = new ReactiveProperty<int>(0);
     public ReactiveProperty<int> HiScore = new ReactiveProperty<int>(0);
     public ReactiveProperty<bool> Started = new ReactiveProperty<bool>(false);
@@ -32,10 +29,9 @@ public abstract class DemoEffectBase: IDemoEffect
 
     public virtual DemoEffectBase Init(float parTime, string tutorialText)
     {
+        //Set par time and tutorial text
         ParTime = parTime;
         TutorialText = tutorialText;
-
-        Debug.Log("Par time: " + ParTime + " | text: " + TutorialText);
 
         Initialized = true;
         return this;
@@ -49,8 +45,8 @@ public abstract class DemoEffectBase: IDemoEffect
 
     public virtual IEnumerator Run(System.Action endDemoCallback)
     {
-        Debug.Log("*************************************************************************************************************** INTRO RUN?!?!?!?!?");
         Started.Value = true;
+        Score.Value = 0;
 
         Disposables = new CompositeDisposable();
         EndDemoCallback = endDemoCallback;        
