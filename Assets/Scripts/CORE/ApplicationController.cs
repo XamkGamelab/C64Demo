@@ -41,7 +41,7 @@ public class ApplicationController : SingletonMono<ApplicationController>
         flashFadeImage.gameObject.SetActive(false);
 
         //Because piece of shit unity haven't set CORRECT Canvas size until unknown delay
-        await Task.Delay(1000);
+        await Task.Delay(100);
 
         CameraSettings = new Dictionary<string, CameraSettings>()
         {
@@ -76,13 +76,18 @@ public class ApplicationController : SingletonMono<ApplicationController>
             });
             effect.Started.Subscribe(b =>
             {
+                Debug.Log("------------------------------------------------EFFECT OBJECT -> " + effect + " STARTED SUBSCRIPTION FIRE VALUE -> " + b);
                 if (b)
                 {
                     runningTime = 0;
                     effectStartedTime = Time.time;
-                    
-                    //Update in-game UI when new effect starts running                    
-                    uiViewInGame?.UpdateNewEffect(effect.ParTime);
+
+                    //Update in-game UI when new effect starts running
+                    if (uiViewInGame != null)
+                    {
+                        uiViewInGame.UpdateNewEffect(effect.ParTime);
+                        uiViewInGame.ShowTutorial(effect.TutorialText);
+                    }
                 }
                 else
                 {
@@ -94,10 +99,11 @@ public class ApplicationController : SingletonMono<ApplicationController>
 
     public void StartNewGame()
     {
-        RunAllDemoEffects(0);
-        
-        //Get instance to update scores and times
+        //Get instance to update scores and times before running any effects
         uiViewInGame = UI.ShowUiView<UiViewInGame>() as UiViewInGame;
+
+        //Start first effect
+        RunAllDemoEffects(0);        
     }
 
     public void FadeImageInOut(float duration, Color color, System.Action callBack, System.Action callBackEnd)

@@ -49,6 +49,7 @@ public abstract class DemoEffectBase: IDemoEffect
 
     public virtual IEnumerator Run(System.Action endDemoCallback)
     {
+        Debug.Log("*************************************************************************************************************** INTRO RUN?!?!?!?!?");
         Started.Value = true;
 
         Disposables = new CompositeDisposable();

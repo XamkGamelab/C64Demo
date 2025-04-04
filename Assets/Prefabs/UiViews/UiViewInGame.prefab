@@ -1046,6 +1046,8 @@ MonoBehaviour:
   TextHiScore: {fileID: 8508330389978807047}
   TextTime: {fileID: 1701890778062316570}
   TextPar: {fileID: 1360509864361802607}
+  TextTutorial: {fileID: 4646059916851105491}
+  PanelTutorial: {fileID: 3514172707240412129}
 --- !u!1 &5141699392908302546
 GameObject:
   m_ObjectHideFlags: 0
