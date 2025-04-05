@@ -22,6 +22,8 @@ public class ApplicationController : SingletonMono<ApplicationController>
 
     private UiViewInGame uiViewInGame;
 
+    private CameraRT cameraRT;
+
     private CompositeDisposable disposables = new CompositeDisposable();
 
     private float effectStartedTime;
@@ -34,7 +36,7 @@ public class ApplicationController : SingletonMono<ApplicationController>
     }
     public async void Init()
     {
-        InitSceneCameraRT();
+        cameraRT = InitSceneCameraRT().Init();
 
         UI = InstantiateUIPrefab().Init();
         flashFadeImage = InstantiateFlashFadeImage();
@@ -103,13 +105,21 @@ public class ApplicationController : SingletonMono<ApplicationController>
         //Get instance to update scores and times before running any effects
         uiViewInGame = UI.ShowUiView<UiViewInGame>() as UiViewInGame;
 
+        //Animate camera in towards screen
+        cameraRT.AnimateScreenIn();
+
         //Start first effect
         RunAllDemoEffects(0);        
     }
 
     public void ReturnToMainMenu()
     {
-        Debug.Log("////// HERE WE SHOULD THEN ANIMATE THE CAMERA BACK TO SHOW THE WHOLE ROOM");
+        Debug.Log("////// HERE WE SHOULD THEN ANIMATE THE CAMERA BACK TO SHOW THE WHOLE ROOM AND THEN ENABLE BACK THE MAIN MENY");
+
+        
+
+        //This needs delay for camera animation, but then show the menu after do tween complete ->
+        UI.ShowUiView<UiViewMainMenu>();
     }
 
     public void FadeImageInOut(float duration, Color color, System.Action callBack, System.Action callBackEnd)
@@ -141,8 +151,11 @@ public class ApplicationController : SingletonMono<ApplicationController>
             //Hide in-game UI and show win screen, reset demo index and return
             startFrom = 0;
             uiViewInGame.Hide();
-            
-            UiViewWinScreen winScreen = UI.ShowUiView<UiViewWinScreen>(UI.GetUiView<UiViewMainMenu>()) as UiViewWinScreen;
+
+            //Animate camera OUT and AFTER THAT show the main menu again
+            cameraRT.AnimateScreenOut();
+
+            UiViewWinScreen winScreen = UI.ShowUiView<UiViewWinScreen>() as UiViewWinScreen;
             winScreen.ShowScoreAndTime();
 
             return;
@@ -166,13 +179,9 @@ public class ApplicationController : SingletonMono<ApplicationController>
         Application.Quit();
     }
 
-    private void InitSceneCameraRT()
+    private CameraRT InitSceneCameraRT()
     {
-        CameraRT cameraRT = FindObjectOfType<CameraRT>(true);
-        if (cameraRT != null)        
-            cameraRT.AnimateIntro();        
-        else
-            Debug.LogError("Camera RT not found from scene!");
+        return FindObjectOfType<CameraRT>(true);        
     }
 
     private void ActivateFlashFadeImage(Color color)
