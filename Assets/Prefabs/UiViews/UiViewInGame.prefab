@@ -1037,7 +1037,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DefaultState: 1
   HideChildObject: {fileID: 0}
-  AllowToggle: 1
+  AllowToggle: 0
   CloseWithCancel: 0
   CloseWhenAnotherViewOpens: 0
   IsOpen:

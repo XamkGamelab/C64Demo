@@ -54,9 +54,9 @@ public class ApplicationController : SingletonMono<ApplicationController>
         {
             new DemoeffectIntro().Init(20f, "Press Space or Fire") ,
             new DemoEffectRun().Init(20f, "Toggle left/right rapidly to run"),            
-            new DemoeffectTextScroller().Init(20f, "Control ship with left/right and up/down. Press fire to shoot"),
-            new DemoEffectEyeBalls().Init(30f, "Left/right to control the ship. Press fire to shoot"),
             /*
+            new DemoeffectTextScroller().Init(20f, "Control ship with left/right and up/down. Press fire to shoot"),
+            new DemoEffectEyeBalls().Init(30f, "Left/right to control the ship. Press fire to shoot"),            
             new DemoEffectSunset().Init(30f, "Left/right to control the character. Press fire to shoot"),
             new DemoEffectMatrix().Init(30f, "Left/right to control the hand. Catch highlighted falling letters"),
             new DemoEffectTimeBomb().Init(30f, "Defuse the bomb")
@@ -74,7 +74,7 @@ public class ApplicationController : SingletonMono<ApplicationController>
                 if (score > effect.HiScore.Value)
                     effect.HiScore.Value = score;
 
-                uiViewInGame?.UpdateScores(demoEffects.Select(effect => effect.Score.Value).Sum(), effect.HiScore.Value);
+                uiViewInGame?.UpdateScores(demoEffects.Select(effect => effect.Score.Value).Sum(), demoEffects.Select(effect => effect.HiScore.Value).Sum());
             });
             effect.Started.Subscribe(b =>
             {
@@ -107,6 +107,11 @@ public class ApplicationController : SingletonMono<ApplicationController>
         RunAllDemoEffects(0);        
     }
 
+    public void ReturnToMainMenu()
+    {
+        Debug.Log("////// HERE WE SHOULD THEN ANIMATE THE CAMERA BACK TO SHOW THE WHOLE ROOM");
+    }
+
     public void FadeImageInOut(float duration, Color color, System.Action callBack, System.Action callBackEnd)
     {
         ActivateFlashFadeImage(color);
@@ -130,9 +135,17 @@ public class ApplicationController : SingletonMono<ApplicationController>
         if (startFrom >= demoEffects.Count)
         {
             //This is just for debugging
-            Debug.LogWarning("INVALID INDEX OR DEMOS RAN THROUGH, STARTING AGAIN.");
-            startFrom = 0;
+            Debug.LogWarning("INVALID INDEX OR DEMOS RAN THROUGH, STARTING AGAIN.");            
             Debug.LogWarning("EXCEPT NOW WE ARE GOING TO IMPLEMENT WIN SCREEN, AND ****** DO NOT ***** START EFFECTS AGAIN. USE UI IN WIN SCREEN, ANIMATE CAMERA OUT AND SHOW Main menu again");
+
+            //Hide in-game UI and show win screen, reset demo index and return
+            startFrom = 0;
+            uiViewInGame.Hide();
+            
+            UiViewWinScreen winScreen = UI.ShowUiView<UiViewWinScreen>(UI.GetUiView<UiViewMainMenu>()) as UiViewWinScreen;
+            winScreen.ShowScoreAndTime();
+
+            return;
         }
 
         currentEffectIndex = startFrom;
