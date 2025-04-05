@@ -30,8 +30,9 @@ public class UiMainMenuButton : Selectable, IPointerClickHandler, ISubmitHandler
 
     public override void OnSelect(BaseEventData eventData)
     {
-        base.OnSelect(eventData);        
+        base.OnSelect(eventData);                
         buttonText.text = "[" + initText + "]";
+        AudioController.Instance.PlaySoundEffect("ClickSwitch");
     }
 
     public override void OnDeselect(BaseEventData eventData)

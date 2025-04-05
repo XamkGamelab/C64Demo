@@ -81,6 +81,7 @@ public class DemoEffectRun : DemoEffectBase
         txt.alignment = TextAlignmentOptions.MidlineRight;
         txt.enableVertexGradient = true;        
         txt.colorGradient = gradientLeft;
+        txt.enableWordWrapping = false;
         txt.text = "RIGHT LEFT RIGHT LEFT RIGHT SPEED: " + (int)(currentSpeedPercent * 100) + "%";                
         AddToGeneratedObjectsDict(txtRect.gameObject.name, txtRect.gameObject);
 
