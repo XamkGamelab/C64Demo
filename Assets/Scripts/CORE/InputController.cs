@@ -51,10 +51,10 @@ public class InputController : SingletonMono<InputController>
 
         //Buttons
 
-        if (Input.GetButtonDown("Fire1"))
+        if (Input.GetButtonDown("Fire1") || Input.GetButtonDown("Fire2"))
             Fire1.Value = true;
 
-        if (Input.GetButtonUp("Fire1"))
+        if (Input.GetButtonUp("Fire1") || Input.GetButtonDown("Fire2"))
             Fire1.Value = false;
 
         if (Input.GetButtonDown("Jump"))

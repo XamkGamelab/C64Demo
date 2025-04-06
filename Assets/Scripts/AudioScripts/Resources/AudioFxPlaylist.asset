@@ -17,3 +17,5 @@ MonoBehaviour:
     MusicClip: {fileID: 8300000, guid: dcfb7db6390346b41a05fd5b8c68002b, type: 3}
   - Name: Laser_Shoot_1
     MusicClip: {fileID: 8300000, guid: d542f22b6e0cd5a4594e5addee84c2f2, type: 3}
+  - Name: ClickSwitch
+    MusicClip: {fileID: 8300000, guid: 5233c0817d5c8e7478d74abb4e530f10, type: 3}

@@ -51,6 +51,7 @@ public class DemoeffectTextScroller : DemoEffectBase
 
     //Gameplay
     private List<GenericEnemy> asteroids = new List<GenericEnemy>();
+    private Vector3 shipStartPosition;
     private Vector2 moveInput = Vector2.zero;
     private float shipSpeed = 2f;
     private float spawnAsteroidIntervalMs = 1000f;
@@ -64,6 +65,10 @@ public class DemoeffectTextScroller : DemoEffectBase
 
     public override DemoEffectBase Init(float parTime, string tutorialText)
     {
+        //Get camera rect and ship init pos
+        Rect camRect = CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position);
+        shipStartPosition = new Vector3(camRect.xMin + .16f, camRect.center.y, 1f);
+
         //Top gradients
         InstantiateGradientImages(8, (4, 32));
 
@@ -109,9 +114,8 @@ public class DemoeffectTextScroller : DemoEffectBase
             ApplicationController.Instance.C64PaletteArr[0]);
         AddToGeneratedObjectsDict(headingRect.gameObject.name, headingRect.gameObject);
 
-        Rect camRect = CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position);
         //Ship sprite        
-        shipRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("SpaceShip", new Vector3(camRect.xMin + .16f, camRect.center.y, 1f), GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("SpaceShipHorizontal")));
+        shipRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("SpaceShip", shipStartPosition, GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("SpaceShipHorizontal")));
         shipRenderer.sortingOrder = 100000;
         AddToGeneratedObjectsDict(shipRenderer.gameObject.name, shipRenderer.gameObject);
 
@@ -130,9 +134,11 @@ public class DemoeffectTextScroller : DemoEffectBase
     {
         yield return base.Run(callbackEnd);
 
+        //Reset everything
         loopScroller = true;
         asteroidsDestroyed = 0;
         asteroids = new List<GenericEnemy>();
+        shipRenderer.transform.position = shipStartPosition;
 
         moveInput = Vector2.zero;
 
