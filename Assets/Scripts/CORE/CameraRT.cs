@@ -11,6 +11,7 @@ public class CameraRT : MonoBehaviour
 
     private Vector3 cameraInitPosition;
     private Vector3 cameraTargetScreenPosition;
+    private Vector3 creditsTargetPosition = new Vector3(-0.718f, 0.431f, -0.444f);
     public CameraRT Init()
     {
         cameraInitPosition = transform.position;
@@ -32,9 +33,13 @@ public class CameraRT : MonoBehaviour
         cameraRT.transform.DOMove(cameraTargetScreenPosition, 5f);
     }
 
+    public void AnimateToCredits()
+    {
+        cameraRT.transform.DOMove(creditsTargetPosition, 5f);
+    }
+
     public void AnimateScreenOut()
     {
-        Debug.Log("DO MOVE TO : " + cameraInitPosition);
         cameraRT.transform.DOMove(cameraInitPosition, 5f);
     }
 }

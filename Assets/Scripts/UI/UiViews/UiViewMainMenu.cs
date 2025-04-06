@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using UniRx.Triggers;
 public class UiViewMainMenu : UiView
 {
     public List<UiMainMenuButton> mainMenuButtons => GetComponentsInChildren<UiMainMenuButton>().ToList();
@@ -12,6 +13,11 @@ public class UiViewMainMenu : UiView
         base.Awake();
 
         mainMenuButtons.ForEach(button => button.OnPointerClickEvent += HandleMenuButton);
+        
+        //credits is corner case which works with select/deselect logic
+        UiMainMenuButton creditsButton = mainMenuButtons.Where(button => button.ButtonType == UiMainMenuButton.MainMenuButtonType.Credits).First();
+        creditsButton.OnSelectEvent += _ => ApplicationController.Instance.ShowCredits(true);
+        creditsButton.OnDeselectEvent += _ => ApplicationController.Instance.ShowCredits(false);
     }
 
 

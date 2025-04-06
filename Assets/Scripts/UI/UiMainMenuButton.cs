@@ -8,6 +8,8 @@ using UnityEngine.UI;
 public class UiMainMenuButton : Selectable, IPointerClickHandler, ISubmitHandler, ISelectHandler
 {
     public event Action<UiMainMenuButton> OnPointerClickEvent;
+    public event Action<UiMainMenuButton> OnSelectEvent;
+    public event Action<UiMainMenuButton> OnDeselectEvent;
 
     public enum MainMenuButtonType { Start, Continue, Options, Credits, Quit }
     public MainMenuButtonType ButtonType;
@@ -18,13 +20,11 @@ public class UiMainMenuButton : Selectable, IPointerClickHandler, ISubmitHandler
     
     public void OnPointerClick(PointerEventData eventData)
     {
-        //throw new System.NotImplementedException();
         OnPointerClickEvent?.Invoke(this);
     }
 
     public void OnSubmit(BaseEventData eventData)
     {
-        //throw new System.NotImplementedException();
         OnPointerClickEvent?.Invoke(this);
     }
 
@@ -38,6 +38,8 @@ public class UiMainMenuButton : Selectable, IPointerClickHandler, ISubmitHandler
             AudioController.Instance.PlaySoundEffect("ClickSwitch");
 
         IsSelected = true;
+
+        OnSelectEvent?.Invoke(this);
     }
 
     public override void OnDeselect(BaseEventData eventData)
@@ -46,6 +48,8 @@ public class UiMainMenuButton : Selectable, IPointerClickHandler, ISubmitHandler
         buttonText.text = initText;
 
         IsSelected = false;
+
+        OnDeselectEvent?.Invoke(this);
     }
 
     protected override void Start()
