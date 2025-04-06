@@ -117,6 +117,15 @@ public class ApplicationController : SingletonMono<ApplicationController>
         RunAllDemoEffects(0);        
     }
 
+    public void ShowCredits(bool show)
+    {
+        //Animate camera in towards credits note
+        if (show)
+            cameraRT.AnimateToCredits();
+        else
+            cameraRT.AnimateScreenOut();
+    }
+
     public void ReturnToMainMenu()
     {
         Debug.Log("////// HERE WE SHOULD THEN ANIMATE THE CAMERA BACK TO SHOW THE WHOLE ROOM AND THEN ENABLE BACK THE MAIN MENY");

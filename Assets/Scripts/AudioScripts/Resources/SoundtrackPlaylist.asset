@@ -23,3 +23,5 @@ MonoBehaviour:
     MusicClip: {fileID: 8300000, guid: 6e1c1e1df8903f1418941460bf38a931, type: 3}
   - Name: BattleIntro
     MusicClip: {fileID: 8300000, guid: b018132574fd165469df61b182df243a, type: 3}
+  - Name: MenuIntro
+    MusicClip: {fileID: 8300000, guid: 9a2dd4d54fe4e9e4aa9e1ef845c087c2, type: 3}
