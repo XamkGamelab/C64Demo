@@ -45,6 +45,11 @@ public class ApplicationController : SingletonMono<ApplicationController>
         //Because piece of shit unity haven't set CORRECT Canvas size until unknown delay
         await Task.Delay(100);
 
+        Debug.Log("Ready");
+
+        //Play music
+        AudioController.Instance.PlayTrack("MenuIntro", 1f, 4f);
+
         CameraSettings = new Dictionary<string, CameraSettings>()
         {
             { "orthoPixel", new CameraSettings { Orthographic = true, OrthographicSize = 1.2f } },

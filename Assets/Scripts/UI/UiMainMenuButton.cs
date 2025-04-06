@@ -32,13 +32,20 @@ public class UiMainMenuButton : Selectable, IPointerClickHandler, ISubmitHandler
     {
         base.OnSelect(eventData);                
         buttonText.text = "[" + initText + "]";
-        AudioController.Instance.PlaySoundEffect("ClickSwitch");
+
+        //Debug.Log("Button clikc");
+        if (!IsSelected)
+            AudioController.Instance.PlaySoundEffect("ClickSwitch");
+
+        IsSelected = true;
     }
 
     public override void OnDeselect(BaseEventData eventData)
     {
         base.OnDeselect(eventData);
         buttonText.text = initText;
+
+        IsSelected = false;
     }
 
     protected override void Start()
