@@ -152,7 +152,7 @@ public class DemoEffectEyeBalls : DemoEffectBase
             moveInput = Vector2.zero;
 
             //Move ship to up? and fade in transition
-            shipRenderer.transform.DOMoveY(playAreaRect.yMax, 2f, false).SetEase(Ease.InExpo).OnComplete(() => {
+            shipRenderer.transform.DOMoveY(playAreaRect.yMax + shipRenderer.size.y, 2f, false).SetEase(Ease.InExpo).OnComplete(() => {
 
                 ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[1], () =>
                 {

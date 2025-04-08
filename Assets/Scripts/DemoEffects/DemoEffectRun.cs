@@ -173,10 +173,10 @@ public class DemoEffectRun : DemoEffectBase
             currentSpeedPercent += speedIncrecrement;
         }
 
-        //TODO: This needs something better!!!! Maybe move this to DoUpdate?
-        //Update score, if speed is high enough
-        if (currentSpeedPercent > 0.5f)        
-            Score.Value += (int)((1f - currentSpeedPercent) * 10f);
         
+        if (currentSpeedPercent > 0.8f)        
+            Score.Value += 1;
+        else if (currentSpeedPercent > 0.9f)
+            Score.Value += 5;
     }
 }
