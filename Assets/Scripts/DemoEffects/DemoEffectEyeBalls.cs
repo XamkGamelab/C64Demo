@@ -10,30 +10,58 @@ using UniRx;
 
 public class DemoEffectEyeBalls : DemoEffectBase
 {
-    private Image img;    
+    private Image img;
+    private Image leftTextImg;
+    private Image rightTextImg;
+
     private SpriteRenderer shipRenderer;    
     private List<GenericEnemy> ballEnemies = new List<GenericEnemy>();
 
     private List<Sprite> eyeSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("EyeSheet");
 
+    private Material spriteScrollMaterial;
+
     //Gameplay
     private Vector2 moveInput = Vector2.zero;
     private Rect playAreaRect;
     private float shipSpeed = 2f;
+    private float textImgOffsetY = 0f;
+    private float textImgScrollSpeed = 0.4f;
     private bool isEnding = false;
     private Vector3 shipStartPosition;
 
     public override DemoEffectBase Init(float parTime, string tutorialText)
     {
+        spriteScrollMaterial = GameObject.Instantiate<Material>(Resources.Load<Material>("CustomSpriteScrolling"));
+
         //Play are rect and ship start position
         playAreaRect = CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position);
         shipStartPosition = new Vector3(playAreaRect.center.x, playAreaRect.yMin + .16f, 1f);
 
+        //Main bg image
         RectTransform rect = ApplicationController.Instance.UI.CreateRectTransformObject("Image_lizard_eye", new Vector2(320, 200), Vector2.zero, Vector2.one * .5f, Vector2.one * .5f); 
         rect.SetAsFirstSibling();
         img = rect.AddComponent<Image>();
         img.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("Images/LizardEye"));        
         AddToGeneratedObjectsDict(rect.gameObject.name, rect.gameObject);
+
+        //Left text image
+        RectTransform rectImgLeft = ApplicationController.Instance.UI.CreateRectTransformObject("Image_text_left", new Vector2(24, 200), Vector2.zero, new Vector2(0f,0f), new Vector2(0f, 0f));
+        rectImgLeft.pivot = new Vector2(0f, 0f);
+        rectImgLeft.SetAsLastSibling();
+        leftTextImg = rectImgLeft.AddComponent<Image>();
+        leftTextImg.material = spriteScrollMaterial;
+        leftTextImg.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("OpenYourEyesText"));
+        AddToGeneratedObjectsDict(rectImgLeft.gameObject.name, rectImgLeft.gameObject);
+
+        //Right text image
+        RectTransform rectImgRight = ApplicationController.Instance.UI.CreateRectTransformObject("Image_text_right", new Vector2(24, 200), new Vector3(320f, 0f, 0f), new Vector2(0f, 0f), new Vector2(0f, 0f));
+        rectImgRight.pivot = new Vector2(1f, 0f);
+        rectImgRight.SetAsLastSibling();
+        rightTextImg = rectImgRight.AddComponent<Image>();
+        rightTextImg.material = spriteScrollMaterial;
+        rightTextImg.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("OpenYourEyesText"));
+        AddToGeneratedObjectsDict(rectImgRight.gameObject.name, rectImgRight.gameObject);
 
         int amount = 16;
         
@@ -95,6 +123,8 @@ public class DemoEffectEyeBalls : DemoEffectBase
         
 
         img.gameObject.SetActive(true);
+        leftTextImg.gameObject.SetActive(true);
+        rightTextImg.gameObject.SetActive(true);
         
         //TODO: Make a proper function of this crap
         yield return AnimateBalls();
@@ -103,7 +133,15 @@ public class DemoEffectEyeBalls : DemoEffectBase
     public override void DoUpdate()
     {
         MoveShip(moveInput);
+        ScrollTextImages();
         base.DoUpdate();
+    }
+
+    private void ScrollTextImages()
+    {
+        leftTextImg.material.SetVector("_Offset", new Vector4(0, textImgOffsetY, 0, 0));
+        rightTextImg.material.SetVector("_Offset", new Vector4(0, textImgOffsetY, 0, 0));
+        textImgOffsetY += textImgScrollSpeed * Time.deltaTime;
     }
 
     private void HandleFireInput(bool b)
