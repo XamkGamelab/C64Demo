@@ -14,7 +14,8 @@ public class DemoEffectEyeBalls : DemoEffectBase
     private Image leftTextImg;
     private Image rightTextImg;
 
-    private SpriteRenderer shipRenderer;    
+    private SpriteRenderer shipRenderer;
+    private SpriteRenderer bigEyeRenderer;
     private List<GenericEnemy> ballEnemies = new List<GenericEnemy>();
 
     private List<Sprite> eyeSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("EyeSheet");
@@ -28,7 +29,11 @@ public class DemoEffectEyeBalls : DemoEffectBase
     private float textImgOffsetY = 0f;
     private float textImgScrollSpeed = 0.4f;
     private bool isEnding = false;
+    private Vector3 shipAppearPosition;
     private Vector3 shipStartPosition;
+    private SimpleSpriteAnimator bigEyeAnimator;
+
+    private List<Sprite> bigEyeOpenSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("BigEyeOpenSpriteSheetPSD");
 
     public override DemoEffectBase Init(float parTime, string tutorialText)
     {
@@ -36,7 +41,8 @@ public class DemoEffectEyeBalls : DemoEffectBase
 
         //Play are rect and ship start position
         playAreaRect = CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position);
-        shipStartPosition = new Vector3(playAreaRect.center.x, playAreaRect.yMin + .16f, 1f);
+        shipAppearPosition = shipStartPosition = new Vector3(playAreaRect.center.x, playAreaRect.yMin + .16f, 1f);
+        
 
         //Main bg image
         RectTransform rect = ApplicationController.Instance.UI.CreateRectTransformObject("Image_lizard_eye", new Vector2(320, 200), Vector2.zero, Vector2.one * .5f, Vector2.one * .5f); 
@@ -78,7 +84,7 @@ public class DemoEffectEyeBalls : DemoEffectBase
 
             SimpleSpriteAnimator ballSpriteAnimator = ballRenderer.gameObject.AddComponent<SimpleSpriteAnimator>();
             ballSpriteAnimator.DontAutoPlay = true;            
-            ballSpriteAnimator.StopToLastFrame = true;
+            ballSpriteAnimator.StopToLastFrame = true;            
             ballSpriteAnimator.Loops = 1;
             ballSpriteAnimator.Sprites = eyeSprites;
             ballSpriteAnimator.Play(false);
@@ -91,6 +97,21 @@ public class DemoEffectEyeBalls : DemoEffectBase
         shipRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("SpaceShip", shipStartPosition, GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("SpaceShipTopDown")));
         shipRenderer.sortingOrder = 1000;
         AddToGeneratedObjectsDict(shipRenderer.gameObject.name, shipRenderer.gameObject);
+
+        shipAppearPosition.y = playAreaRect.yMin - shipRenderer.size.y;
+        shipRenderer.transform.position = shipAppearPosition;
+
+        bigEyeRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("BigEyeOpenSprite", new Vector3(0f,0f,1f), bigEyeOpenSprites.First());
+        bigEyeRenderer.sortingOrder = 1000;
+        bigEyeAnimator = bigEyeRenderer.gameObject.AddComponent<SimpleSpriteAnimator>();
+        bigEyeAnimator.Sprites = bigEyeOpenSprites;
+        bigEyeAnimator.DontAutoPlay = true;
+        bigEyeAnimator.StopToLastFrame = true;
+        bigEyeAnimator.AnimationFrameDelay = 0.2f;
+        bigEyeAnimator.Loops = 1;        
+        bigEyeAnimator.Play(false);
+
+        AddToGeneratedObjectsDict(bigEyeRenderer.gameObject.name, bigEyeRenderer.gameObject);
 
         return base.Init(parTime, tutorialText);
     }
@@ -112,21 +133,27 @@ public class DemoEffectEyeBalls : DemoEffectBase
         InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
         InputController.Instance.Horizontal.Subscribe(f => moveInput.x = f).AddTo(Disposables);
 
+        img.gameObject.SetActive(true);
+        leftTextImg.gameObject.SetActive(true);
+        rightTextImg.gameObject.SetActive(true);
+        bigEyeRenderer.gameObject.SetActive(true);
+
         //Reset everything and show ship
-        shipRenderer.transform.position = shipStartPosition;
+        shipRenderer.transform.position = shipAppearPosition;
         shipRenderer.gameObject.SetActive(true);
+        shipRenderer.transform.DOMoveY(shipStartPosition.y, 2f).OnComplete(() => 
+        {
+            bigEyeAnimator.Play(true, 0, true);
+        });
+
         ballEnemies.ForEach(be => 
         {
             be.GetComponent<SimpleSpriteAnimator>().ResetState(0);
             be.BulletHitCount = 0;
         });
-        
 
-        img.gameObject.SetActive(true);
-        leftTextImg.gameObject.SetActive(true);
-        rightTextImg.gameObject.SetActive(true);
-        
-        //TODO: Make a proper function of this crap
+        //Wait that ship has moved into position and eye is opening before small eyes start to animate:
+        yield return new WaitForSeconds(2.5f);
         yield return AnimateBalls();
     }
     
@@ -203,16 +230,11 @@ public class DemoEffectEyeBalls : DemoEffectBase
     //TODO: Make a proper function of this crap
     private IEnumerator AnimateBalls()
     {
-        //r * cos/sin of rad angle if movement step:
-        //float ypos = 0.64f * Mathf.Cos(Mathf.PI * 67.5f / 180f);
-        //float xpos = 0.64f * Mathf.Sin(Mathf.PI * 67.5f / 180f);
         
         /* correct time step is: full movement time (e.g. 2 sec) / amount of balls * 2 ( = e.g. 16) which gives current hard-coded step of 0.125f */
-
-        
         float angleStep = 22.5f;
         float radius = 0.64f;        
-        float fullMoveTime = .6f;
+        float fullMoveTime = 1.2f;
         
         for (int i = 0; i < ballEnemies.Count(); i++)
         {
