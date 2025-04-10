@@ -52,6 +52,7 @@ public class DemoeffectTextScroller : DemoEffectBase
     //Gameplay
     private List<GenericEnemy> asteroids = new List<GenericEnemy>();
     private Vector3 shipStartPosition;
+    private Vector3 shipAppearPosition;
     private Vector2 moveInput = Vector2.zero;
     private float shipSpeed = 2f;
     private float spawnAsteroidIntervalMs = 1000f;
@@ -67,7 +68,8 @@ public class DemoeffectTextScroller : DemoEffectBase
     {
         //Get camera rect and ship init pos
         Rect camRect = CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position);
-        shipStartPosition = new Vector3(camRect.xMin + .16f, camRect.center.y, 1f);
+        shipAppearPosition = shipStartPosition = new Vector3(camRect.xMin + .32f, camRect.center.y, 1f);
+        
 
         //Top gradients
         InstantiateGradientImages(8, (4, 32));
@@ -118,14 +120,17 @@ public class DemoeffectTextScroller : DemoEffectBase
         shipRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("SpaceShip", shipStartPosition, GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("SpaceShipHorizontal")));
         shipRenderer.sortingOrder = 100000;
         AddToGeneratedObjectsDict(shipRenderer.gameObject.name, shipRenderer.gameObject);
+        
+        shipAppearPosition.x = camRect.xMin - shipRenderer.size.x;
+        shipRenderer.transform.position = shipAppearPosition;
 
         //Create star field
         InstantiateStarFieldSprites(30);
 
         //Play are rect        
         playAreaRect = CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position);
-        playAreaRect.center += new Vector2(0, playAreaRect.height * 0.2f);
-        playAreaRect.height *= 0.5f;
+        playAreaRect.center += new Vector2(0, playAreaRect.height * 0.23f);
+        playAreaRect.height *= 0.45f;
 
         return base.Init(parTime, tutorialText);
     }
@@ -137,18 +142,11 @@ public class DemoeffectTextScroller : DemoEffectBase
         //Reset everything
         loopScroller = true;
         asteroidsDestroyed = 0;
-        asteroids = new List<GenericEnemy>();
-        shipRenderer.transform.position = shipStartPosition;
-
+        asteroids = new List<GenericEnemy>();        
         moveInput = Vector2.zero;
+        shipRenderer.transform.position = shipAppearPosition;
 
         ExecuteInUpdate = true;
-
-        //Subscribe to input
-        
-        InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
-        InputController.Instance.Horizontal.Subscribe(f => moveInput.x = f).AddTo(Disposables);
-        InputController.Instance.Vertical.Subscribe(f => moveInput.y = f).AddTo(Disposables);
 
         Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[0];
         
@@ -156,9 +154,17 @@ public class DemoeffectTextScroller : DemoEffectBase
         GeneratedObjectsSetActive(true);
 
         AudioController.Instance.PlayTrack("Track2", 1f, 4f);
+ 
+        shipRenderer.transform.DOMoveX(shipStartPosition.x, 2f).OnComplete(() => 
+        {
+            //Subscribe to input when ship is in position...
+            InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
+            InputController.Instance.Horizontal.Subscribe(f => moveInput.x = f).AddTo(Disposables);
+            InputController.Instance.Vertical.Subscribe(f => moveInput.y = f).AddTo(Disposables);
 
-        //Start spawning asteroids on interval
-        Observable.Interval(TimeSpan.FromMilliseconds(spawnAsteroidIntervalMs)).Subscribe(_ => SpawnAsteroid()).AddTo(Disposables);
+            //...and start spawning asteroids on interval
+            Observable.Interval(TimeSpan.FromMilliseconds(spawnAsteroidIntervalMs)).Subscribe(_ => SpawnAsteroid()).AddTo(Disposables);
+        });
 
         yield return AnimateSpriteScroll();        
     }
@@ -209,7 +215,11 @@ public class DemoeffectTextScroller : DemoEffectBase
             //Instantiate explosion effect
             if (pos.HasValue)
             {
+                //Play explosion
                 AudioController.Instance.PlaySoundEffect("Explosion_1");
+                //Give score
+                Score.Value += 100;
+                //Instantiate explosion sprite anim
                 InstantiateExplosion(pos.Value);
                 asteroidsDestroyed++;
                 if (asteroidsDestroyed >= asteroidsRequired)
@@ -223,7 +233,7 @@ public class DemoeffectTextScroller : DemoEffectBase
                     asteroids.Where(a => a != null).ToList().ForEach(a => a.Die(true));
 
                     //Move ship to right and fade in transition
-                    shipRenderer.transform.DOMoveX(playAreaRect.xMax + shipRenderer.size.x, 2f, false).SetEase(Ease.InExpo).OnComplete(() => 
+                    shipRenderer.transform.DOMoveX(playAreaRect.xMax + shipRenderer.size.x, 2f, false).SetDelay(0.1f).SetEase(Ease.InExpo).OnComplete(() => 
                     { 
 
                         ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[1], () =>

@@ -47,6 +47,7 @@ public abstract class DemoEffectBase: IDemoEffect
     {
         Started.Value = true;
         Score.Value = 0;
+        Debug.Log("SCORE: " + Score.Value);
 
         Disposables = new CompositeDisposable();
         EndDemoCallback = endDemoCallback;        

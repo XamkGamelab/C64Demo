@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Linq;
 
@@ -17,6 +18,7 @@ public class UIController : MonoBehaviour /*SingletonMono<UIController>*/
 
     public UIController Init()
     {
+        
         UILoResCanvas.worldCamera = Cam;
 
         //Instantiate all the UI views from UiViewsList component

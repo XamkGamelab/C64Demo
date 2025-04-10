@@ -41,9 +41,8 @@ public class DemoEffectEyeBalls : DemoEffectBase
 
         //Play are rect and ship start position
         playAreaRect = CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position);
-        shipAppearPosition = shipStartPosition = new Vector3(playAreaRect.center.x, playAreaRect.yMin + .16f, 1f);
+        shipAppearPosition = shipStartPosition = new Vector3(playAreaRect.center.x - .64f, playAreaRect.yMin + .16f, 1f);
         
-
         //Main bg image
         RectTransform rect = ApplicationController.Instance.UI.CreateRectTransformObject("Image_lizard_eye", new Vector2(320, 200), Vector2.zero, Vector2.one * .5f, Vector2.one * .5f); 
         rect.SetAsFirstSibling();
@@ -69,9 +68,7 @@ public class DemoEffectEyeBalls : DemoEffectBase
         rightTextImg.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("OpenYourEyesText"));
         AddToGeneratedObjectsDict(rectImgRight.gameObject.name, rectImgRight.gameObject);
 
-        int amount = 16;
-        
-
+        int amount = 16;        
         //Eye ball sprites
         for (int i = 0; i < amount; i++)
         {
@@ -129,22 +126,26 @@ public class DemoEffectEyeBalls : DemoEffectBase
 
         ExecuteInUpdate = true;
 
-        //Subscribe to input        
-        InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
-        InputController.Instance.Horizontal.Subscribe(f => moveInput.x = f).AddTo(Disposables);
+        
 
         img.gameObject.SetActive(true);
         leftTextImg.gameObject.SetActive(true);
         rightTextImg.gameObject.SetActive(true);
+
+        bigEyeAnimator.Play(false, 0, true);
         bigEyeRenderer.gameObject.SetActive(true);
 
-        //Reset everything and show ship
-        shipRenderer.transform.position = shipAppearPosition;
-        shipRenderer.gameObject.SetActive(true);
-        shipRenderer.transform.DOMoveY(shipStartPosition.y, 2f).OnComplete(() => 
+        bigEyeAnimator.Play(true, () =>
         {
-            bigEyeAnimator.Play(true, 0, true);
-        });
+            shipRenderer.transform.position = shipAppearPosition;
+            shipRenderer.gameObject.SetActive(true);
+            shipRenderer.transform.DOMoveY(shipStartPosition.y, 2f);
+
+            //Subscribe to input when ship is in position
+            InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
+            InputController.Instance.Horizontal.Subscribe(f => moveInput.x = f).AddTo(Disposables);
+
+        }, 0, true);
 
         ballEnemies.ForEach(be => 
         {
@@ -154,6 +155,9 @@ public class DemoEffectEyeBalls : DemoEffectBase
 
         //Wait that ship has moved into position and eye is opening before small eyes start to animate:
         yield return new WaitForSeconds(2.5f);
+
+        //Show ship after the eye opens
+
         yield return AnimateBalls();
     }
     
@@ -199,10 +203,16 @@ public class DemoEffectEyeBalls : DemoEffectBase
 
     private void HandleBulletHitBall(GenericEnemy ballEnemy)
     {
+        //Give score
+        Score.Value += 100;
+
+        //Play eye opening
         ballEnemy.GetComponent<SimpleSpriteAnimator>().Play(true);
 
+        //Stop movement
         DOTween.Kill(ballEnemy.transform);
 
+        //Move to center
         ballEnemy.transform.DOLocalMove(new Vector3(0, 0, 1f), 2f, false);
 
         if (ballEnemies.All(be => be.BulletHitCount > 0) && !isEnding)
