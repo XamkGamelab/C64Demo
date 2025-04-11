@@ -73,13 +73,13 @@ public class ApplicationController : SingletonMono<ApplicationController>
 
         demoEffects = new List<DemoEffectBase>()
         {
-            new DemoeffectNoise().Init(20f, ""),
             //new DemoeffectIntro().Init(20f, "Press Space or Fire") ,
             //new DemoEffectRun().Init(20f, "Toggle left/right rapidly to run"),                        
-            new DemoeffectTextScroller().Init(20f, "Control ship with left/right and up/down.\nPress fire to shoot."),
-            new DemoEffectEyeBalls().Init(30f, "Left/right to control the ship.\nPress fire to shoot."),            
+            //new DemoeffectTextScroller().Init(20f, "Control ship with left/right and up/down.\nPress fire to shoot."),
+            //new DemoEffectEyeBalls().Init(30f, "Left/right to control the ship.\nPress fire to shoot."),
+            //new DemoeffectNoise().Init(20f, ""),
             //new DemoEffectSunset().Init(30f, "Left/right to control the character. Press fire to shoot"),
-            //new DemoEffectMatrix().Init(30f, "Left/right to control the hand. Catch highlighted falling letters"),
+            new DemoEffectMatrix().Init(30f, "Left/right to control the hand. Catch highlighted falling letters"),
             //new DemoEffectTimeBomb().Init(30f, "Defuse the bomb")
             
         };

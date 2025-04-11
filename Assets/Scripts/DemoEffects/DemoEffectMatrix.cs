@@ -42,7 +42,7 @@ public class DemoEffectMatrix : DemoEffectBase
         
         float steps = ApplicationController.Instance.UI.GetCanvasSize().Value.x / characterSize / 2f;
         for (int i = 0; i < steps; i++)
-            matrixTexts.Add(new MatrixText { TmpText = InstantiateMatrixText("MatrixText_" + i, i * characterSize * 2 - ApplicationController.Instance.UI.GetCanvasSize().Value.x * .5f), Speed = UnityEngine.Random.Range(1, 4), Letters = UnityEngine.Random.Range(20, 30) });
+            matrixTexts.Add(new MatrixText { TmpText = InstantiateMatrixText("MatrixText_" + i, i * characterSize * 2 - ApplicationController.Instance.UI.GetCanvasSize().Value.x * .5f), Speed = UnityEngine.Random.Range(1, 3), Letters = UnityEngine.Random.Range(20, 30) });
 
         //One random text is collectable and slow
         var rmt = matrixTexts[UnityEngine.Random.Range(0, matrixTexts.Count)];
@@ -80,6 +80,7 @@ public class DemoEffectMatrix : DemoEffectBase
 
         AudioController.Instance.PlayTrack("Jing3");
 
+        /*
         yield return new WaitForSeconds(4f);
 
         handRed.color = new Color(1f, 1f, 1f, 0f);
@@ -97,7 +98,8 @@ public class DemoEffectMatrix : DemoEffectBase
         });
 
         yield return new WaitForSeconds(12f);
-        
+        */
+
         //Enable all generated objects        
         GeneratedObjectsSetActive(true);
 
