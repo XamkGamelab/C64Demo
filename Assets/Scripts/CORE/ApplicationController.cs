@@ -56,6 +56,7 @@ public class ApplicationController : SingletonMono<ApplicationController>
         flashFadeImage.gameObject.SetActive(false);
 
         //Because piece of shit unity haven't set CORRECT Canvas size until unknown delay
+        //DON'T SHOW UI BEFORE THIS!!!!!
         await Task.Delay(1000);
 
         Debug.Log("Ready");
@@ -72,7 +73,7 @@ public class ApplicationController : SingletonMono<ApplicationController>
 
         demoEffects = new List<DemoEffectBase>()
         {
-            //new DemoeffectNoise().Init(20f, ""),
+            new DemoeffectNoise().Init(20f, ""),
             //new DemoeffectIntro().Init(20f, "Press Space or Fire") ,
             //new DemoEffectRun().Init(20f, "Toggle left/right rapidly to run"),                        
             new DemoeffectTextScroller().Init(20f, "Control ship with left/right and up/down.\nPress fire to shoot."),

@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using UniRx;
 using DG.Tweening;
 using System;
+
 public class DemoeffectNoise : DemoEffectBase
 {
     private TMP_Text txt;
@@ -47,6 +48,13 @@ public class DemoeffectNoise : DemoEffectBase
         {
             for (int x = 0; x < characterGrid.GetLength(0); x++)
             {
+                float xCoord = x / 40f * 2f; //x, width, scale
+                float yCoord = y / 25f * 2f;
+                float sample = Mathf.PerlinNoise(xCoord, yCoord);
+
+                Color color = new Color(sample, sample, sample, 1f);
+
+                Debug.Log(color);
                 RectTransform charRect = ApplicationController.Instance.UI.CreateRectTransformObject("Image_char_" + x + "_" + y, new Vector2(8f, 8f), new Vector3(x * 8f, y * 8f , 0), Vector2.zero, Vector2.zero, Vector2.zero);
                 charRect.pivot = new Vector2(0f, 0f);
                 charRect.sizeDelta = new Vector2(8f, 8f);
@@ -55,7 +63,7 @@ public class DemoeffectNoise : DemoEffectBase
                 charRect.SetAsLastSibling();
                 img = charRect.AddComponent<Image>();
                 img.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("white_32x32"));
-                img.color = ApplicationController.Instance.C64PaletteArr[UnityEngine.Random.Range(1,16)];
+                img.color = color; // ApplicationController.Instance.C64PaletteArr[UnityEngine.Random.Range(1,16)];
                 AddToGeneratedObjectsDict(charRect.gameObject.name, charRect.gameObject);
             }
         }

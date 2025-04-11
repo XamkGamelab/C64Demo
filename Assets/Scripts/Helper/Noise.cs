@@ -91,7 +91,7 @@ public class Noise
         return a1 + t * (a2 - a1);
     }
 
-    public static float Noise2D(float x, float y)
+    public static float Noise2D(float x, float y, float scale)
     {
         int X = Mathf.FloorToInt(x) & 255;
         int Y = Mathf.FloorToInt(y) & 255;
@@ -123,7 +123,7 @@ public class Noise
         );
     }
 
-    public static float FractalBrownianMotion(float x, float y, int numOctaves)
+    public static float FractalBrownianMotion(float x, float y, float scale, int numOctaves)
     {
         float result = 0.0f;
         float amplitude = 1.0f;
@@ -131,7 +131,7 @@ public class Noise
 
         for (int octave = 0; octave < numOctaves; octave++)
         {
-            float n = amplitude * Noise2D(x * frequency, y * frequency);
+            float n = amplitude * Noise2D(x * frequency, y * frequency, scale);
             result += n;
 
             amplitude *= 0.5f;
