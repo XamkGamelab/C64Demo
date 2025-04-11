@@ -21,10 +21,16 @@ public class DemoeffectNoise : DemoEffectBase
     private bool inputOnCooldown = false;
 
     //40 x 25 images represent C64 1000 bytes "Screen ram" characters (equal to petscii square char)
-    private Image[,] characterGrid = new Image[40,25];
+    (float width, float height) noiseSize = (45, 25);
+    private Image[,] characterGrid;
+
+    private float offset = 0f;
 
     public override DemoEffectBase Init(float parTime, string tutorialText)
     {
+        //Init arr for noise images
+        characterGrid = new Image[(int)noiseSize.width, (int)noiseSize.height];
+
         RectTransform rect = ApplicationController.Instance.UI.CreateRectTransformObject("Image_bg", new Vector2(320f, 200f), new Vector3(0, 0, 0), Vector2.zero, Vector2.one, new Vector2(8, 8), new Vector2(-8, -8));
         rect.SetAsFirstSibling();
         img = rect.AddComponent<Image>();
@@ -48,8 +54,8 @@ public class DemoeffectNoise : DemoEffectBase
         {
             for (int x = 0; x < characterGrid.GetLength(0); x++)
             {
-                float xCoord = x / 40f * 2f; //x, width, scale
-                float yCoord = y / 25f * 2f;
+                float xCoord = x / noiseSize.width * 2f; //x, width, scale
+                float yCoord = y / noiseSize.height * 2f;
                 float sample = Mathf.PerlinNoise(xCoord, yCoord);
 
                 Color color = new Color(sample, sample, sample, 1f);
@@ -62,10 +68,12 @@ public class DemoeffectNoise : DemoEffectBase
                 charRect.anchoredPosition3D = new Vector3(x * 8f, y * 8f, 0);
 
                 charRect.SetAsLastSibling();
-                img = charRect.AddComponent<Image>();
-                img.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("white_32x32"));
-                img.color = ApplicationController.Instance.C64PaletteArr[Mathf.FloorToInt(sample * 16f)];
+                characterGrid[x, y] = charRect.AddComponent<Image>();
+                characterGrid[x, y].sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("white_32x32"));
+                characterGrid[x, y].color = ApplicationController.Instance.C64PaletteArr[Mathf.FloorToInt(sample * 16f)];
                 AddToGeneratedObjectsDict(charRect.gameObject.name, charRect.gameObject);
+
+                //characterGrid[x, y] = img;
             }
         }
 
@@ -96,7 +104,11 @@ public class DemoeffectNoise : DemoEffectBase
         AudioController.Instance.PlayTrack("Intro");
 
         GeneratedObjectsSetActive(true);
+
+        ExecuteInUpdate = true;
+
         
+
         yield return new WaitForSeconds(1f);
         ApplicationController.Instance.FadeImageInOut(.2f, ApplicationController.Instance.C64PaletteArr[1], null, () => 
         {
@@ -105,8 +117,12 @@ public class DemoeffectNoise : DemoEffectBase
             AudioController.Instance.PlayTrack("Track1");
         });
 
+        yield return UpdateNoise();
+
         txt2.gameObject.SetActive(true);
+
         
+
         /*
         ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[0], () =>
         {
@@ -115,13 +131,36 @@ public class DemoeffectNoise : DemoEffectBase
         */
     }
 
+    private IEnumerator UpdateNoise()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(.05f);
+            //Update noise
+            for (int y = 0; y < characterGrid.GetLength(1); y++)
+            {
+                for (int x = 0; x < characterGrid.GetLength(0); x++)
+                {
+                    float xCoord = offset + (float)x / noiseSize.width * (MathFunctions.GetSin(Time.time, 0.4f, 1f) + 2f); //x, width, scale
+                    float yCoord = offset + (float)y / noiseSize.height * (MathFunctions.GetSin(Time.time, 0.4f, 1f) + 2f);
+
+                    offset += 0.001f * Time.deltaTime;
+                    
+                    float sample = Mathf.PerlinNoise(xCoord, yCoord);
+                    
+                    characterGrid[x, y].color = ApplicationController.Instance.C64PaletteArr[Mathf.FloorToInt(Mathf.Clamp01(sample) * 15f)];
+                    //Debug.Log("SAMPLE: " + sample + " |COLOR: " + characterGrid[x, y].color);
+                }
+            }
+        }
+    }
+
     public override void DoUpdate()
     {
         TextFunctions.TextMeshEffect(txt, startTime, new TextEffectSettings { EffectType = TextEffectSettings.TextEffectType.Explode, ExplosionPoint = new Vector3(0, 30f, 0), ExplosionSpeed = 50f });
+
+        
+
         base.DoUpdate();
     }
-
-
-
-
 }
