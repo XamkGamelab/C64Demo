@@ -54,7 +54,8 @@ public class DemoeffectNoise : DemoEffectBase
 
                 Color color = new Color(sample, sample, sample, 1f);
 
-                Debug.Log(color);
+                int index = Mathf.FloorToInt(sample * 16f);
+                Debug.Log(index);
                 RectTransform charRect = ApplicationController.Instance.UI.CreateRectTransformObject("Image_char_" + x + "_" + y, new Vector2(8f, 8f), new Vector3(x * 8f, y * 8f , 0), Vector2.zero, Vector2.zero, Vector2.zero);
                 charRect.pivot = new Vector2(0f, 0f);
                 charRect.sizeDelta = new Vector2(8f, 8f);
@@ -63,7 +64,7 @@ public class DemoeffectNoise : DemoEffectBase
                 charRect.SetAsLastSibling();
                 img = charRect.AddComponent<Image>();
                 img.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("white_32x32"));
-                img.color = color; // ApplicationController.Instance.C64PaletteArr[UnityEngine.Random.Range(1,16)];
+                img.color = ApplicationController.Instance.C64PaletteArr[Mathf.FloorToInt(sample * 16f)];
                 AddToGeneratedObjectsDict(charRect.gameObject.name, charRect.gameObject);
             }
         }
