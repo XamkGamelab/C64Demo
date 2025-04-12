@@ -18,6 +18,7 @@ public class DemoEffectMatrix : DemoEffectBase
     private Image handRed;
     private Image handBlue;
     private Image catcherHand;
+    private Image enterMatrixText;
 
     RectTransform rectCatcher;
 
@@ -33,6 +34,7 @@ public class DemoEffectMatrix : DemoEffectBase
     private const string collectText = "ENTERTHEMATRIX";
 
     private List<Sprite> laserSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("MatrixLaserBeam");
+    private List<Sprite> matrixTextSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("EnterTheMatrixTextSpriteSheet");
 
     public override DemoEffectBase Init(float parTime, string tutorialText)
     {
@@ -68,6 +70,13 @@ public class DemoEffectMatrix : DemoEffectBase
         catcherHand = rectCatcher.AddComponent<Image>();
         catcherHand.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("CatchingHand"));
         AddToGeneratedObjectsDict(rectCatcher.gameObject.name, rectCatcher.gameObject);
+
+        RectTransform enterMatrixRect = ApplicationController.Instance.UI.CreateRectTransformObject("EnterTheMatrixText", new Vector2(256, 32), new Vector3(0, -20f, 0), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f));
+        enterMatrixRect.pivot = new Vector2(0.5f, 1f);
+        enterMatrixRect.SetAsFirstSibling();
+        enterMatrixText = enterMatrixRect.AddComponent<Image>();
+        enterMatrixText.sprite = matrixTextSprites.First();
+        AddToGeneratedObjectsDict(enterMatrixRect.gameObject.name, enterMatrixRect.gameObject);
 
         return base.Init(parTime, tutorialText);
     }
@@ -146,9 +155,15 @@ public class DemoEffectMatrix : DemoEffectBase
         
         if (rect.Overlaps(collectableCharacterRect) && !collectOnCoolDown)
         {
+            int collectedIndex = collectText.Length - collectTextQueue.Count;
+            enterMatrixText.sprite = matrixTextSprites[collectedIndex];
+
             if (collectTextQueue.Count > 0)
             {
-                Debug.Log("COLLECTED CHAR: " + currentCollectChar);
+                
+
+                Debug.Log("COLLECTED CHAR: " + currentCollectChar + " image index -> " + collectedIndex);
+                
 
                 //Get hand screen pos and...
                 Vector3 uiElementPosition = Camera.main.WorldToScreenPoint(rectCatcher.transform.position);
