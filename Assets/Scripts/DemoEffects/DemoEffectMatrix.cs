@@ -32,6 +32,8 @@ public class DemoEffectMatrix : DemoEffectBase
     private const float characterSize = 8;
     private const string collectText = "ENTERTHEMATRIX";
 
+    private List<Sprite> laserSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("MatrixLaserBeam");
+
     public override DemoEffectBase Init(float parTime, string tutorialText)
     {
         //Enqueue the text to be collected and init first character
@@ -147,6 +149,16 @@ public class DemoEffectMatrix : DemoEffectBase
             if (collectTextQueue.Count > 0)
             {
                 Debug.Log("COLLECTED CHAR: " + currentCollectChar);
+
+                //Get hand screen pos and...
+                Vector3 uiElementPosition = Camera.main.WorldToScreenPoint(rectCatcher.transform.position);
+                //...offset it above hand
+                uiElementPosition.y += 16f;
+                //Final world point for laser beam
+                Vector3 wp = Camera.main.ScreenToWorldPoint(uiElementPosition);
+                wp.z = 1f;                
+                InstantiateLaserBeam(wp);
+
                 ResetTextFallPosition(matrixTexts.Where(mt => mt.Collectable).First());
                 currentCollectChar = collectTextQueue.Dequeue();
                 collectOnCoolDown = true;
@@ -157,6 +169,23 @@ public class DemoEffectMatrix : DemoEffectBase
                 Debug.Log("ALL CHARACTERS ARE NOW COLLECTED, END OF DEMO!");
             }
         }
+    }
+
+    private SimpleSpriteAnimator InstantiateLaserBeam(Vector3 pos)
+    {
+        //Laser beam
+        SpriteRenderer asteroidRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("LaserBeam", pos, laserSprites.First());
+        SimpleSpriteAnimator laserSpriteAnimator = asteroidRenderer.gameObject.AddComponent<SimpleSpriteAnimator>();
+        laserSpriteAnimator.Sprites = laserSprites;
+        laserSpriteAnimator.DontAutoPlay = true;
+        laserSpriteAnimator.StopToLastFrame = true;
+        laserSpriteAnimator.AnimationFrameDelay = 0.06f;
+        laserSpriteAnimator.Loops = 1;
+        laserSpriteAnimator.Play(true, () => 
+        {
+            GameObject.Destroy(laserSpriteAnimator.gameObject);
+        }, 0, false);
+        return laserSpriteAnimator;
     }
 
     private IEnumerator AnimateMatrixTexts()
