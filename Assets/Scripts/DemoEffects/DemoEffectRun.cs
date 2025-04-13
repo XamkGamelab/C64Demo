@@ -33,7 +33,7 @@ public class DemoEffectRun : DemoEffectBase
     private float minSpeedPercent = .1f;
     private float currentSpeedPercent = .1f;
     private float speedDecrement = 0.3f;
-    private float speedIncrecrement = 0.05f;
+    private float speedIncrecrement = 0.06f;
 
     private float rmTransformSpeed = 0f;
     private float rmMaxTransformSpeed = .12f;
@@ -167,13 +167,13 @@ public class DemoEffectRun : DemoEffectBase
         {
             nextInputLeft = false;            
             currentSpeedPercent += speedIncrecrement;
-            AudioController.Instance.PlaySoundEffect("RunningLeft",1f, UnityEngine.Random.Range(0.9f, 1.1f));
+            AudioController.Instance.PlaySoundEffect("RunningLeft",.5f, UnityEngine.Random.Range(0.9f, 1.1f));
         }
         else if (f > 0 && !nextInputLeft)
         {
             nextInputLeft = true;            
             currentSpeedPercent += speedIncrecrement;
-            AudioController.Instance.PlaySoundEffect("RunningRight", 1f, UnityEngine.Random.Range(0.9f, 1.1f));
+            AudioController.Instance.PlaySoundEffect("RunningRight", .5f, UnityEngine.Random.Range(0.9f, 1.1f));
         }
 
         

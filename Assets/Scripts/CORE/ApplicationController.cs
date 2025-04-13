@@ -79,7 +79,7 @@ public class ApplicationController : SingletonMono<ApplicationController>
             //new DemoEffectEyeBalls().Init(30f, "Left/right to control the ship.\nPress fire to shoot."),
             //new DemoeffectNoise().Init(20f, ""),
             //new DemoEffectSunset().Init(30f, "Left/right to control the character. Press fire to shoot"),
-            new DemoEffectMatrix().Init(30f, "Left/right to control the hand. Catch highlighted falling letters"),
+            new DemoEffectMatrix().Init(30f, "Left/right to control the hand.\nCatch highlighted falling letters"),
             //new DemoEffectTimeBomb().Init(30f, "Defuse the bomb")
             
         };
