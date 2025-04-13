@@ -14,13 +14,23 @@ public class UiViewIntroScreen : UiView
     public CanvasGroup GroupTextIntro;
     public TMP_Text TextIntroText;
     public TMP_Text TextPressFire;
-    
+
     private bool firePressed = false;
     private IDisposable disposableInputFire;
 
+    private string[] introTexts = new string[] {
+        "Long ago, in a not-so-distant galaxy, humankind wielded machines called microcomputers.",
+        "Upon them, they crafted programs with no purpose — no function — other than to defy the limits of their humble silicon. These creations were called demos.",
+        "They served as beacons of creativity and raw code, pushing hardware beyond its bounds and proclaiming the brilliance of their makers.",
+        "This is the tale of those bold explorers of the digital frontier…"
+    };
+
     protected override void Awake()
     {
-        base.Awake();        
+        base.Awake();
+        TextPressFire.gameObject.SetActive(false);
+        TextIntroText.gameObject.SetActive(false);
+        TextIntroText.text = "";
     }
 
     public override void Show(UiView _showViewWhenThisHides = null)
@@ -31,11 +41,20 @@ public class UiViewIntroScreen : UiView
 
     private IEnumerator AnimateIntroText()
     {
-        GroupTextIntro.alpha = 0f;
-        GroupTextIntro.DOFade(1f, 1f);
-
         yield return new WaitForSeconds(1f);
+        TextPressFire.gameObject.SetActive(true);
+        TextIntroText.gameObject.SetActive(true);
         disposableInputFire = InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b));
+
+        for (int i = 0; i < introTexts.Length; i++)
+        {
+            TextIntroText.text = introTexts[i];
+            GroupTextIntro.alpha = 0f;
+            GroupTextIntro.DOFade(1f, 1f);
+            yield return new WaitForSeconds(5f);
+            GroupTextIntro.DOFade(0f, 1f);
+            yield return new WaitForSeconds(1.2f);
+        }
     }
 
     private void HandleFireInput(bool b)
