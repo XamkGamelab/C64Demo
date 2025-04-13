@@ -453,6 +453,8 @@ MonoBehaviour:
     View: {fileID: 2539979966741339574, guid: e64ac6d3264d2af4da4a42bc4cb45ef7, type: 3}
   - UiLayer: 2
     View: {fileID: 5671081557862854595, guid: 019a3316234031041831fe20113b772a, type: 3}
+  - UiLayer: 2
+    View: {fileID: 9100492583925020776, guid: 7eddff775c412fb4387df40e06ab7c9b, type: 3}
 --- !u!1 &9090076491676440208
 GameObject:
   m_ObjectHideFlags: 0

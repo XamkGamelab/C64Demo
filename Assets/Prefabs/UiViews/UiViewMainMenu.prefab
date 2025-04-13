@@ -275,7 +275,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3a73f125a4d7d140818ec208c095326, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DefaultState: 0
+  DefaultState: 1
   HideChildObject: {fileID: 0}
   AllowToggle: 0
   CloseWithCancel: 0
