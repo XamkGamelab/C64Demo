@@ -171,6 +171,8 @@ public class DemoEffectMatrix : DemoEffectBase
             if (collectTextQueue.Count > 0)
             {
 
+                //Play collect sound
+                AudioController.Instance.PlaySoundEffect("CollectLetter");
 
                 //Debug.Log("COLLECTED CHAR: " + currentCollectChar + " image index -> " + collectedIndex);
 

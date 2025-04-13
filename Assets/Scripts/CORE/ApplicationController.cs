@@ -74,7 +74,7 @@ public class ApplicationController : SingletonMono<ApplicationController>
         demoEffects = new List<DemoEffectBase>()
         {
             //new DemoeffectIntro().Init(20f, "Press Space or Fire") ,
-            //new DemoEffectRun().Init(20f, "Toggle left/right rapidly to run"),                        
+            new DemoEffectRun().Init(20f, "Toggle left/right rapidly to run"),                        
             //new DemoeffectTextScroller().Init(20f, "Control ship with left/right and up/down.\nPress fire to shoot."),
             //new DemoEffectEyeBalls().Init(30f, "Left/right to control the ship.\nPress fire to shoot."),
             //new DemoeffectNoise().Init(20f, ""),
@@ -154,7 +154,6 @@ public class ApplicationController : SingletonMono<ApplicationController>
 
     public void ReturnToMainMenu()
     {
-        Debug.Log("////// HERE WE SHOULD THEN ANIMATE THE CAMERA BACK TO SHOW THE WHOLE ROOM AND THEN ENABLE BACK THE MAIN MENY");
         //This needs delay for camera animation, but then show the menu after do tween complete ->
         UI.ShowUiView<UiViewMainMenu>();
     }

@@ -43,6 +43,7 @@ public class DemoEffectRun : DemoEffectBase
     private Vector3 txtRectStartPos = new Vector3(-30f, -30f, 0);
     private bool nextInputLeft = true;
     private bool goalReached = false;
+    private float runSoundCounter = 0f;
 
     private VertexGradient gradientLeft = new VertexGradient(ApplicationController.Instance.C64PaletteArr[6], ApplicationController.Instance.C64PaletteArr[0], ApplicationController.Instance.C64PaletteArr[9], ApplicationController.Instance.C64PaletteArr[0]);
     
@@ -166,11 +167,13 @@ public class DemoEffectRun : DemoEffectBase
         {
             nextInputLeft = false;            
             currentSpeedPercent += speedIncrecrement;
+            AudioController.Instance.PlaySoundEffect("RunningLeft",1f, UnityEngine.Random.Range(0.9f, 1.1f));
         }
         else if (f > 0 && !nextInputLeft)
         {
             nextInputLeft = true;            
             currentSpeedPercent += speedIncrecrement;
+            AudioController.Instance.PlaySoundEffect("RunningRight", 1f, UnityEngine.Random.Range(0.9f, 1.1f));
         }
 
         
