@@ -13,17 +13,17 @@ using static UnityEngine.GraphicsBuffer;
 public class DemoeffectNoise : DemoEffectBase
 {
     private TMP_Text txt;
-    
+
     private Image img;
     private Image noiseImage;
-    
+
     private Image TheEnd_the;
     private Image TheEnd_end;
     private Image TheEnd_heart;
-    
+
 
     private float startTime;
-    
+
     private bool inputActive = false;
     private bool inputOnCooldown = false;
 
@@ -32,7 +32,7 @@ public class DemoeffectNoise : DemoEffectBase
 
     private Texture2D noiseTexture;
     private Color[] noisePixels;
-    private Color[] gradient = new Color[] 
+    private Color[] gradient = new Color[]
     {
         ApplicationController.Instance.C64PaletteArr[1],
         ApplicationController.Instance.C64PaletteArr[9],
@@ -41,16 +41,26 @@ public class DemoeffectNoise : DemoEffectBase
         ApplicationController.Instance.C64PaletteArr[13],
         ApplicationController.Instance.C64PaletteArr[15],
         ApplicationController.Instance.C64PaletteArr[6],
-        ApplicationController.Instance.C64PaletteArr[9],        
+        ApplicationController.Instance.C64PaletteArr[9],
     };
+
+    private string[] credits = new string[] 
+    {
+        "Programming/graphics\np3v1",
+        "Second credit",
+        "Third credit",
+    };
+        
+    
+    private Queue<string> creditsQueue = new Queue<string>();
+    private string currentCredits;
 
     private Vector3 theInitPos;
     private Vector3 endInitPos;
     private Vector3 heartInitPos;
-
+    private Vector3 txtInitPos;
     private float currentAngle = 0f;
     private float orbitSpeed = 180f;
-
     private float offset = 0f;
 
     public override DemoEffectBase Init(float parTime, string tutorialText)
@@ -66,11 +76,6 @@ public class DemoeffectNoise : DemoEffectBase
         img.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("white_32x32"));
         img.color = ApplicationController.Instance.C64PaletteArr[14];
         AddToGeneratedObjectsDict(rect.gameObject.name, rect.gameObject);
-
-        RectTransform rect2 = ApplicationController.Instance.UI.CreateRectTransformObject("Text_intro", new Vector2(320f, 200f), new Vector3(0, 0, 0), Vector2.one * .5f, Vector2.one * .5f);        
-        txt = TextFunctions.AddTextMeshProTextComponent(rect2, "C64_Pro_Mono-STYLE", 8, ApplicationController.Instance.C64PaletteArr[13]);
-        AddToGeneratedObjectsDict(rect2.gameObject.name, rect2.gameObject);
-
 
         //Instantiate noise image        
         RectTransform noiseImageRect = ApplicationController.Instance.UI.CreateRectTransformObject("Image_noise", new Vector2(320f, 200f), new Vector3(0, 0, 0), Vector2.one * .5f, Vector2.one * .5f);
@@ -140,7 +145,13 @@ public class DemoeffectNoise : DemoEffectBase
 
         shadowHeart.color = shadowEnd.color = shadowThe.color = new Color(0f, 0f, 0f, 0.7f);
 
-
+        //Credits text
+        RectTransform rect2 = ApplicationController.Instance.UI.CreateRectTransformObject("Text_intro", new Vector2(320f, 26f), new Vector3(0, -40f, 0), Vector2.one * .5f, Vector2.one * .5f);
+        rect2.pivot = new Vector2(0.5f, 0.5f);
+        txt = TextFunctions.AddTextMeshProTextComponent(rect2, "8-BIT_WONDER", 12, ApplicationController.Instance.C64PaletteArr[1]);
+        txt.alignment = TextAlignmentOptions.Center;
+        txt.text = "Programming/graphics\np3v1";
+        AddToGeneratedObjectsDict(rect2.gameObject.name, rect2.gameObject);
 
         return base.Init(parTime, tutorialText);
     }
@@ -161,6 +172,11 @@ public class DemoeffectNoise : DemoEffectBase
     {
         yield return base.Run(callbackEnd);
 
+        //Enqueue the credits and init first        
+        for (int i = 0; i < credits.Length; i++)
+            creditsQueue.Enqueue(credits[i]);
+        
+
         Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[13];
 
         //Disable input and reset all values
@@ -172,6 +188,11 @@ public class DemoeffectNoise : DemoEffectBase
         AudioController.Instance.PlayTrack("Intro");
 
         GeneratedObjectsSetActive(true);
+
+        //TODO: DoTween rotate 180, change text, rotate 180 again:
+        //txt.transform.Rotate(Vector3.right * 0.01f, 120f * Time.deltaTime, Space.Self);
+        RotateCreditsTexts();
+
 
         ExecuteInUpdate = true;
 
@@ -185,7 +206,41 @@ public class DemoeffectNoise : DemoEffectBase
         yield return UpdateNoise();
     }
 
-    
+    public override void DoUpdate()
+    {
+        // Update the angle based on speed and time
+        currentAngle += orbitSpeed * Time.deltaTime;
+        currentAngle %= 360f; // Keep the angle between 0-360
+
+        TheEnd_the.rectTransform.parent.transform.localPosition = MathFunctions.RotateAroundPoint(theInitPos, currentAngle, 4f, Vector3.forward);
+        TheEnd_heart.rectTransform.parent.transform.localPosition = MathFunctions.RotateAroundPoint(heartInitPos, -currentAngle, 6f, -Vector3.forward);
+        TheEnd_end.rectTransform.parent.transform.localPosition = MathFunctions.RotateAroundPoint(endInitPos, -currentAngle, 4f, Vector3.forward);
+
+        base.DoUpdate();
+    }
+
+    private void RotateCreditsTexts()
+    {
+        if (creditsQueue.Count > 0)
+        {
+            currentCredits = creditsQueue.Dequeue();
+            txt.text = currentCredits;
+            txt.transform.rotation = Quaternion.Euler(new Vector3(-90f, 0f, 0f));
+            txt.transform.DORotate(Vector3.zero, 1f).SetEase(Ease.OutSine).OnComplete(() => 
+            {
+                //Show credits a while, then rotate it away and run next credits
+                txt.transform.DORotate(new Vector3(90f, 0f, 0f), 1f).SetDelay(2f).SetEase(Ease.InSine).OnComplete(() =>
+                {
+                    RotateCreditsTexts();
+                });
+            });
+        }
+        else
+        {
+            Debug.Log("END DEMO; CREDITS RAN THROUGH!!!");
+        }
+    }
+
     private IEnumerator UpdateNoise()
     {
         float arrayOffset = 0;
@@ -202,14 +257,9 @@ public class DemoeffectNoise : DemoEffectBase
                 {
                     float xCoord = offset + (float)x / noiseSize.width * (MathFunctions.GetSin(Time.time, 1f, 1f) + 2f); //x, width, scale
                     float yCoord = offset + (float)y / noiseSize.height * (MathFunctions.GetSin(Time.time, 1f, 1f) + 2f);
-
                     offset = arrayOffset; // (MathFunctions.GetSin(Time.time, 3f, 1f) + 2f);
-
                     float sample = Mathf.PerlinNoise(xCoord, yCoord);
-
-                    
-                    noisePixels[y * noiseSize.width + x] = gradient[Mathf.FloorToInt(Mathf.Clamp01(sample) * (gradient.Length-1))];
-                    
+                    noisePixels[y * noiseSize.width + x] = gradient[Mathf.FloorToInt(Mathf.Clamp01(sample) * (gradient.Length-1))];                    
                 }
             }
 
@@ -221,19 +271,7 @@ public class DemoeffectNoise : DemoEffectBase
             noiseImage.sprite = SpriteFromTexture(noiseTexture);
         }
     }
-    
-    public override void DoUpdate()
-    {
-        // Update the angle based on speed and time
-        currentAngle += orbitSpeed * Time.deltaTime;
-        currentAngle %= 360f; // Keep the angle between 0-360
 
-        TheEnd_the.rectTransform.parent.transform.localPosition = MathFunctions.RotateAroundPoint( theInitPos, currentAngle, 4f, Vector3.forward);
-        TheEnd_heart.rectTransform.parent.transform.localPosition = MathFunctions.RotateAroundPoint(heartInitPos, -currentAngle, 6f, -Vector3.forward);
-        TheEnd_end.rectTransform.parent.transform.localPosition = MathFunctions.RotateAroundPoint(endInitPos, -currentAngle, 4f, Vector3.forward);
-
-        base.DoUpdate();
-    }
 
     private static T[] ShiftArray<T>(T[] array, int offset)
     {

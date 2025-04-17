@@ -38,12 +38,6 @@ public class DemoEffectMatrix : DemoEffectBase
 
     public override DemoEffectBase Init(float parTime, string tutorialText)
     {
-        //Enqueue the text to be collected and init first character
-        char[] charArray = collectText.ToCharArray();        
-        for (int i = 0; i < charArray.Length; i++)
-            collectTextQueue.Enqueue(charArray[i]);
-        currentCollectChar = collectTextQueue.Dequeue();
-        
         float steps = ApplicationController.Instance.UI.GetCanvasSize().Value.x / characterSize / 2f;
         for (int i = 0; i < steps; i++)
             matrixTexts.Add(new MatrixText { TmpText = InstantiateMatrixText("MatrixText_" + i, i * characterSize * 2 - ApplicationController.Instance.UI.GetCanvasSize().Value.x * .5f), Speed = UnityEngine.Random.Range(1, 3), Letters = UnityEngine.Random.Range(22, 30) });
@@ -94,6 +88,12 @@ public class DemoEffectMatrix : DemoEffectBase
     public override IEnumerator Run(Action endDemoCallback)
     {
         yield return base.Run(endDemoCallback);
+
+        //Enqueue the text to be collected and init first character
+        char[] charArray = collectText.ToCharArray();
+        for (int i = 0; i < charArray.Length; i++)
+            collectTextQueue.Enqueue(charArray[i]);
+        currentCollectChar = collectTextQueue.Dequeue();
 
         ExecuteInUpdate = true;
 
