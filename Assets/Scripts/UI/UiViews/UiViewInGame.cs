@@ -16,8 +16,10 @@ public class UiViewInGame : UiView
     public TMP_Text TextTime;
     public TMP_Text TextPar;
     public TMP_Text TextTutorial;
+    public TMP_Text TextTimeBonus;
 
     public RectTransform PanelTutorial;
+    public RectTransform TimeBonusContainer;
 
     //Give this when effect starts (Run() in demo base )
     private float startTime;
@@ -30,6 +32,7 @@ public class UiViewInGame : UiView
     {
         //Hide tutorial panel
         PanelTutorial.gameObject.SetActive(false);
+        TimeBonusContainer.gameObject.SetActive(false);
 
         base.Awake();
     }
@@ -60,6 +63,12 @@ public class UiViewInGame : UiView
             Debug.Log("HIDE TUTORIAL AFTER " + showSeconds + " secs");            
             PanelTutorial.DOAnchorPos3DY(tutorialHiddenPositionY, 1f).SetEase(Ease.InSine).OnComplete(() => PanelTutorial.gameObject.SetActive(false));
         });
+    }
+
+    public void ShowTimeBonus(int bonusValue)
+    {
+        TextTimeBonus.text = bonusValue.ToString("000000"); 
+        TimeBonusContainer.gameObject.SetActive(true);
     }
 
     public void UpdateScores(int score, int hiscore)

@@ -118,6 +118,16 @@ public class ApplicationController : SingletonMono<ApplicationController>
                 else
                 {
                     //Show final time and score in UI when effect is finished
+                    float bonusTime = effect.ParTime - runningTime;
+                    if (uiViewInGame != null && bonusTime > 0)
+                    {
+                        //TODO: add this to score, after the bonus is shown in UI. This could use action!
+                        int bonusScore = (int)(bonusTime * 100f);
+                        
+                        effect.Score.Value += bonusScore; //<-- add after ui
+
+                        uiViewInGame.ShowTimeBonus(bonusScore);
+                    }
                 }
             }).AddTo(disposables); //TODO: this is never disposed, is it actually needed...
         });
