@@ -13,6 +13,7 @@ using static UnityEngine.GraphicsBuffer;
 public class DemoeffectNoise : DemoEffectBase
 {
     private TMP_Text txt;
+    private TMP_Text txtClone;
 
     private Image img;
     private Image noiseImage;
@@ -128,30 +129,36 @@ public class DemoeffectNoise : DemoEffectBase
         AddToGeneratedObjectsDict(endRect2.gameObject.name, endRect2.gameObject);
 
         TheEnd_the = GameObject.Instantiate(endRect1.gameObject, endRect1).GetComponent<Image>();        
-        TheEnd_the.rectTransform.localPosition = new Vector3(-8f, 8f, 0f);
+        TheEnd_the.rectTransform.localPosition = new Vector3(-4f, 4f, 0f);
         AddToGeneratedObjectsDict(TheEnd_the.gameObject.name, TheEnd_the.gameObject);
 
         TheEnd_end = GameObject.Instantiate(endRect2.gameObject, endRect2).GetComponent<Image>();
-        TheEnd_end.rectTransform.localPosition = new Vector3(-8f, 8f, 0f);
+        TheEnd_end.rectTransform.localPosition = new Vector3(-4f, 4f, 0f);
         AddToGeneratedObjectsDict(TheEnd_end.gameObject.name, TheEnd_end.gameObject);
 
         TheEnd_heart = GameObject.Instantiate(endRect3.gameObject, endRect3).GetComponent<Image>();
-        TheEnd_heart.rectTransform.localPosition = new Vector3(-8f, 8f, 0f);
+        TheEnd_heart.rectTransform.localPosition = new Vector3(-4f, 4f, 0f);
         AddToGeneratedObjectsDict(TheEnd_heart.gameObject.name, TheEnd_heart.gameObject);
 
         theInitPos = endRect1.anchoredPosition3D;
         endInitPos = endRect2.anchoredPosition3D;
         heartInitPos = endRect3.anchoredPosition3D;
 
-        shadowHeart.color = shadowEnd.color = shadowThe.color = new Color(0f, 0f, 0f, 0.7f);
+        
 
         //Credits text
-        RectTransform rect2 = ApplicationController.Instance.UI.CreateRectTransformObject("Text_intro", new Vector2(320f, 26f), new Vector3(0, -40f, 0), Vector2.one * .5f, Vector2.one * .5f);
-        rect2.pivot = new Vector2(0.5f, 0.5f);
-        txt = TextFunctions.AddTextMeshProTextComponent(rect2, "8-BIT_WONDER", 12, ApplicationController.Instance.C64PaletteArr[1]);
-        txt.alignment = TextAlignmentOptions.Center;
-        txt.text = "Programming/graphics\np3v1";
-        AddToGeneratedObjectsDict(rect2.gameObject.name, rect2.gameObject);
+        RectTransform txtRect = ApplicationController.Instance.UI.CreateRectTransformObject("Text_intro", new Vector2(320f, 26f), new Vector3(0, -40f, 0), Vector2.one * .5f, Vector2.one * .5f);
+        txtRect.pivot = new Vector2(0.5f, 0.5f);
+        txt = TextFunctions.AddTextMeshProTextComponent(txtRect, "8-BIT_WONDER", 12, ApplicationController.Instance.C64PaletteArr[1]);
+        txt.alignment = TextAlignmentOptions.Center;        
+        AddToGeneratedObjectsDict(txtRect.gameObject.name, txtRect.gameObject);
+
+        txtClone = GameObject.Instantiate(txtRect.gameObject, txtRect).GetComponent<TMP_Text>();
+        txtClone.rectTransform.localPosition = new Vector3(-4f, 4f, 0f);
+        AddToGeneratedObjectsDict(txtClone.gameObject.name, txtClone.gameObject);
+
+        //Shadow color for all shadow clones
+        txt.color = shadowHeart.color = shadowEnd.color = shadowThe.color = new Color(0f, 0f, 0f, 0.9f);
 
         return base.Init(parTime, tutorialText);
     }
@@ -189,10 +196,7 @@ public class DemoeffectNoise : DemoEffectBase
 
         GeneratedObjectsSetActive(true);
 
-        //TODO: DoTween rotate 180, change text, rotate 180 again:
-        //txt.transform.Rotate(Vector3.right * 0.01f, 120f * Time.deltaTime, Space.Self);
         RotateCreditsTexts();
-
 
         ExecuteInUpdate = true;
 
@@ -224,7 +228,7 @@ public class DemoeffectNoise : DemoEffectBase
         if (creditsQueue.Count > 0)
         {
             currentCredits = creditsQueue.Dequeue();
-            txt.text = currentCredits;
+            txt.text = txtClone.text = currentCredits;
             txt.transform.rotation = Quaternion.Euler(new Vector3(-90f, 0f, 0f));
             txt.transform.DORotate(Vector3.zero, 1f).SetEase(Ease.OutSine).OnComplete(() => 
             {
@@ -235,10 +239,19 @@ public class DemoeffectNoise : DemoEffectBase
                 });
             });
         }
-        else
+        else        
+            EndDemo();
+    }
+
+    private void EndDemo()
+    {
+        //TODO: Because there's option to end credits by pressing space (delay input subscription like 3 seconds, so that it's not accidently pressed)
+        DOTween.Kill(txt.transform);
+
+        ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[0], () =>
         {
-            Debug.Log("END DEMO; CREDITS RAN THROUGH!!!");
-        }
+            base.End(true);
+        }, null);
     }
 
     private IEnumerator UpdateNoise()
