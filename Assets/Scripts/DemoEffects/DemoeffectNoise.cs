@@ -8,13 +8,19 @@ using UnityEngine.UI;
 using UniRx;
 using DG.Tweening;
 using System;
+using static UnityEngine.GraphicsBuffer;
 
 public class DemoeffectNoise : DemoEffectBase
 {
     private TMP_Text txt;
-    private TMP_Text txt2;
+    
     private Image img;
     private Image noiseImage;
+    
+    private Image TheEnd_the;
+    private Image TheEnd_end;
+    private Image TheEnd_heart;
+    
 
     private float startTime;
     
@@ -26,7 +32,24 @@ public class DemoeffectNoise : DemoEffectBase
 
     private Texture2D noiseTexture;
     private Color[] noisePixels;
+    private Color[] gradient = new Color[] 
+    {
+        ApplicationController.Instance.C64PaletteArr[1],
+        ApplicationController.Instance.C64PaletteArr[9],
+        ApplicationController.Instance.C64PaletteArr[10],
+        ApplicationController.Instance.C64PaletteArr[12],
+        ApplicationController.Instance.C64PaletteArr[13],
+        ApplicationController.Instance.C64PaletteArr[15],
+        ApplicationController.Instance.C64PaletteArr[6],
+        ApplicationController.Instance.C64PaletteArr[9],        
+    };
 
+    private Vector3 theInitPos;
+    private Vector3 endInitPos;
+    private Vector3 heartInitPos;
+
+    private float currentAngle = 0f;
+    private float orbitSpeed = 180f;
 
     private float offset = 0f;
 
@@ -48,12 +71,6 @@ public class DemoeffectNoise : DemoEffectBase
         txt = TextFunctions.AddTextMeshProTextComponent(rect2, "C64_Pro_Mono-STYLE", 8, ApplicationController.Instance.C64PaletteArr[13]);
         AddToGeneratedObjectsDict(rect2.gameObject.name, rect2.gameObject);
 
-        txt2 = GameObject.Instantiate(txt.gameObject).GetComponent<TMP_Text>();
-        txt2.gameObject.name = "Text_snake";
-        txt2.alignment = TextAlignmentOptions.BottomJustified;
-        ApplicationController.Instance.UI.ParentTransformToUI(txt2.transform, img.transform);
-        txt2.gameObject.SetActive(false);
-        AddToGeneratedObjectsDict(txt2.gameObject.name, txt2.gameObject);
 
         //Instantiate noise image        
         RectTransform noiseImageRect = ApplicationController.Instance.UI.CreateRectTransformObject("Image_noise", new Vector2(320f, 200f), new Vector3(0, 0, 0), Vector2.one * .5f, Vector2.one * .5f);
@@ -82,6 +99,48 @@ public class DemoeffectNoise : DemoEffectBase
         noiseTexture.Apply();
 
         noiseImage.sprite = SpriteFromTexture(noiseTexture);
+
+        //Instantiate the end images
+        RectTransform endRect1 = ApplicationController.Instance.UI.CreateRectTransformObject("Image_the", new Vector2(92f, 59f), new Vector3(-84f, 40f, 0), Vector2.one * .5f, Vector2.one * .5f);
+        endRect1.pivot = new Vector2(0.5f, 0.5f);
+        endRect1.SetAsLastSibling();
+        Image shadowThe = endRect1.AddComponent<Image>();
+        shadowThe.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("TheEnd_the"));
+        AddToGeneratedObjectsDict(endRect1.gameObject.name, endRect1.gameObject);
+
+        RectTransform endRect3 = ApplicationController.Instance.UI.CreateRectTransformObject("Image_heart", new Vector2(68f, 57f), new Vector3(0f, 40f, 0), Vector2.one * .5f, Vector2.one * .5f);
+        endRect3.pivot = new Vector2(0.5f, 0.5f);
+        endRect3.SetAsLastSibling();
+        Image shadowHeart = endRect3.AddComponent<Image>();
+        shadowHeart.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("TheEnd_heart"));
+        AddToGeneratedObjectsDict(endRect3.gameObject.name, endRect3.gameObject);
+
+        RectTransform endRect2 = ApplicationController.Instance.UI.CreateRectTransformObject("Image_end", new Vector2(92f, 59f), new Vector3(84f, 40f, 0), Vector2.one * .5f, Vector2.one * .5f);
+        endRect2.pivot = new Vector2(0.5f, 0.5f);
+        endRect2.SetAsLastSibling();
+        Image shadowEnd = endRect2.AddComponent<Image>();
+        shadowEnd.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("TheEnd_end"));
+        AddToGeneratedObjectsDict(endRect2.gameObject.name, endRect2.gameObject);
+
+        TheEnd_the = GameObject.Instantiate(endRect1.gameObject, endRect1).GetComponent<Image>();        
+        TheEnd_the.rectTransform.localPosition = new Vector3(-8f, 8f, 0f);
+        AddToGeneratedObjectsDict(TheEnd_the.gameObject.name, TheEnd_the.gameObject);
+
+        TheEnd_end = GameObject.Instantiate(endRect2.gameObject, endRect2).GetComponent<Image>();
+        TheEnd_end.rectTransform.localPosition = new Vector3(-8f, 8f, 0f);
+        AddToGeneratedObjectsDict(TheEnd_end.gameObject.name, TheEnd_end.gameObject);
+
+        TheEnd_heart = GameObject.Instantiate(endRect3.gameObject, endRect3).GetComponent<Image>();
+        TheEnd_heart.rectTransform.localPosition = new Vector3(-8f, 8f, 0f);
+        AddToGeneratedObjectsDict(TheEnd_heart.gameObject.name, TheEnd_heart.gameObject);
+
+        theInitPos = endRect1.anchoredPosition3D;
+        endInitPos = endRect2.anchoredPosition3D;
+        heartInitPos = endRect3.anchoredPosition3D;
+
+        shadowHeart.color = shadowEnd.color = shadowThe.color = new Color(0f, 0f, 0f, 0.7f);
+
+
 
         return base.Init(parTime, tutorialText);
     }
@@ -116,9 +175,6 @@ public class DemoeffectNoise : DemoEffectBase
 
         ExecuteInUpdate = true;
 
-        
-
-        yield return new WaitForSeconds(1f);
         ApplicationController.Instance.FadeImageInOut(.2f, ApplicationController.Instance.C64PaletteArr[1], null, () => 
         {
             startTime = Time.time;
@@ -127,25 +183,18 @@ public class DemoeffectNoise : DemoEffectBase
         });
 
         yield return UpdateNoise();
-
-        txt2.gameObject.SetActive(true);
-
-        
-
-        /*
-        ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[0], () =>
-        {
-            base.End(true);
-        }, null);
-        */
     }
 
     
     private IEnumerator UpdateNoise()
     {
+        float arrayOffset = 0;
+        
         while (true)
         {
             yield return new WaitForSeconds(.05f);
+
+            gradient = ShiftArray<Color>(gradient, 1);
 
             for (int y = 0; y < noiseSize.height; y++)
             {
@@ -154,13 +203,17 @@ public class DemoeffectNoise : DemoEffectBase
                     float xCoord = offset + (float)x / noiseSize.width * (MathFunctions.GetSin(Time.time, 1f, 1f) + 2f); //x, width, scale
                     float yCoord = offset + (float)y / noiseSize.height * (MathFunctions.GetSin(Time.time, 1f, 1f) + 2f);
 
-                    offset = (MathFunctions.GetSin(Time.time, 3f, 1f) + 2f);
+                    offset = arrayOffset; // (MathFunctions.GetSin(Time.time, 3f, 1f) + 2f);
 
                     float sample = Mathf.PerlinNoise(xCoord, yCoord);
 
-                    noisePixels[y * noiseSize.width + x] = ApplicationController.Instance.C64PaletteArr[Mathf.FloorToInt(Mathf.Clamp01(sample) * 15f)];
+                    
+                    noisePixels[y * noiseSize.width + x] = gradient[Mathf.FloorToInt(Mathf.Clamp01(sample) * (gradient.Length-1))];
+                    
                 }
             }
+
+            arrayOffset += Time.deltaTime * 15f;
 
             noiseTexture.SetPixels(noisePixels);
             noiseTexture.Apply();
@@ -171,10 +224,24 @@ public class DemoeffectNoise : DemoEffectBase
     
     public override void DoUpdate()
     {
-        TextFunctions.TextMeshEffect(txt, startTime, new TextEffectSettings { EffectType = TextEffectSettings.TextEffectType.Explode, ExplosionPoint = new Vector3(0, 30f, 0), ExplosionSpeed = 50f });
+        // Update the angle based on speed and time
+        currentAngle += orbitSpeed * Time.deltaTime;
+        currentAngle %= 360f; // Keep the angle between 0-360
 
-        
+        TheEnd_the.rectTransform.parent.transform.localPosition = MathFunctions.RotateAroundPoint( theInitPos, currentAngle, 4f, Vector3.forward);
+        TheEnd_heart.rectTransform.parent.transform.localPosition = MathFunctions.RotateAroundPoint(heartInitPos, -currentAngle, 6f, -Vector3.forward);
+        TheEnd_end.rectTransform.parent.transform.localPosition = MathFunctions.RotateAroundPoint(endInitPos, -currentAngle, 4f, Vector3.forward);
 
         base.DoUpdate();
+    }
+
+    private static T[] ShiftArray<T>(T[] array, int offset)
+    {
+        T[] result = new T[array.Length];
+        for (int i = 0; i < array.Length; i++)
+        {
+            result[(i + offset) % array.Length] = array[i];
+        }
+        return result;
     }
 }

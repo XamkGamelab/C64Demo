@@ -41,6 +41,9 @@ public class UiViewInGame : UiView
 
     public void ShowTutorial(string tutorialText, int showSeconds = 5)
     {
+        if (string.IsNullOrEmpty(tutorialText))
+            return;
+
         DOTween.Kill(PanelTutorial);
 
         //Dispose previous timer if any and start observing again

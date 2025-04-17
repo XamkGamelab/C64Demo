@@ -13,7 +13,7 @@ public class ApplicationController : SingletonMono<ApplicationController>
 {
     public UIController UI { get; private set; }
     public Dictionary<string, CameraSettings> CameraSettings { get; private set; }
-    public Color[] C64PaletteArr => ColorFunctions.ColorsFromPaletteStripTexture(Instantiate(Resources.Load<Texture2D>("C64PaletteStrrip32x2_16_colors")), 16);
+    public Color[] C64PaletteArr;
 
     private Image flashFadeImage;
     private DemoEffectBase currentDemoEffect;
@@ -42,6 +42,9 @@ public class ApplicationController : SingletonMono<ApplicationController>
     }
     public async void Init()
     {
+        //Init palette
+        C64PaletteArr = ColorFunctions.ColorsFromPaletteStripTexture(Instantiate(Resources.Load<Texture2D>("C64PaletteStrrip32x2_16_colors")), 16);
+
         //Hide cursor
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
@@ -74,10 +77,10 @@ public class ApplicationController : SingletonMono<ApplicationController>
         demoEffects = new List<DemoEffectBase>()
         {
             //new DemoeffectIntro().Init(20f, "Press Space or Fire") ,
-            new DemoEffectRun().Init(20f, "Toggle left/right rapidly to run"),                        
+            //new DemoEffectRun().Init(20f, "Toggle left/right rapidly to run"),                        
             //new DemoeffectTextScroller().Init(20f, "Control ship with left/right and up/down.\nPress fire to shoot."),
             //new DemoEffectEyeBalls().Init(30f, "Left/right to control the ship.\nPress fire to shoot."),
-            //new DemoeffectNoise().Init(20f, ""),
+            new DemoeffectNoise().Init(20f, ""),
             //new DemoEffectSunset().Init(30f, "Left/right to control the character. Press fire to shoot"),
             new DemoEffectMatrix().Init(30f, "Left/right to control the hand.\nCatch highlighted falling letters"),
             //new DemoEffectTimeBomb().Init(30f, "Defuse the bomb")
