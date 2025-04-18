@@ -64,9 +64,6 @@ public class ApplicationController : SingletonMono<ApplicationController>
 
         Debug.Log("Ready");
 
-        //Play music
-        AudioController.Instance.PlayTrack("MenuIntro", 1f, 4f);
-
         CameraSettings = new Dictionary<string, CameraSettings>()
         {
             { "orthoPixel", new CameraSettings { Orthographic = true, OrthographicSize = 1.2f } },
@@ -76,13 +73,13 @@ public class ApplicationController : SingletonMono<ApplicationController>
 
         demoEffects = new List<DemoEffectBase>()
         {
-            new DemoeffectIntro().Init(25f, "Press Space or Fire") ,
+            //new DemoEffectIntro().Init(25f, "Press Space or Fire") ,
             //new DemoEffectRun().Init(20f, "Toggle left/right rapidly to run"),                        
-            //new DemoeffectTextScroller().Init(20f, "Control ship with left/right and up/down.\nPress fire to shoot."),
-            //new DemoEffectEyeBalls().Init(30f, "Left/right to control the ship.\nPress fire to shoot."),
-            new DemoeffectNoise().Init(25f, ""),
-            //new DemoEffectSunset().Init(30f, "Left/right to control the character. Press fire to shoot"),
+            new DemoEffectTextScroller().Init(20f, "Control ship with left/right and up/down.\nPress fire to shoot."),
+            new DemoEffectEyeBalls().Init(30f, "Left/right to control the ship.\nPress fire to shoot."),
             //new DemoEffectMatrix().Init(30f, "Left/right to control the hand.\nCatch highlighted falling letters"),
+            new DemoeffectNoise().Init(25f, ""),
+            //new DemoEffectSunset().Init(30f, "Left/right to control the character. Press fire to shoot"),            
             //new DemoEffectTimeBomb().Init(30f, "Defuse the bomb")
             
         };
@@ -167,6 +164,8 @@ public class ApplicationController : SingletonMono<ApplicationController>
 
     public void ReturnToMainMenu()
     {
+        //Play music
+        AudioController.Instance.PlayTrack("MenuIntro", 1f, 4f);
         //This needs delay for camera animation, but then show the menu after do tween complete ->
         UI.ShowUiView<UiViewMainMenu>();
     }

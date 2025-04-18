@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
 using DG.Tweening;
-public class DemoeffectIntro : DemoEffectBase
+public class DemoEffectIntro : DemoEffectBase
 {
     private string c64default = "\r\n\r\n\r\n     **** COMMODORE 64 BASIC V2 ****\r\n  64K RAM SYSTEM 38911 BASIC BYTES FREE\r\n\r\n READY\r\n LOAD\"*\",B,1:\r\n\r\n SEARCHING FOR *\r\n LOADING\r\n READY.\r\n RUN";
     private string[] pressSpaceStrings = new string[] { " [PRESS SPACE TO START]\n\n", " [PRESS SPACE AGAIN]\n\n", " [AGAIN!!!]\n\n", " [COME ON. PRESS THAT SPACE. TO START]\n\n", " [ONE MORE TIME]\n\n" };
@@ -43,7 +43,7 @@ public class DemoeffectIntro : DemoEffectBase
         img.color = ApplicationController.Instance.C64PaletteArr[14];
         AddToGeneratedObjectsDict(rect.gameObject.name, rect.gameObject);
 
-        RectTransform rect2 = ApplicationController.Instance.UI.CreateRectTransformObject("Text_intro", new Vector2(320f, 200f), new Vector3(0, 0, 0), Vector2.one * .5f, Vector2.one * .5f);        
+        RectTransform rect2 = ApplicationController.Instance.UI.CreateRectTransformObject("Text_intro", new Vector2(320f, 200f), new Vector3(0, 0, 1f), Vector2.one * .5f, Vector2.one * .5f);        
         txt = TextFunctions.AddTextMeshProTextComponent(rect2, "C64_Pro_Mono-STYLE", 8, ApplicationController.Instance.C64PaletteArr[13]);
         AddToGeneratedObjectsDict(rect2.gameObject.name, rect2.gameObject);
 
@@ -143,7 +143,9 @@ public class DemoeffectIntro : DemoEffectBase
         AudioController.Instance.PlayTrack("Intro");
 
         img.gameObject.SetActive(true);
+
         txt.gameObject.SetActive(true);
+        
         yield return AnimateStartText();
         
         yield return new WaitForSeconds(1f);
@@ -191,6 +193,7 @@ public class DemoeffectIntro : DemoEffectBase
     }
     private IEnumerator AnimateStartText()
     {
+        Debug.Log("ANIMATE START TEXT COROUTINE!!!!");
         string c64typewriter = "";
         for (int i = 0; i < c64default.Length; i++)
         {
