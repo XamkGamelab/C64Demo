@@ -280,6 +280,11 @@ public class SimpleSpriteAnimator : MonoBehaviour
         SetCurrentSprite();
     }
 
+    public int GetCurrentFrameIndex()
+    {
+        return currentFrame;
+    }
+
     private void SetCurrentSprite()
     {
         //Update and notify current sprite

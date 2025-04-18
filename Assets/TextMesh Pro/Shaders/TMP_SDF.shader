@@ -308,7 +308,7 @@ SubShader {
 		#if UNITY_COLORSPACE_GAMMA
 		return faceColor * input.color.a;
 		#else
-		return fixed4(GammaToLinearSpace(faceColor.rgb), faceColor.a) * input.color.a;
+		return fixed4( GammaToLinearSpace(faceColor.rgb), faceColor.a ) * input.color.a;
 		#endif
 		}
 

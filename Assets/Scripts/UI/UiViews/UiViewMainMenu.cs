@@ -20,16 +20,6 @@ public class UiViewMainMenu : UiView
         creditsButton.OnDeselectEvent += _ => ApplicationController.Instance.ShowCredits(false);
     }
 
-
-    /// <summary>
-    /// Extend UiView Show by selecting/deselecting the initially selected button.    
-    /// </summary>
-    /// <param name="_showViewWhenThisHides"></param>    
-    public override void Show(UiView _showViewWhenThisHides = null)
-    {
-        base.Show(_showViewWhenThisHides);        
-    }
-
     private void HandleMenuButton(UiMainMenuButton button)
     {
         Hide();

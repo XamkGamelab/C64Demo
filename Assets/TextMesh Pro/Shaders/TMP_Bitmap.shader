@@ -133,7 +133,8 @@ SubShader{
 				clip(color.a - 0.001);
 			#endif
 
-			return color;
+			//return color;
+			return fixed4(GammaToLinearSpace(color.rgb), color.a) * color.a;
 		}
 		ENDCG
 	}

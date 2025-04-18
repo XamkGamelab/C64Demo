@@ -25,16 +25,24 @@ public class UiViewWinScreen : UiView
 
     public override void Show(UiView _showViewWhenThisHides = null)
     {
-        disposableInputFire?.Dispose();
+        
         ScoreContainer.gameObject.SetActive(false);
         TimeContainer.gameObject.SetActive(false);
         TextToMainMenu.gameObject.SetActive(false);
         base.Show(_showViewWhenThisHides);        
     }
 
-    public void ShowScoreAndTime()
+    public void ShowScoreAndTime(int score, int hiscore, float totalTime)
     {
+        TextScore.text = score.ToString("00000000"); 
+        TextTime.text = totalTime.ToString("00:00.00");
+
+        //TODO: Show hi-score somewhere
+
+        //TODO: totalTime is NOT implemented yet
+
         Debug.Log("START ANIMATE SCORE AND TIME COROUTINE ONLY ONCE!!!");
+        StopAllCoroutines();
         StartCoroutine(AnimateScoreAndTime());
     }
 
@@ -54,8 +62,10 @@ public class UiViewWinScreen : UiView
     {
         if (!firePressed && b)
         {
-            ApplicationController.Instance.ReturnToMainMenu();
             Hide();
+            disposableInputFire?.Dispose();
+            firePressed = false;
+            ApplicationController.Instance.ReturnToMainMenu();
         }
         firePressed = b;
     }

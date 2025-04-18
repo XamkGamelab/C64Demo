@@ -18,6 +18,7 @@ public class DemoEffectMatrix : DemoEffectBase
     private Image handRed;
     private Image handBlue;
     private Image catcherHand;
+    private Image enterMatrixText;
 
     RectTransform rectCatcher;
 
@@ -32,17 +33,14 @@ public class DemoEffectMatrix : DemoEffectBase
     private const float characterSize = 8;
     private const string collectText = "ENTERTHEMATRIX";
 
+    private List<Sprite> laserSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("MatrixLaserBeam");
+    private List<Sprite> matrixTextSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("EnterTheMatrixTextSpriteSheet");
+
     public override DemoEffectBase Init(float parTime, string tutorialText)
     {
-        //Enqueue the text to be collected and init first character
-        char[] charArray = collectText.ToCharArray();        
-        for (int i = 0; i < charArray.Length; i++)
-            collectTextQueue.Enqueue(charArray[i]);
-        currentCollectChar = collectTextQueue.Dequeue();
-        
         float steps = ApplicationController.Instance.UI.GetCanvasSize().Value.x / characterSize / 2f;
         for (int i = 0; i < steps; i++)
-            matrixTexts.Add(new MatrixText { TmpText = InstantiateMatrixText("MatrixText_" + i, i * characterSize * 2 - ApplicationController.Instance.UI.GetCanvasSize().Value.x * .5f), Speed = UnityEngine.Random.Range(1, 4), Letters = UnityEngine.Random.Range(20, 30) });
+            matrixTexts.Add(new MatrixText { TmpText = InstantiateMatrixText("MatrixText_" + i, i * characterSize * 2 - ApplicationController.Instance.UI.GetCanvasSize().Value.x * .5f), Speed = UnityEngine.Random.Range(1, 3), Letters = UnityEngine.Random.Range(22, 30) });
 
         //One random text is collectable and slow
         var rmt = matrixTexts[UnityEngine.Random.Range(0, matrixTexts.Count)];
@@ -67,6 +65,23 @@ public class DemoEffectMatrix : DemoEffectBase
         catcherHand.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("CatchingHand"));
         AddToGeneratedObjectsDict(rectCatcher.gameObject.name, rectCatcher.gameObject);
 
+        /*
+        RectTransform enterMatrixRect = ApplicationController.Instance.UI.CreateRectTransformObject("EnterTheMatrixText", new Vector2(256, 32), new Vector3(0, -20f, 0), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f));
+        enterMatrixRect.pivot = new Vector2(0.5f, 1f);
+        enterMatrixRect.SetAsFirstSibling();
+        enterMatrixText = enterMatrixRect.AddComponent<Image>();
+        enterMatrixText.sprite = matrixTextSprites.First();
+        AddToGeneratedObjectsDict(enterMatrixRect.gameObject.name, enterMatrixRect.gameObject);
+        */
+
+        RectTransform enterMatrixRect = ApplicationController.Instance.UI.CreateRectTransformObject("EnterTheMatrixText", new Vector2(212, 60), new Vector3(0, -20f, 0), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f));        
+        enterMatrixRect.pivot = new Vector2(0.5f, 1f);
+        enterMatrixText = enterMatrixRect.AddComponent<Image>();
+        //enterMatrixRect.SetAsFirstSibling();
+        enterMatrixText.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("EnterTheMatrixText_eroded"));
+        AddToGeneratedObjectsDict(enterMatrixRect.gameObject.name, enterMatrixRect.gameObject);
+
+
         return base.Init(parTime, tutorialText);
     }
 
@@ -74,12 +89,19 @@ public class DemoEffectMatrix : DemoEffectBase
     {
         yield return base.Run(endDemoCallback);
 
+        //Enqueue the text to be collected and init first character
+        char[] charArray = collectText.ToCharArray();
+        for (int i = 0; i < charArray.Length; i++)
+            collectTextQueue.Enqueue(charArray[i]);
+        currentCollectChar = collectTextQueue.Dequeue();
+
         ExecuteInUpdate = true;
 
         Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[0];
 
         AudioController.Instance.PlayTrack("Jing3");
 
+        /*
         yield return new WaitForSeconds(4f);
 
         handRed.color = new Color(1f, 1f, 1f, 0f);
@@ -97,7 +119,8 @@ public class DemoEffectMatrix : DemoEffectBase
         });
 
         yield return new WaitForSeconds(12f);
-        
+        */
+
         //Enable all generated objects        
         GeneratedObjectsSetActive(true);
 
@@ -142,9 +165,32 @@ public class DemoEffectMatrix : DemoEffectBase
         
         if (rect.Overlaps(collectableCharacterRect) && !collectOnCoolDown)
         {
+            //int collectedIndex = collectText.Length - collectTextQueue.Count;
+            //enterMatrixText.sprite = matrixTextSprites[collectedIndex];
+
             if (collectTextQueue.Count > 0)
             {
-                Debug.Log("COLLECTED CHAR: " + currentCollectChar);
+
+                //Play collect sound
+                AudioController.Instance.PlaySoundEffect("CollectLetter");
+
+                //Debug.Log("COLLECTED CHAR: " + currentCollectChar + " image index -> " + collectedIndex);
+
+                Vector3 charSP = Camera.main.WorldToScreenPoint(collectableCharacterRect.position);
+                
+                //Get hand screen pos and...
+                Vector3 uiElementPosition = Camera.main.WorldToScreenPoint(matrixTexts.Where(mt => mt.Collectable).First().TmpText.transform.position);
+                uiElementPosition.y = collectableCharacterRect.y;
+                //...offset it above hand
+                //uiElementPosition.y += 16f;
+
+                //Final world point for laser beam
+                Vector3 wp = Camera.main.ScreenToWorldPoint(uiElementPosition);
+
+                Debug.Log(Camera.main.ScreenToWorldPoint(charSP) + " vs. catcher rect pos: " + wp);
+                wp.z = 1f;                
+                InstantiateLaserBeam(wp);
+
                 ResetTextFallPosition(matrixTexts.Where(mt => mt.Collectable).First());
                 currentCollectChar = collectTextQueue.Dequeue();
                 collectOnCoolDown = true;
@@ -155,6 +201,23 @@ public class DemoEffectMatrix : DemoEffectBase
                 Debug.Log("ALL CHARACTERS ARE NOW COLLECTED, END OF DEMO!");
             }
         }
+    }
+
+    private SimpleSpriteAnimator InstantiateLaserBeam(Vector3 pos)
+    {
+        //Laser beam
+        SpriteRenderer asteroidRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("LaserBeam", pos, laserSprites.First());
+        SimpleSpriteAnimator laserSpriteAnimator = asteroidRenderer.gameObject.AddComponent<SimpleSpriteAnimator>();
+        laserSpriteAnimator.Sprites = laserSprites;
+        laserSpriteAnimator.DontAutoPlay = true;
+        laserSpriteAnimator.StopToLastFrame = true;
+        laserSpriteAnimator.AnimationFrameDelay = 0.06f;
+        laserSpriteAnimator.Loops = 1;
+        laserSpriteAnimator.Play(true, () => 
+        {
+            GameObject.Destroy(laserSpriteAnimator.gameObject);
+        }, 0, false);
+        return laserSpriteAnimator;
     }
 
     private IEnumerator AnimateMatrixTexts()
@@ -211,7 +274,13 @@ public class DemoEffectMatrix : DemoEffectBase
 
     private void ResetTextFallPosition(MatrixText matrixText)
     {
-        matrixText.TmpText.transform.localPosition = new Vector3(matrixText.TmpText.transform.localPosition.x, ApplicationController.Instance.UI.GetCanvasSize().Value.y, matrixText.TmpText.transform.localPosition.z);
+        int newRandomX = 0;
+
+        //Randomize new x position for text that is not used by any other text
+        while (matrixTexts.Any(text => text.TmpText.GetComponent<RectTransform>().anchoredPosition3D.x == (float)newRandomX))       
+            newRandomX = UnityEngine.Random.Range(0, 36) * 8 - 144;
+        
+        matrixText.TmpText.transform.localPosition = new Vector3(newRandomX, ApplicationController.Instance.UI.GetCanvasSize().Value.y, matrixText.TmpText.transform.localPosition.z);
         matrixText.TmpText.text = "";
         matrixText.Shorten = false;
     }

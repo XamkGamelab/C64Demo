@@ -19,3 +19,9 @@ MonoBehaviour:
     MusicClip: {fileID: 8300000, guid: d542f22b6e0cd5a4594e5addee84c2f2, type: 3}
   - Name: ClickSwitch
     MusicClip: {fileID: 8300000, guid: 5233c0817d5c8e7478d74abb4e530f10, type: 3}
+  - Name: CollectLetter
+    MusicClip: {fileID: 8300000, guid: e7ac4726667a3e248a6940d5789239a4, type: 3}
+  - Name: RunningLeft
+    MusicClip: {fileID: 8300000, guid: fb6095ca5a003494482db8e613dd276a, type: 3}
+  - Name: RunningRight
+    MusicClip: {fileID: 8300000, guid: 1939a4cab9e679444b2bf13df25be99b, type: 3}
