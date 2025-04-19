@@ -19,6 +19,7 @@ public class DemoEffectMatrix : DemoEffectBase
     private Image handBlue;
     private Image catcherHand;
     private Image enterMatrixText;
+    private Image enterMatrixTextLit;
 
     RectTransform rectCatcher;
 
@@ -33,11 +34,14 @@ public class DemoEffectMatrix : DemoEffectBase
     private const float characterSize = 8;
     private const string collectText = "ENTERTHEMATRIX";
 
-    private List<Sprite> laserSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("MatrixLaserBeam");
-    private List<Sprite> matrixTextSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("EnterTheMatrixTextSpriteSheet");
+    private List<Sprite> laserSprites; // => TextureAndGaphicsFunctions.LoadSpriteSheet("MatrixLaserBeam");
+    private List<Sprite> matrixTextSpritesLit; // => TextureAndGaphicsFunctions.LoadSpriteSheet("EnterTheMatrixText_lit_spriteSheet");
 
     public override DemoEffectBase Init(float parTime, string tutorialText)
     {
+        laserSprites = TextureAndGaphicsFunctions.LoadSpriteSheet("MatrixLaserBeam");
+        matrixTextSpritesLit = TextureAndGaphicsFunctions.LoadSpriteSheet("EnterTheMatrixText_lit_spriteSheet");
+
         float steps = ApplicationController.Instance.UI.GetCanvasSize().Value.x / characterSize / 2f;
         for (int i = 0; i < steps; i++)
             matrixTexts.Add(new MatrixText { TmpText = InstantiateMatrixText("MatrixText_" + i, i * characterSize * 2 - ApplicationController.Instance.UI.GetCanvasSize().Value.x * .5f), Speed = UnityEngine.Random.Range(1, 3), Letters = UnityEngine.Random.Range(22, 30) });
@@ -76,10 +80,15 @@ public class DemoEffectMatrix : DemoEffectBase
 
         RectTransform enterMatrixRect = ApplicationController.Instance.UI.CreateRectTransformObject("EnterTheMatrixText", new Vector2(212, 60), new Vector3(0, -20f, 0), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f));        
         enterMatrixRect.pivot = new Vector2(0.5f, 1f);
-        enterMatrixText = enterMatrixRect.AddComponent<Image>();
-        //enterMatrixRect.SetAsFirstSibling();
+        enterMatrixText = enterMatrixRect.AddComponent<Image>();        
         enterMatrixText.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("EnterTheMatrixText_eroded"));
         AddToGeneratedObjectsDict(enterMatrixRect.gameObject.name, enterMatrixRect.gameObject);
+
+        RectTransform enterMatrixLitRect = ApplicationController.Instance.UI.CreateRectTransformObject("EnterTheMatrixTextLit", new Vector2(212, 60), new Vector3(0, -20f, 0), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f));
+        enterMatrixLitRect.pivot = new Vector2(0.5f, 1f);
+        enterMatrixTextLit = enterMatrixLitRect.AddComponent<Image>();
+        enterMatrixTextLit.sprite = matrixTextSpritesLit.First();
+        AddToGeneratedObjectsDict(enterMatrixLitRect.gameObject.name, enterMatrixLitRect.gameObject);
 
 
         return base.Init(parTime, tutorialText);
@@ -165,29 +174,23 @@ public class DemoEffectMatrix : DemoEffectBase
         
         if (rect.Overlaps(collectableCharacterRect) && !collectOnCoolDown)
         {
-            //int collectedIndex = collectText.Length - collectTextQueue.Count;
-            //enterMatrixText.sprite = matrixTextSprites[collectedIndex];
+            int collectedIndex = collectText.Length - collectTextQueue.Count;
+            enterMatrixTextLit.sprite = matrixTextSpritesLit[collectedIndex];
 
             if (collectTextQueue.Count > 0)
             {
-
                 //Play collect sound
                 AudioController.Instance.PlaySoundEffect("CollectLetter");
-
-                //Debug.Log("COLLECTED CHAR: " + currentCollectChar + " image index -> " + collectedIndex);
 
                 Vector3 charSP = Camera.main.WorldToScreenPoint(collectableCharacterRect.position);
                 
                 //Get hand screen pos and...
                 Vector3 uiElementPosition = Camera.main.WorldToScreenPoint(matrixTexts.Where(mt => mt.Collectable).First().TmpText.transform.position);
                 uiElementPosition.y = collectableCharacterRect.y;
-                //...offset it above hand
-                //uiElementPosition.y += 16f;
-
+                
                 //Final world point for laser beam
                 Vector3 wp = Camera.main.ScreenToWorldPoint(uiElementPosition);
 
-                Debug.Log(Camera.main.ScreenToWorldPoint(charSP) + " vs. catcher rect pos: " + wp);
                 wp.z = 1f;                
                 InstantiateLaserBeam(wp);
 
@@ -198,7 +201,15 @@ public class DemoEffectMatrix : DemoEffectBase
             }
             else
             {
+                Disposables.Dispose();
+                ExecuteInUpdate = false;
+
                 Debug.Log("ALL CHARACTERS ARE NOW COLLECTED, END OF DEMO!");
+                ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[1], () =>
+                {
+                    //End the demo by exiting last coroutine and calling base.End();                    
+                    base.End();
+                }, null);
             }
         }
     }
