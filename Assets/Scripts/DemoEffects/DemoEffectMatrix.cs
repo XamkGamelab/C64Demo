@@ -24,6 +24,7 @@ public class DemoEffectMatrix : DemoEffectBase
     RectTransform rectCatcher;
 
     //Gameplay
+    private Vector3 enterMatrixTextInitPosition = new Vector3(0, -20f, 0);
     private Vector2 moveInput = Vector2.zero;
     private float handSpeed = 120f;
     private Rect collectableCharacterRect;
@@ -34,8 +35,8 @@ public class DemoEffectMatrix : DemoEffectBase
     private const float characterSize = 8;
     private const string collectText = "ENTERTHEMATRIX";
 
-    private List<Sprite> laserSprites; // => TextureAndGaphicsFunctions.LoadSpriteSheet("MatrixLaserBeam");
-    private List<Sprite> matrixTextSpritesLit; // => TextureAndGaphicsFunctions.LoadSpriteSheet("EnterTheMatrixText_lit_spriteSheet");
+    private List<Sprite> laserSprites;
+    private List<Sprite> matrixTextSpritesLit;
 
     public override DemoEffectBase Init(float parTime, string tutorialText)
     {
@@ -61,33 +62,24 @@ public class DemoEffectMatrix : DemoEffectBase
         handBlue = rectHandBlue.AddComponent<Image>();
         handBlue.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("Images/HandBluePill"));
         AddToGeneratedObjectsDict(rectHandBlue.gameObject.name, rectHandBlue.gameObject);
-
-        
+                
         rectCatcher = ApplicationController.Instance.UI.CreateRectTransformObject("CatchingHand2", new Vector2(24, 21), new Vector3(0, 0, 0), new Vector2(0.5f, 0), new Vector2(0.5f, 0));
         rectCatcher.pivot = new Vector2(0.5f, 0f);
         catcherHand = rectCatcher.AddComponent<Image>();
         catcherHand.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("CatchingHand"));
         AddToGeneratedObjectsDict(rectCatcher.gameObject.name, rectCatcher.gameObject);
 
-        /*
-        RectTransform enterMatrixRect = ApplicationController.Instance.UI.CreateRectTransformObject("EnterTheMatrixText", new Vector2(256, 32), new Vector3(0, -20f, 0), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f));
-        enterMatrixRect.pivot = new Vector2(0.5f, 1f);
-        enterMatrixRect.SetAsFirstSibling();
-        enterMatrixText = enterMatrixRect.AddComponent<Image>();
-        enterMatrixText.sprite = matrixTextSprites.First();
-        AddToGeneratedObjectsDict(enterMatrixRect.gameObject.name, enterMatrixRect.gameObject);
-        */
-
-        RectTransform enterMatrixRect = ApplicationController.Instance.UI.CreateRectTransformObject("EnterTheMatrixText", new Vector2(212, 60), new Vector3(0, -20f, 0), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f));        
+        RectTransform enterMatrixRect = ApplicationController.Instance.UI.CreateRectTransformObject("EnterTheMatrixText", new Vector2(212, 60), enterMatrixTextInitPosition, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f));        
         enterMatrixRect.pivot = new Vector2(0.5f, 1f);
         enterMatrixText = enterMatrixRect.AddComponent<Image>();        
         enterMatrixText.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("EnterTheMatrixText_eroded"));
         AddToGeneratedObjectsDict(enterMatrixRect.gameObject.name, enterMatrixRect.gameObject);
 
-        RectTransform enterMatrixLitRect = ApplicationController.Instance.UI.CreateRectTransformObject("EnterTheMatrixTextLit", new Vector2(212, 60), new Vector3(0, -20f, 0), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f));
+        RectTransform enterMatrixLitRect = ApplicationController.Instance.UI.CreateRectTransformObject("EnterTheMatrixTextLit", new Vector2(212, 60), enterMatrixTextInitPosition, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f));
         enterMatrixLitRect.pivot = new Vector2(0.5f, 1f);
         enterMatrixTextLit = enterMatrixLitRect.AddComponent<Image>();
         enterMatrixTextLit.sprite = matrixTextSpritesLit.First();
+        enterMatrixTextLit.rectTransform.SetParent(enterMatrixRect, true);
         AddToGeneratedObjectsDict(enterMatrixLitRect.gameObject.name, enterMatrixLitRect.gameObject);
 
 
@@ -130,8 +122,12 @@ public class DemoEffectMatrix : DemoEffectBase
         yield return new WaitForSeconds(12f);
         */
 
+        enterMatrixText.rectTransform.anchoredPosition3D = enterMatrixTextInitPosition;
+        
         //Enable all generated objects        
         GeneratedObjectsSetActive(true);
+
+        enterMatrixText.rectTransform.DOAnchorPos3DY(-40f, 2f).SetEase(Ease.InOutSine).SetLoops(-1, LoopType.Yoyo);
 
         handBlue.gameObject.SetActive(false);
         handRed.gameObject.SetActive(false);
@@ -177,23 +173,10 @@ public class DemoEffectMatrix : DemoEffectBase
             int collectedIndex = collectText.Length - collectTextQueue.Count;
             enterMatrixTextLit.sprite = matrixTextSpritesLit[collectedIndex];
 
+            ShowCollectEffect();
+
             if (collectTextQueue.Count > 0)
             {
-                //Play collect sound
-                AudioController.Instance.PlaySoundEffect("CollectLetter");
-
-                Vector3 charSP = Camera.main.WorldToScreenPoint(collectableCharacterRect.position);
-                
-                //Get hand screen pos and...
-                Vector3 uiElementPosition = Camera.main.WorldToScreenPoint(matrixTexts.Where(mt => mt.Collectable).First().TmpText.transform.position);
-                uiElementPosition.y = collectableCharacterRect.y;
-                
-                //Final world point for laser beam
-                Vector3 wp = Camera.main.ScreenToWorldPoint(uiElementPosition);
-
-                wp.z = 1f;                
-                InstantiateLaserBeam(wp);
-
                 ResetTextFallPosition(matrixTexts.Where(mt => mt.Collectable).First());
                 currentCollectChar = collectTextQueue.Dequeue();
                 collectOnCoolDown = true;
@@ -212,6 +195,24 @@ public class DemoEffectMatrix : DemoEffectBase
                 }, null);
             }
         }
+    }
+
+    private void ShowCollectEffect()
+    {
+        //Play collect sound
+        AudioController.Instance.PlaySoundEffect("CollectLetter");
+
+        Vector3 charSP = Camera.main.WorldToScreenPoint(collectableCharacterRect.position);
+
+        //Get hand screen pos and...
+        Vector3 uiElementPosition = Camera.main.WorldToScreenPoint(matrixTexts.Where(mt => mt.Collectable).First().TmpText.transform.position);
+        uiElementPosition.y = collectableCharacterRect.y;
+
+        //Final world point for laser beam
+        Vector3 wp = Camera.main.ScreenToWorldPoint(uiElementPosition);
+
+        wp.z = 1f;
+        InstantiateLaserBeam(wp);
     }
 
     private SimpleSpriteAnimator InstantiateLaserBeam(Vector3 pos)
@@ -256,7 +257,16 @@ public class DemoEffectMatrix : DemoEffectBase
                     mt.TmpText.transform.localPosition += new Vector3(0, -mt.Speed * characterSize, 0);
                 }
                 else
-                    ResetTextFallPosition(mt);
+                {
+                    if (collectTextQueue.Count > 0)
+                    {
+                        ResetTextFallPosition(mt);
+                    }
+                    else
+                    {
+
+                    }
+                }
 
                 mt.TmpText.text = mtString;
 
@@ -277,6 +287,9 @@ public class DemoEffectMatrix : DemoEffectBase
 
                 TextFunctions.TmpTextColor(mt.TmpText, mtString.Length - 1, colorCombo.dark, colorCombo.light);
             }
+
+            //Flash lit text randomly            
+            enterMatrixTextLit.gameObject.SetActive(UnityEngine.Random.Range(0, 2) == 0 ? true : false);
 
             counter++;
             yield return new WaitForSeconds(.1f);

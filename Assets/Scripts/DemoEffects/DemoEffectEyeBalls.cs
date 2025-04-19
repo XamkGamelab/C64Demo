@@ -7,6 +7,7 @@ using Unity.VisualScripting;
 using DG.Tweening;
 using System.Linq;
 using UniRx;
+using static UnityEditor.PlayerSettings;
 
 public class DemoEffectEyeBalls : DemoEffectBase
 {
@@ -18,7 +19,7 @@ public class DemoEffectEyeBalls : DemoEffectBase
     private SpriteRenderer bigEyeRenderer;
     private List<GenericEnemy> ballEnemies = new List<GenericEnemy>();
 
-    private List<Sprite> eyeSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("EyeSheet");
+   
 
     private Material spriteScrollMaterial;
 
@@ -32,11 +33,18 @@ public class DemoEffectEyeBalls : DemoEffectBase
     private Vector3 shipAppearPosition;
     private Vector3 shipStartPosition;
     private SimpleSpriteAnimator bigEyeAnimator;
+    private SimpleSpriteAnimator bloodSpriteAnimator;
 
-    private List<Sprite> bigEyeOpenSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("BigEyeOpenSpriteSheetPSD");
+    private List<Sprite> eyeSprites; // => TextureAndGaphicsFunctions.LoadSpriteSheet("EyeSheet");
+    private List<Sprite> bigEyeOpenSprites; // => TextureAndGaphicsFunctions.LoadSpriteSheet("BigEyeOpenSpriteSheetPSD");
+    private List<Sprite> eyeBloodSplashSprites;
 
     public override DemoEffectBase Init(float parTime, string tutorialText)
     {
+        eyeSprites = TextureAndGaphicsFunctions.LoadSpriteSheet("EyeSheet");
+        bigEyeOpenSprites = TextureAndGaphicsFunctions.LoadSpriteSheet("BigEyeOpenSpriteSheetPSD");
+        eyeBloodSplashSprites = TextureAndGaphicsFunctions.LoadSpriteSheet("EyeBloodSplashSpriteSheet");
+
         spriteScrollMaterial = GameObject.Instantiate<Material>(Resources.Load<Material>("CustomSpriteScrolling"));
 
         //Play are rect and ship start position
@@ -124,7 +132,7 @@ public class DemoEffectEyeBalls : DemoEffectBase
         moveInput = Vector2.zero;
         isEnding = false;
 
-        ExecuteInUpdate = true;
+        
 
         
 
@@ -149,12 +157,16 @@ public class DemoEffectEyeBalls : DemoEffectBase
 
         ballEnemies.ForEach(be => 
         {
-            be.GetComponent<SimpleSpriteAnimator>().ResetState(0);
             be.BulletHitCount = 0;
+            be.gameObject.SetActive(true);
+            be.transform.position = new Vector3(0f, 0f, 1f);
+            be.GetComponent<SimpleSpriteAnimator>().ResetState(0);            
         });
 
+        ExecuteInUpdate = true;
+
         //Wait that ship has moved into position and eye is opening before small eyes start to animate:
-        yield return new WaitForSeconds(2.5f);
+        //yield return new WaitForSeconds(.5f);
 
         //Show ship after the eye opens
 
@@ -191,6 +203,17 @@ public class DemoEffectEyeBalls : DemoEffectBase
         laserRenderer.AddComponent<GenericBullet>().Init(new Vector2(0, 2f), true);
     }
 
+    private SpriteRenderer InstantiateBloodSplash(Vector3 pos)
+    {
+        //Eye blood splash
+        SpriteRenderer bloodRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("BloodSplash", pos, eyeBloodSplashSprites.First());
+        bloodSpriteAnimator = bloodRenderer.gameObject.AddComponent<SimpleSpriteAnimator>();
+        bloodSpriteAnimator.Loops = 1;
+        bloodSpriteAnimator.DestroyAfterLoops = true;
+        bloodSpriteAnimator.Sprites = eyeBloodSplashSprites;
+        return bloodRenderer;
+    }
+
     private void MoveShip(Vector2 input)
     {
         Vector3 nextPosition = shipRenderer.transform.position + new Vector3(input.x * shipSpeed * Time.deltaTime, 0f, 0f);
@@ -206,16 +229,29 @@ public class DemoEffectEyeBalls : DemoEffectBase
         //Give score
         Score.Value += 100;
 
-        //Play eye opening
-        ballEnemy.GetComponent<SimpleSpriteAnimator>().Play(true);
+        if (ballEnemy.BulletHitCount == 1)
+        {
+            //Play eye opening
+            ballEnemy.GetComponent<SimpleSpriteAnimator>().Play(true);
+        }
+        else if (ballEnemy.BulletHitCount > 1)
+        {
+            DOTween.Kill(ballEnemy.transform);
+            ballEnemy.gameObject.SetActive(false);
+            //Instantiate blood sprite anim
+            InstantiateBloodSplash(ballEnemy.transform.position);
+        }
 
+        /*
         //Stop movement
         DOTween.Kill(ballEnemy.transform);
 
         //Move to center
         ballEnemy.transform.DOLocalMove(new Vector3(0, 0, 1f), 2f, false);
+        */
 
-        if (ballEnemies.All(be => be.BulletHitCount > 0) && !isEnding)
+
+        if (ballEnemies.All(be => be.BulletHitCount > 1) && !isEnding)
         {
             isEnding = true;
 
@@ -255,7 +291,7 @@ public class DemoEffectEyeBalls : DemoEffectBase
             Vector2 posMovePoint = new Vector2(xpos, ypos);            
             GameObject currentBallRenderer = ballEnemies[i].gameObject;
 
-            currentBallRenderer.SetActive(true);
+            //currentBallRenderer.SetActive(true);
             currentBallRenderer.transform.DOLocalMove(new Vector3(posMovePoint.x, posMovePoint.y, 1f), fullMoveTime, false).SetDelay(fullMoveTime / ballEnemies.Count() * 2f * i).OnComplete(() =>
             {
                 //currentBallRenderer.transform.DOLocalMove(new Vector3(posMovePoint.x * -1f, posMovePoint.y * -1f, 1f), fullMoveTime * 2f, false).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);

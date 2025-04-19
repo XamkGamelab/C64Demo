@@ -61,11 +61,14 @@ public class DemoEffectTextScroller : DemoEffectBase
     
     private const int asteroidsRequired = 10;
 
-    private List<Sprite> bigExplosionSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("BigExplosionSheet");
-    private List<Sprite> asteroidBrownSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("AsteroidBrownSheet");
+    private List<Sprite> bigExplosionSprites; // => TextureAndGaphicsFunctions.LoadSpriteSheet("BigExplosionSheet");
+    private List<Sprite> asteroidBrownSprites; // => TextureAndGaphicsFunctions.LoadSpriteSheet("AsteroidBrownSheet");
 
     public override DemoEffectBase Init(float parTime, string tutorialText)
     {
+        bigExplosionSprites = TextureAndGaphicsFunctions.LoadSpriteSheet("BigExplosionSheet");
+        asteroidBrownSprites = TextureAndGaphicsFunctions.LoadSpriteSheet("AsteroidBrownSheet");
+
         //Get camera rect and ship init pos
         Rect camRect = CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position);
         shipAppearPosition = shipStartPosition = new Vector3(camRect.xMin + .32f, camRect.center.y, 1f);
