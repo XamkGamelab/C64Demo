@@ -173,7 +173,6 @@ public class DemoEffectMatrix : DemoEffectBase
         Vector2? canvasSize = ApplicationController.Instance.UI.GetCanvasSize();
         float halfSize = canvasSize.Value.x * 0.5f;
 
-        
         if (nextPosition.x < -halfSize || nextPosition.x > halfSize)
             nextPosition.x = rectCatcher.anchoredPosition3D.x;
 
@@ -187,7 +186,7 @@ public class DemoEffectMatrix : DemoEffectBase
             int collectedIndex = collectText.Length - collectTextQueue.Count;
             enterMatrixTextLit.sprite = matrixTextSpritesLit[collectedIndex];
 
-            ShowCollectEffect();
+            ShowCollectEffectAndGiveScore();
 
             //if (collectTextQueue.Count > 0)
             if (collectTextQueue.Count > 12) //<-- DEBUG REMOVE DEBUG REMOVE DEBUG REMOVE
@@ -204,10 +203,16 @@ public class DemoEffectMatrix : DemoEffectBase
                 
                 allCharactersCollected = true;
 
+                //Stop blinking text
+                enterMatrixTextLit.gameObject.SetActive(true);
+
                 //Kill hovering and start moving up
                 DOTween.Kill(enterMatrixText.transform);
-                enterMatrixText.rectTransform.DOAnchorPos3DY(enterMatrixTextHiddenPosition.y, 5f).SetEase(Ease.InSine);
-
+                enterMatrixText.rectTransform.DOShakeAnchorPos(2f, 5).OnComplete(() => 
+                {
+                    enterMatrixText.rectTransform.DOAnchorPos3DY(enterMatrixTextHiddenPosition.y, 5f).SetEase(Ease.InSine);
+                });
+                
                 //Delay and start fading out
                 Task.Delay(4000).ContinueWith(_ =>
                 {
@@ -221,8 +226,11 @@ public class DemoEffectMatrix : DemoEffectBase
         }
     }
 
-    private void ShowCollectEffect()
+    private void ShowCollectEffectAndGiveScore()
     {
+        //Give score
+        Score.Value += 100;
+
         //Play collect sound
         AudioController.Instance.PlaySoundEffect("CollectLetter");
 
@@ -276,12 +284,13 @@ public class DemoEffectMatrix : DemoEffectBase
                     if (counter % 2 == 0)
                         mtString = mtString.Substring(1);
 
-                    char addChar = new char();
-
-                    if (!allCharactersCollected)
-                        addChar = mt.Collectable ? currentCollectChar : (char)UnityEngine.Random.Range(32, 90);
-
+                    
+                    char addChar = mt.Collectable ? currentCollectChar : (char)UnityEngine.Random.Range(32, 90);
                     mtString = mtString.Remove(mtString.Length - 1, 1) + addChar;
+
+                    if (allCharactersCollected && mtString.Length == 1)
+                        mtString = "";
+
                     mt.TmpText.transform.localPosition += new Vector3(0, -mt.Speed * characterSize, 0);
                 }
                 else
@@ -319,11 +328,13 @@ public class DemoEffectMatrix : DemoEffectBase
                     collectableCharacterRect.position = new Vector2(mt.TmpText.transform.localPosition.x, mt.TmpText.rectTransform.anchoredPosition3D.y + offset);
                 }
 
-                TextFunctions.TmpTextColor(mt.TmpText, mtString.Length - 1, colorCombo.dark, colorCombo.light);
+                if (mtString.Length >= 1)
+                    TextFunctions.TmpTextColor(mt.TmpText, mtString.Length - 1, colorCombo.dark, colorCombo.light);
             }
 
             //Flash lit text randomly            
-            enterMatrixTextLit.gameObject.SetActive(UnityEngine.Random.Range(0, 2) == 0 ? true : false);
+            if (!allCharactersCollected)
+                enterMatrixTextLit.gameObject.SetActive(UnityEngine.Random.Range(0, 2) == 0 ? true : false);
 
             counter++;
             yield return new WaitForSeconds(.1f);
@@ -338,7 +349,7 @@ public class DemoEffectMatrix : DemoEffectBase
         while (matrixTexts.Any(text => text.TmpText.GetComponent<RectTransform>().anchoredPosition3D.x == (float)newRandomX))
             newRandomX = UnityEngine.Random.Range(0, 36) * 8 - 144;
 
-        matrixText.TmpText.transform.localPosition = new Vector3(newRandomX, ApplicationController.Instance.UI.GetCanvasSize().Value.y + UnityEngine.Random.Range(0, 40) * characterSize, matrixText.TmpText.transform.localPosition.z);
+        matrixText.TmpText.transform.localPosition = new Vector3(newRandomX, ApplicationController.Instance.UI.GetCanvasSize().Value.y + UnityEngine.Random.Range(0, 20) * characterSize, matrixText.TmpText.transform.localPosition.z);
         matrixText.TmpText.text = "";
         matrixText.Shorten = false;
     }
