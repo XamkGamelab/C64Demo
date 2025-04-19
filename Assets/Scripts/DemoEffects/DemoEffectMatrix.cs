@@ -32,7 +32,7 @@ public class DemoEffectMatrix : DemoEffectBase
     private Queue<char> collectTextQueue = new Queue<char>();
     private char currentCollectChar;
     private bool collectOnCoolDown = false;
-
+    private bool allCharactersCollected = false;
     private const float characterSize = 8;
     private const string collectText = "ENTERTHEMATRIX";
 
@@ -103,6 +103,10 @@ public class DemoEffectMatrix : DemoEffectBase
         enterMatrixTextLit.sprite = matrixTextSpritesLit.First();
         //Text falls to position from top of the screen
         enterMatrixText.rectTransform.anchoredPosition3D = enterMatrixTextHiddenPosition;
+
+        matrixTexts.ForEach(mt => ResetTextFallPosition(mt));
+
+        allCharactersCollected = false;
 
         ExecuteInUpdate = true;
 
@@ -197,13 +201,15 @@ public class DemoEffectMatrix : DemoEffectBase
             {
                 Disposables.Dispose();
                 ExecuteInUpdate = false;
+                
+                allCharactersCollected = true;
 
                 //Kill hovering and start moving up
                 DOTween.Kill(enterMatrixText.transform);
-                enterMatrixText.rectTransform.DOAnchorPos3DY(enterMatrixTextHiddenPosition.y, 4f).SetEase(Ease.InSine);
+                enterMatrixText.rectTransform.DOAnchorPos3DY(enterMatrixTextHiddenPosition.y, 5f).SetEase(Ease.InSine);
 
                 //Delay and start fading out
-                Task.Delay(2000).ContinueWith(_ =>
+                Task.Delay(4000).ContinueWith(_ =>
                 {
                     ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[1], () =>
                     {
@@ -270,13 +276,18 @@ public class DemoEffectMatrix : DemoEffectBase
                     if (counter % 2 == 0)
                         mtString = mtString.Substring(1);
 
-                    char addChar = mt.Collectable ? currentCollectChar : (char)UnityEngine.Random.Range(32, 90);
+                    char addChar = new char();
+
+                    if (!allCharactersCollected)
+                        addChar = mt.Collectable ? currentCollectChar : (char)UnityEngine.Random.Range(32, 90);
+
                     mtString = mtString.Remove(mtString.Length - 1, 1) + addChar;
                     mt.TmpText.transform.localPosition += new Vector3(0, -mt.Speed * characterSize, 0);
                 }
                 else
                 {
-                    ResetTextFallPosition(mt);
+                    if (!allCharactersCollected)
+                        ResetTextFallPosition(mt);
 
                     //TODO: This doesn't work but can't figure out why. FIX THIS AND REMEMBER TO SET QUEUE CHECK COUNT TO zero 00000
                     /*
@@ -327,7 +338,7 @@ public class DemoEffectMatrix : DemoEffectBase
         while (matrixTexts.Any(text => text.TmpText.GetComponent<RectTransform>().anchoredPosition3D.x == (float)newRandomX))
             newRandomX = UnityEngine.Random.Range(0, 36) * 8 - 144;
 
-        matrixText.TmpText.transform.localPosition = new Vector3(newRandomX, ApplicationController.Instance.UI.GetCanvasSize().Value.y, matrixText.TmpText.transform.localPosition.z);
+        matrixText.TmpText.transform.localPosition = new Vector3(newRandomX, ApplicationController.Instance.UI.GetCanvasSize().Value.y + UnityEngine.Random.Range(0, 40) * characterSize, matrixText.TmpText.transform.localPosition.z);
         matrixText.TmpText.text = "";
         matrixText.Shorten = false;
     }
