@@ -184,27 +184,25 @@ public class DemoeffectNoise : DemoEffectBase
             creditsQueue.Enqueue(credits[i]);
         
 
-        Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[13];
+        Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[0];
+
+        AudioController.Instance.PlayTrack("Credits");
 
         //Disable input and reset all values
         inputActive = false;
         
         inputOnCooldown = false;
         
-
-        AudioController.Instance.PlayTrack("Intro");
-
         GeneratedObjectsSetActive(true);
 
         RotateCreditsTexts();
 
         ExecuteInUpdate = true;
 
-        ApplicationController.Instance.FadeImageInOut(.2f, ApplicationController.Instance.C64PaletteArr[1], null, () => 
+        ApplicationController.Instance.FadeImageInOut(2f, ApplicationController.Instance.C64PaletteArr[1], null, () => 
         {
             startTime = Time.time;
-            ExecuteInUpdate = true;
-            AudioController.Instance.PlayTrack("Track1");
+            ExecuteInUpdate = true;            
         });
 
         yield return UpdateNoise();

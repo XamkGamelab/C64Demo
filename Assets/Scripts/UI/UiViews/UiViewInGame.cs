@@ -23,8 +23,10 @@ public class UiViewInGame : UiView
 
     //Give this when effect starts (Run() in demo base )
     private float startTime;
-    
+    private Color textTimeBonusInitColor;
     private IDisposable disposableTimer;
+
+
 
     private float tutorialHiddenPositionY => PanelTutorial.sizeDelta.y;
 
@@ -34,19 +36,49 @@ public class UiViewInGame : UiView
         PanelTutorial.gameObject.SetActive(false);
         TimeBonusContainer.gameObject.SetActive(false);
 
+        textTimeBonusInitColor = TextTimeBonus.color;
+
         base.Awake();
     }
 
     public override void Show(UiView _showViewWhenThisHides = null)
     {
-        base.Show(_showViewWhenThisHides);        
+        base.Show(_showViewWhenThisHides);
     }
 
-    public void ShowTutorial(string tutorialText, int showSeconds = 5)
+    public void ShowLastBonusAndNewTutorial(string tutorialText, int lastEffectTimeBonus, Action timeBonusCallback, int showSeconds = 5)
     {
+        //Corner case for credits effect, that has now tutorial
         if (string.IsNullOrEmpty(tutorialText))
             return;
 
+        //Corner case for first effect, that has no time bonus from the last effect to show
+        if (lastEffectTimeBonus > 0)
+        {
+            TextTimeBonus.text = lastEffectTimeBonus.ToString("000000");
+            TimeBonusContainer.gameObject.SetActive(true);
+            TextTimeBonus.color = textTimeBonusInitColor;
+            TextTimeBonus.
+                DOColor(Color.white, 0.2f).
+                SetLoops(10, LoopType.Yoyo).
+                OnComplete(() =>
+                {
+                    TimeBonusContainer.gameObject.SetActive(false);
+                    ShowTutorialText(tutorialText, showSeconds);
+
+                    //Invoke callback to update effects scores in app controller
+                    timeBonusCallback?.Invoke();
+                });
+        }
+        else
+        {
+            //Only show tutorial when the first effect starts
+            ShowTutorialText(tutorialText, showSeconds);
+        }
+    }
+    
+    public void ShowTutorialText(string tutorialText, int showSeconds = 5)
+    {
         DOTween.Kill(PanelTutorial);
 
         //Dispose previous timer if any and start observing again
@@ -60,15 +92,9 @@ public class UiViewInGame : UiView
         //Hide tutorial after showSeconds
         disposableTimer = Observable.Timer(TimeSpan.FromSeconds(showSeconds)).Subscribe(t =>
         {
-            Debug.Log("HIDE TUTORIAL AFTER " + showSeconds + " secs");            
+            Debug.Log("HIDE TUTORIAL AFTER " + showSeconds + " secs");
             PanelTutorial.DOAnchorPos3DY(tutorialHiddenPositionY, 1f).SetEase(Ease.InSine).OnComplete(() => PanelTutorial.gameObject.SetActive(false));
         });
-    }
-
-    public void ShowTimeBonus(int bonusValue)
-    {
-        TextTimeBonus.text = bonusValue.ToString("000000"); 
-        TimeBonusContainer.gameObject.SetActive(true);
     }
 
     public void UpdateScores(int score, int hiscore)

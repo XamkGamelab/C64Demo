@@ -58,6 +58,9 @@ public abstract class DemoEffectBase: IDemoEffect
     {
         Started.Value = false;
 
+        //Stop running updates
+        ExecuteInUpdate = false;
+
         //Reset input values;
         HorizontalInput = VerticalInput = 0f;
         FirePressed = false;

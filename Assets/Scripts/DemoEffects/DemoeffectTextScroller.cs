@@ -10,7 +10,7 @@ using DG.Tweening;
 using UnityEngine.Rendering;
 using System;
 
-public class DemoeffectTextScroller : DemoEffectBase
+public class DemoEffectTextScroller : DemoEffectBase
 {
     private Image img;
 

@@ -29,6 +29,7 @@ public class ApplicationController : SingletonMono<ApplicationController>
     private CompositeDisposable disposables = new CompositeDisposable();
     private IDisposable disposableMonitorTimer;
 
+    private int lastEffectTimeBonus = 0;
     private double turnMonitorOnDelayMs = 1500.0;
     private float effectStartedTime;
     private float runningTime;
@@ -64,9 +65,6 @@ public class ApplicationController : SingletonMono<ApplicationController>
 
         Debug.Log("Ready");
 
-        //Play music
-        AudioController.Instance.PlayTrack("MenuIntro", 1f, 4f);
-
         CameraSettings = new Dictionary<string, CameraSettings>()
         {
             { "orthoPixel", new CameraSettings { Orthographic = true, OrthographicSize = 1.2f } },
@@ -76,13 +74,13 @@ public class ApplicationController : SingletonMono<ApplicationController>
 
         demoEffects = new List<DemoEffectBase>()
         {
-            new DemoeffectIntro().Init(25f, "Press Space or Fire") ,
+            //new DemoEffectIntro().Init(25f, "Press Space or Fire") ,
             //new DemoEffectRun().Init(20f, "Toggle left/right rapidly to run"),                        
-            //new DemoeffectTextScroller().Init(20f, "Control ship with left/right and up/down.\nPress fire to shoot."),
-            //new DemoEffectEyeBalls().Init(30f, "Left/right to control the ship.\nPress fire to shoot."),
-            new DemoeffectNoise().Init(25f, ""),
-            //new DemoEffectSunset().Init(30f, "Left/right to control the character. Press fire to shoot"),
+            new DemoEffectTextScroller().Init(20f, "Control ship with left/right and up/down.\nPress fire to shoot."),
+            new DemoEffectEyeBalls().Init(30f, "Left/right to control the ship.\nPress fire to shoot."),
             //new DemoEffectMatrix().Init(30f, "Left/right to control the hand.\nCatch highlighted falling letters"),
+            new DemoeffectNoise().Init(25f, ""),
+            //new DemoEffectSunset().Init(30f, "Left/right to control the character. Press fire to shoot"),            
             //new DemoEffectTimeBomb().Init(30f, "Defuse the bomb")
             
         };
@@ -112,7 +110,7 @@ public class ApplicationController : SingletonMono<ApplicationController>
                     if (uiViewInGame != null)
                     {
                         uiViewInGame.UpdateNewEffect(effect.ParTime);
-                        uiViewInGame.ShowTutorial(effect.TutorialText);
+                        uiViewInGame.ShowLastBonusAndNewTutorial(effect.TutorialText, lastEffectTimeBonus, () => AddTimeBonusToScoreCallback(effect, lastEffectTimeBonus));
                     }
                 }
                 else
@@ -121,16 +119,19 @@ public class ApplicationController : SingletonMono<ApplicationController>
                     float bonusTime = effect.ParTime - runningTime;
                     if (uiViewInGame != null && bonusTime > 0)
                     {
-                        //TODO: add this to score, after the bonus is shown in UI. This could use action!
-                        int bonusScore = (int)(bonusTime * 100f);
-                        
-                        effect.Score.Value += bonusScore; //<-- add after ui
-
-                        uiViewInGame.ShowTimeBonus(bonusScore);
+                        lastEffectTimeBonus = (int)(bonusTime * 100f);                        
+                        //uiViewInGame.ShowTimeBonus(bonusScore); //NO, because when new effect starts, last time bonus is displayed, and after that, new tutorial is displayed
                     }
                 }
             }).AddTo(disposables); //TODO: this is never disposed, is it actually needed...
         });
+    }
+
+    private void AddTimeBonusToScoreCallback(DemoEffectBase effectBase, int bonusScore)
+    {
+        //Score from getting time under par is added after the UI has
+        //displayed time bonus and before next effects tutorial is shown.
+        effectBase.Score.Value += bonusScore;
     }
 
     public void StartNewGame()
@@ -167,6 +168,8 @@ public class ApplicationController : SingletonMono<ApplicationController>
 
     public void ReturnToMainMenu()
     {
+        //Play music
+        AudioController.Instance.PlayTrack("MenuIntro", 1f, 4f);
         //This needs delay for camera animation, but then show the menu after do tween complete ->
         UI.ShowUiView<UiViewMainMenu>();
     }

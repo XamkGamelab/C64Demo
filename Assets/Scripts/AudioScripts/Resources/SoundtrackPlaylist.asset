@@ -25,3 +25,5 @@ MonoBehaviour:
     MusicClip: {fileID: 8300000, guid: b018132574fd165469df61b182df243a, type: 3}
   - Name: MenuIntro
     MusicClip: {fileID: 8300000, guid: 9a2dd4d54fe4e9e4aa9e1ef845c087c2, type: 3}
+  - Name: Credits
+    MusicClip: {fileID: 8300000, guid: 22568d14efe0b8c41b9750e4d2ad1847, type: 3}
