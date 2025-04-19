@@ -139,7 +139,7 @@ public class DemoEffectEyeBalls : DemoEffectBase
         {
             shipRenderer.transform.position = shipAppearPosition;
             shipRenderer.gameObject.SetActive(true);
-            shipRenderer.transform.DOMoveY(shipStartPosition.y, 2f);
+            shipRenderer.transform.DOMoveY(shipStartPosition.y, 2f).SetDelay(2f);
 
             //Subscribe to input when ship is in position
             InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
@@ -245,23 +245,33 @@ public class DemoEffectEyeBalls : DemoEffectBase
         float angleStep = 22.5f;
         float radius = 0.64f;        
         float fullMoveTime = 1.2f;
-        
+        float sinMag = 0.32f;
+
         for (int i = 0; i < ballEnemies.Count(); i++)
         {
             float ypos = radius * Mathf.Cos(Mathf.PI * angleStep * i / 180f);
             float xpos = radius * Mathf.Sin(Mathf.PI * angleStep * i / 180f);
-            
+
             Vector2 posMovePoint = new Vector2(xpos, ypos);            
             GameObject currentBallRenderer = ballEnemies[i].gameObject;
 
             currentBallRenderer.SetActive(true);
             currentBallRenderer.transform.DOLocalMove(new Vector3(posMovePoint.x, posMovePoint.y, 1f), fullMoveTime, false).SetDelay(fullMoveTime / ballEnemies.Count() * 2f * i).OnComplete(() =>
             {
-                currentBallRenderer.transform.DOLocalMove(new Vector3(posMovePoint.x * -1f, posMovePoint.y * -1f, 1f), fullMoveTime * 2f, false).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);                  
+                //currentBallRenderer.transform.DOLocalMove(new Vector3(posMovePoint.x * -1f, posMovePoint.y * -1f, 1f), fullMoveTime * 2f, false).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
+                RestartBallDoMove(currentBallRenderer, posMovePoint, fullMoveTime);
             });
         }
         
         yield return null;
         
+    }
+
+    private void RestartBallDoMove(GameObject ball, Vector2 posMovePoint, float fullMoveTime)
+    {
+        posMovePoint *= -1f;
+        Vector2 tempMovePoint = posMovePoint;
+        tempMovePoint *= 1f + MathFunctions.GetSin(Time.time, 2f, .64f);
+        ball.transform.DOLocalMove(new Vector3(tempMovePoint.x, tempMovePoint.y, 1f), fullMoveTime * 2f, false).SetEase(Ease.Linear).OnComplete(() => RestartBallDoMove(ball, posMovePoint, fullMoveTime));
     }
 }
