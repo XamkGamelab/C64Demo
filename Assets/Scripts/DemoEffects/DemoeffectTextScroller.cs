@@ -61,8 +61,8 @@ public class DemoEffectTextScroller : DemoEffectBase
     
     private const int asteroidsRequired = 10;
 
-    private List<Sprite> bigExplosionSprites; // => TextureAndGaphicsFunctions.LoadSpriteSheet("BigExplosionSheet");
-    private List<Sprite> asteroidBrownSprites; // => TextureAndGaphicsFunctions.LoadSpriteSheet("AsteroidBrownSheet");
+    private List<Sprite> bigExplosionSprites;
+    private List<Sprite> asteroidBrownSprites;
 
     public override DemoEffectBase Init(float parTime, string tutorialText)
     {
@@ -73,7 +73,6 @@ public class DemoEffectTextScroller : DemoEffectBase
         Rect camRect = CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position);
         shipAppearPosition = shipStartPosition = new Vector3(camRect.xMin + .32f, camRect.center.y, 1f);
         
-
         //Top gradients
         InstantiateGradientImages(8, (4, 32));
 
@@ -238,7 +237,6 @@ public class DemoEffectTextScroller : DemoEffectBase
                     //Move ship to right and fade in transition
                     shipRenderer.transform.DOMoveX(playAreaRect.xMax + shipRenderer.size.x, 2f, false).SetDelay(0.1f).SetEase(Ease.InExpo).OnComplete(() => 
                     { 
-
                         ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[1], () =>
                         {
                             Debug.Log("END TEXT SCROLLER?!");

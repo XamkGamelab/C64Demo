@@ -19,8 +19,6 @@ public class DemoEffectEyeBalls : DemoEffectBase
     private SpriteRenderer bigEyeRenderer;
     private List<GenericEnemy> ballEnemies = new List<GenericEnemy>();
 
-   
-
     private Material spriteScrollMaterial;
 
     //Gameplay
@@ -35,8 +33,8 @@ public class DemoEffectEyeBalls : DemoEffectBase
     private SimpleSpriteAnimator bigEyeAnimator;
     private SimpleSpriteAnimator bloodSpriteAnimator;
 
-    private List<Sprite> eyeSprites; // => TextureAndGaphicsFunctions.LoadSpriteSheet("EyeSheet");
-    private List<Sprite> bigEyeOpenSprites; // => TextureAndGaphicsFunctions.LoadSpriteSheet("BigEyeOpenSpriteSheetPSD");
+    private List<Sprite> eyeSprites;
+    private List<Sprite> bigEyeOpenSprites;
     private List<Sprite> eyeBloodSplashSprites;
 
     public override DemoEffectBase Init(float parTime, string tutorialText)
@@ -159,11 +157,6 @@ public class DemoEffectEyeBalls : DemoEffectBase
 
         ExecuteInUpdate = true;
 
-        //Wait that ship has moved into position and eye is opening before small eyes start to animate:
-        //yield return new WaitForSeconds(.5f);
-
-        //Show ship after the eye opens
-
         yield return AnimateBalls();
     }
     
@@ -236,22 +229,10 @@ public class DemoEffectEyeBalls : DemoEffectBase
             InstantiateBloodSplash(ballEnemy.transform.position);
         }
 
-        /*
-        //Stop movement
-        DOTween.Kill(ballEnemy.transform);
-
-        //Move to center
-        ballEnemy.transform.DOLocalMove(new Vector3(0, 0, 1f), 2f, false);
-        */
-
-
         if (ballEnemies.All(be => be.BulletHitCount > 1) && !isEnding)
         {
             isEnding = true;
 
-            //Should all hit actions for all balls be removed?
-
-            Debug.Log("ALL BALLS HAVE BEEN HIT, END DEMO!!!!");
             //Unsubsribe from input and asteroid spawning
             Disposables.Dispose();
             moveInput = Vector2.zero;
@@ -267,10 +248,8 @@ public class DemoEffectEyeBalls : DemoEffectBase
         }
     }
 
-    //TODO: Make a proper function of this crap
     private IEnumerator AnimateBalls()
     {
-        
         /* correct time step is: full movement time (e.g. 2 sec) / amount of balls * 2 ( = e.g. 16) which gives current hard-coded step of 0.125f */
         float angleStep = 22.5f;
         float radius = 0.64f;        
@@ -284,16 +263,13 @@ public class DemoEffectEyeBalls : DemoEffectBase
             Vector2 posMovePoint = new Vector2(xpos, ypos);            
             GameObject currentBallRenderer = ballEnemies[i].gameObject;
 
-            //currentBallRenderer.SetActive(true);
             currentBallRenderer.transform.DOLocalMove(new Vector3(posMovePoint.x, posMovePoint.y, 1f), fullMoveTime, false).SetDelay(fullMoveTime / ballEnemies.Count() * 2f * i).OnComplete(() =>
             {
-                //currentBallRenderer.transform.DOLocalMove(new Vector3(posMovePoint.x * -1f, posMovePoint.y * -1f, 1f), fullMoveTime * 2f, false).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
                 RestartBallDoMove(currentBallRenderer, posMovePoint, fullMoveTime);
             });
         }
         
-        yield return null;
-        
+        yield return null;        
     }
 
     private void RestartBallDoMove(GameObject ball, Vector2 posMovePoint, float fullMoveTime)

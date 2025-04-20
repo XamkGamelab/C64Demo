@@ -92,7 +92,6 @@ public class UiViewInGame : UiView
         //Hide tutorial after showSeconds
         disposableTimer = Observable.Timer(TimeSpan.FromSeconds(showSeconds)).Subscribe(t =>
         {
-            Debug.Log("HIDE TUTORIAL AFTER " + showSeconds + " secs");
             PanelTutorial.DOAnchorPos3DY(tutorialHiddenPositionY, 1f).SetEase(Ease.InSine).OnComplete(() => PanelTutorial.gameObject.SetActive(false));
         });
     }

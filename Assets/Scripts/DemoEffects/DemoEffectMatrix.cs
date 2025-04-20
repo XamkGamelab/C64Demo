@@ -83,7 +83,6 @@ public class DemoEffectMatrix : DemoEffectBase
         enterMatrixTextLit.rectTransform.SetParent(enterMatrixRect, true);
         AddToGeneratedObjectsDict(enterMatrixLitRect.gameObject.name, enterMatrixLitRect.gameObject);
 
-
         return base.Init(parTime, tutorialText);
     }
 
@@ -149,7 +148,6 @@ public class DemoEffectMatrix : DemoEffectBase
 
         //Subscribe to input        
         InputController.Instance.Horizontal.Subscribe(f => moveInput.x = f).AddTo(Disposables);
-
 
         yield return AnimateMatrixTexts();
     }
@@ -297,18 +295,6 @@ public class DemoEffectMatrix : DemoEffectBase
                 {
                     if (!allCharactersCollected)
                         ResetTextFallPosition(mt);
-
-                    //TODO: This doesn't work but can't figure out why. FIX THIS AND REMEMBER TO SET QUEUE CHECK COUNT TO zero 00000
-                    /*
-                    if (collectTextQueue.Count > 12)
-                    {
-                        ResetTextFallPosition(mt);
-                    }
-                    else
-                    {
-
-                    }
-                    */
                 }
 
                 mt.TmpText.text = mtString;
