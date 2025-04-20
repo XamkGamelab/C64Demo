@@ -9,6 +9,7 @@ using UniRx;
 using DG.Tweening;
 using System;
 using static UnityEngine.GraphicsBuffer;
+using System.Threading.Tasks;
 
 public class DemoeffectNoise : DemoEffectBase
 {
@@ -187,8 +188,9 @@ public class DemoeffectNoise : DemoEffectBase
         Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[0];
 
         AudioController.Instance.PlayTrack("Credits");
-                
-        GeneratedObjectsSetActive(true);
+
+        GeneratedObjectsSetActive(true, new List<string> { "Text_fire_prompt" });
+
         RotateCreditsTexts();
         ExecuteInUpdate = true;
 
@@ -196,16 +198,21 @@ public class DemoeffectNoise : DemoEffectBase
         {
             ExecuteInUpdate = true;
 
-            //Should there be at least some delay here?
-            InputController.Instance.Fire1.Subscribe(b => 
+            //Delay and start fading out
+            Task.Delay(3000).ContinueWith(_ =>
             {
-                //Dispose input subscription and end demo when fire is pressed
-                if (b)
+                txtPressFirePrompt.gameObject.SetActive(true);
+
+                InputController.Instance.Fire1.Subscribe(b =>
                 {
-                    Disposables?.Dispose();
-                    EndDemo();
-                }
-            }).AddTo(Disposables);
+                    //Dispose input subscription and end demo when fire is pressed
+                    if (b)
+                    {
+                        Disposables?.Dispose();
+                        EndDemo();
+                    }
+                }).AddTo(Disposables);
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         });
 
         yield return UpdateNoise();

@@ -77,4 +77,9 @@ public abstract class DemoEffectBase: IDemoEffect
     {
         GeneratedObjects.ToList().ForEach(kvp => kvp.Value.SetActive(active));
     }
+
+    public void GeneratedObjectsSetActive(bool active, List<string> exlude)
+    {
+        GeneratedObjects.ToList().Where(kvp => !exlude.Contains(kvp.Key)).ToList().ForEach(kvp => kvp.Value.SetActive(active));
+    }
 }
