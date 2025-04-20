@@ -10,6 +10,7 @@ using DG.Tweening;
 using System;
 using static UnityEngine.GraphicsBuffer;
 using System.Threading.Tasks;
+using UnityEditor.Search;
 
 public class DemoeffectNoise : DemoEffectBase
 {
@@ -40,7 +41,7 @@ public class DemoeffectNoise : DemoEffectBase
         ApplicationController.Instance.C64PaletteArr[9],
     };
 
-    private string[] credits = new string[] 
+    private string[] credits = new string[]
     {
         "[ programming and\ngraphics ]\np3v1",
         "[ music jing3 ]\nSpring Spring",
@@ -52,8 +53,8 @@ public class DemoeffectNoise : DemoEffectBase
         "[ 3D book models ]\nspookyghostboo",
         "[ 3D joystick model ]\ncontraryk",
     };
-        
-    
+
+
     private Queue<string> creditsQueue = new Queue<string>();
     private string currentCredits;
 
@@ -84,7 +85,7 @@ public class DemoeffectNoise : DemoEffectBase
         noiseImageRect.pivot = new Vector2(0.5f, 0.5f);
         noiseImageRect.SetAsLastSibling();
         noiseImage = noiseImageRect.AddComponent<Image>();
-        
+
         AddToGeneratedObjectsDict(noiseImageRect.gameObject.name, noiseImageRect.gameObject);
 
         for (int y = 0; y < noiseSize.height; y++)
@@ -129,7 +130,7 @@ public class DemoeffectNoise : DemoEffectBase
         shadowEnd.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("TheEnd_end"));
         AddToGeneratedObjectsDict(endRect2.gameObject.name, endRect2.gameObject);
 
-        TheEnd_the = GameObject.Instantiate(endRect1.gameObject, endRect1).GetComponent<Image>();        
+        TheEnd_the = GameObject.Instantiate(endRect1.gameObject, endRect1).GetComponent<Image>();
         TheEnd_the.rectTransform.localPosition = new Vector3(-4f, 4f, 0f);
         AddToGeneratedObjectsDict(TheEnd_the.gameObject.name, TheEnd_the.gameObject);
 
@@ -145,13 +146,13 @@ public class DemoeffectNoise : DemoEffectBase
         endInitPos = endRect2.anchoredPosition3D;
         heartInitPos = endRect3.anchoredPosition3D;
 
-        
+
 
         //Credits text
         RectTransform txtRect = ApplicationController.Instance.UI.CreateRectTransformObject("Text_intro", new Vector2(320f, 26f), new Vector3(0, -40f, 0), Vector2.one * .5f, Vector2.one * .5f);
         txtRect.pivot = new Vector2(0.5f, 0.5f);
         txt = TextFunctions.AddTextMeshProTextComponent(txtRect, "8-BIT_WONDER", 12, ApplicationController.Instance.C64PaletteArr[1]);
-        txt.alignment = TextAlignmentOptions.Center;        
+        txt.alignment = TextAlignmentOptions.Center;
         AddToGeneratedObjectsDict(txtRect.gameObject.name, txtRect.gameObject);
 
         txtClone = GameObject.Instantiate(txtRect.gameObject, txtRect).GetComponent<TMP_Text>();
@@ -184,23 +185,31 @@ public class DemoeffectNoise : DemoEffectBase
         //Enqueue the credits and init first        
         for (int i = 0; i < credits.Length; i++)
             creditsQueue.Enqueue(credits[i]);
-        
+
         Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[0];
 
+        AudioController.Instance.FadeOutMusic(2f);
+        //Hold on, hold on...
+        yield return new WaitForSeconds(2f);
+        AudioController.Instance.FadeInMusic(.1f);
         AudioController.Instance.PlayTrack("Credits");
 
-        GeneratedObjectsSetActive(true, new List<string> { "Text_fire_prompt" });
-
-        RotateCreditsTexts();
-        ExecuteInUpdate = true;
-
-        ApplicationController.Instance.FadeImageInOut(2f, ApplicationController.Instance.C64PaletteArr[1], null, () => 
+        //GO! Flash white and start running stuff
+        ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[1], () =>
         {
+            //Enable everything but "press fire" prompt
+            GeneratedObjectsSetActive(true, new List<string> { "Text_fire_prompt" });
+
+            RotateCreditsTexts();
+
             ExecuteInUpdate = true;
+
 
             //Delay and start fading out
             Task.Delay(3000).ContinueWith(_ =>
             {
+                ApplicationController.Instance.FadeImageInOut(.3f, ApplicationController.Instance.C64PaletteArr[1], null, null);
+
                 txtPressFirePrompt.gameObject.SetActive(true);
 
                 InputController.Instance.Fire1.Subscribe(b =>
@@ -213,7 +222,7 @@ public class DemoeffectNoise : DemoEffectBase
                     }
                 }).AddTo(Disposables);
             }, TaskScheduler.FromCurrentSynchronizationContext());
-        });
+        }, null);
 
         yield return UpdateNoise();
     }
@@ -238,7 +247,7 @@ public class DemoeffectNoise : DemoEffectBase
             currentCredits = creditsQueue.Dequeue();
             txt.text = txtClone.text = currentCredits;
             txt.transform.rotation = Quaternion.Euler(new Vector3(-90f, 0f, 0f));
-            txt.transform.DORotate(Vector3.zero, 1f).SetEase(Ease.OutSine).OnComplete(() => 
+            txt.transform.DORotate(Vector3.zero, 1f).SetEase(Ease.OutSine).OnComplete(() =>
             {
                 //Show credits a while, then rotate it away and run next credits
                 txt.transform.DORotate(new Vector3(90f, 0f, 0f), 1f).SetDelay(2f).SetEase(Ease.InSine).OnComplete(() =>
@@ -247,7 +256,7 @@ public class DemoeffectNoise : DemoEffectBase
                 });
             });
         }
-        else        
+        else
             EndDemo();
     }
 
@@ -265,7 +274,7 @@ public class DemoeffectNoise : DemoEffectBase
     private IEnumerator UpdateNoise()
     {
         float arrayOffset = 0;
-        
+
         while (true)
         {
             yield return new WaitForSeconds(.05f);
@@ -280,7 +289,7 @@ public class DemoeffectNoise : DemoEffectBase
                     float yCoord = offset + (float)y / noiseSize.height * (MathFunctions.GetSin(Time.time, 1f, 1f) + 2f);
                     offset = arrayOffset; // (MathFunctions.GetSin(Time.time, 3f, 1f) + 2f);
                     float sample = Mathf.PerlinNoise(xCoord, yCoord);
-                    noisePixels[y * noiseSize.width + x] = gradient[Mathf.FloorToInt(Mathf.Clamp01(sample) * (gradient.Length-1))];                    
+                    noisePixels[y * noiseSize.width + x] = gradient[Mathf.FloorToInt(Mathf.Clamp01(sample) * (gradient.Length - 1))];
                 }
             }
 

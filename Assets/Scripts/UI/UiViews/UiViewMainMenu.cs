@@ -22,11 +22,12 @@ public class UiViewMainMenu : UiView
 
     private void HandleMenuButton(UiMainMenuButton button)
     {
-        Hide();
+        
 
         switch (button.ButtonType)
         {
             case UiMainMenuButton.MainMenuButtonType.Start:
+                Hide();
                 ApplicationController.Instance.StartNewGame();
                 break;
             case UiMainMenuButton.MainMenuButtonType.Quit:

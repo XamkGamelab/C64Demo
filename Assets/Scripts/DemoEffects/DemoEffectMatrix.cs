@@ -204,17 +204,19 @@ public class DemoEffectMatrix : DemoEffectBase
                 //Stop blinking text
                 enterMatrixTextLit.gameObject.SetActive(true);
 
+                //Flash white
+                ApplicationController.Instance.FadeImageInOut(.3f, ApplicationController.Instance.C64PaletteArr[1], null, null);
                 //Kill hovering and start moving up
-                DOTween.Kill(enterMatrixText.transform);
+               DOTween.Kill(enterMatrixText.transform);
                 enterMatrixText.rectTransform.DOShakeAnchorPos(2f, 5).OnComplete(() => 
                 {
                     enterMatrixText.rectTransform.DOAnchorPos3DY(enterMatrixTextHiddenPosition.y, 5f).SetEase(Ease.InSine);
                 });
                 
                 //Delay and start fading out
-                Task.Delay(6000).ContinueWith(_ =>
+                Task.Delay(4000).ContinueWith(_ =>
                 {
-                    ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[1], () =>
+                    ApplicationController.Instance.FadeImageInOut(2f, ApplicationController.Instance.C64PaletteArr[0], () =>
                     {
                         //End the demo by exiting last coroutine and calling base.End();                    
                         base.End();
