@@ -47,9 +47,15 @@ public class DemoeffectNoise : DemoEffectBase
 
     private string[] credits = new string[] 
     {
-        "Programming/graphics\np3v1",
-        "Second credit",
-        "Third credit",
+        "[ programming and\ngraphics ]\np3v1",
+        "[ music jing3 ]\nSpring Spring",
+        "[ music C64 Level 1 ]\ntcarisland",
+        "[ music C64_action_loop ]\n©2017 Emma Andersson\n(Emma_MA)",
+        "[ music Battle Intro ]\ncelestialghost8",
+        "[ music\nC64_uptempo_chiptune ]\nSkrjablin",
+        "[ 3D C64 model ]\ndark_igorek",
+        "[ 3D book models ]\nspookyghostboo",
+        "[ 3D joystick model ]\ncontraryk",
     };
         
     
