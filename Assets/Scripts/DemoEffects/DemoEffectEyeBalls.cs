@@ -45,7 +45,7 @@ public class DemoEffectEyeBalls : DemoEffectBase
 
         spriteScrollMaterial = GameObject.Instantiate<Material>(Resources.Load<Material>("CustomSpriteScrolling"));
 
-        //Play are rect and ship start position
+        //Play area rect and ship start position
         playAreaRect = CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position);
         shipAppearPosition = shipStartPosition = new Vector3(playAreaRect.center.x - .64f, playAreaRect.yMin + .16f, 1f);
         
@@ -83,7 +83,7 @@ public class DemoEffectEyeBalls : DemoEffectBase
             GenericEnemy enemy = ballRenderer.gameObject.
                 AddComponent<GenericEnemy>().
                 Init(null, typeof(CircleCollider2D), true, false).
-                AddBulletHitAction(HandleBulletHitBall) as GenericEnemy;
+                AddHitAction(HandleBulletHitBall) as GenericEnemy;
 
             SimpleSpriteAnimator ballSpriteAnimator = ballRenderer.gameObject.AddComponent<SimpleSpriteAnimator>();
             ballSpriteAnimator.DontAutoPlay = true;            
@@ -99,6 +99,12 @@ public class DemoEffectEyeBalls : DemoEffectBase
         //Ship sprite        
         shipRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("SpaceShip", shipStartPosition, GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("SpaceShipTopDown")));
         shipRenderer.sortingOrder = 1000;
+        GenericPlayer player = shipRenderer.gameObject.
+            AddComponent<GenericPlayer>().
+            Init(null, typeof(CircleCollider2D), true, false, false).
+            IgnoreBullets(true).
+            AddHitAction(HandleEnemyHitPlayer) as GenericPlayer;
+
         AddToGeneratedObjectsDict(shipRenderer.gameObject.name, shipRenderer.gameObject);
 
         shipAppearPosition.y = playAreaRect.yMin - shipRenderer.size.y;
@@ -137,14 +143,7 @@ public class DemoEffectEyeBalls : DemoEffectBase
 
         bigEyeAnimator.Play(true, () =>
         {
-            shipRenderer.transform.position = shipAppearPosition;
-            shipRenderer.gameObject.SetActive(true);
-            shipRenderer.transform.DOMoveY(shipStartPosition.y, 2f).SetDelay(2f);
-
-            //Subscribe to input when ship is in position
-            InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
-            InputController.Instance.Horizontal.Subscribe(f => moveInput.x = f).AddTo(Disposables);
-
+            RespawnShip();
         }, 0, true);
 
         ballEnemies.ForEach(be => 
@@ -211,6 +210,35 @@ public class DemoEffectEyeBalls : DemoEffectBase
         shipRenderer.transform.position = nextPosition;
     }
 
+    private void RespawnShip()
+    {
+        //Dispose input
+        Disposables.Dispose();
+        Disposables = new CompositeDisposable();
+
+        //Move ship to init pos and subscribe back to input
+        shipRenderer.transform.position = shipAppearPosition;
+        //Enable sprite renderer
+        shipRenderer.GetComponent<GenericActorBase>().SpriteRend.enabled = true;
+        shipRenderer.gameObject.SetActive(true);
+        shipRenderer.transform.DOMoveY(shipStartPosition.y, 2f).OnComplete(() =>
+        {
+            //Subscribe to input when ship is in position
+            InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
+            InputController.Instance.Horizontal.Subscribe(f => moveInput.x = f).AddTo(Disposables);
+        });
+    }
+
+    private void HandleEnemyHitPlayer(GenericActorBase player)
+    {
+        //Disable input, instantiate explosion sprite anim, hide ship and start respawn
+        moveInput = Vector2.zero;
+        FirePressed = false;
+
+        InstantiateBloodSplash(player.transform.position);
+        player.SpriteRend.enabled = false;
+        RespawnShip();
+    }
     private void HandleBulletHitBall(GenericActorBase ballEnemy)
     {
         //Give score

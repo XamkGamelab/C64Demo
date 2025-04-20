@@ -7,14 +7,17 @@ using UnityEngine;
 public class GenericActorBase : MonoBehaviour
 {
     public ReactiveProperty<Vector3?> DeathPosition = new ReactiveProperty<Vector3?>(null);
-    public int BulletHitCount = 0;
-    private SpriteRenderer spriteRenderer => GetComponent<SpriteRenderer>();
+    public int BulletHitCount = 0;    
+    public SpriteRenderer SpriteRend => GetComponent<SpriteRenderer>();
+
+    protected bool ignoreBullets { get; set; } = false;
+    protected Action<GenericActorBase> hitAction = null;
+
     private new Collider2D collider2D = null;
     private Rigidbody2D rb;
     private Vector2? moveSpeed = Vector2.zero;
     private bool dieOnBulletCollision;
-    private Action<GenericActorBase> hitAction = null;
-
+    
     public virtual GenericActorBase Init(Vector2? speed, Type colliderType, bool isTrigger = true, bool dieOnBullet = true)
     {
         if (colliderType == typeof(BoxCollider2D) || colliderType == typeof(CircleCollider2D))
@@ -35,30 +38,16 @@ public class GenericActorBase : MonoBehaviour
         return this;
     }
 
-    public GenericActorBase AddBulletHitAction(Action<GenericActorBase> action)
+    public GenericActorBase IgnoreBullets(bool ignoreBulletHits)
     {
-        hitAction = action;
+        ignoreBullets = ignoreBulletHits;
         return this;
     }
 
-    public void OnTriggerEnter2D(Collider2D collision)
+    public GenericActorBase AddHitAction(Action<GenericActorBase> action)
     {
-        GenericBullet bullet = collision.GetComponent<GenericBullet>();
-        if (bullet != null)
-        {
-            //Increment hit count
-            BulletHitCount++;
-
-            //Invoke Bullet hit triggered action with this enemy as parameter. If any.
-            hitAction?.Invoke(this);
-
-            //And also die if dieOnBulletCollision
-            if (dieOnBulletCollision)
-                Die(true);
-
-            bullet.Die();
-        }
-
+        hitAction = action;
+        return this;
     }
 
     public virtual void Die(bool destroyGO)
@@ -66,6 +55,28 @@ public class GenericActorBase : MonoBehaviour
         DeathPosition.Value = transform.position;
         if (destroyGO)
             Destroy(gameObject);
+    }
+
+    protected virtual void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (!ignoreBullets)
+        {
+            GenericBullet bullet = collision.GetComponent<GenericBullet>();
+            if (bullet != null)
+            {
+                //Increment hit count
+                BulletHitCount++;
+
+                //Invoke Bullet hit triggered action with this enemy as parameter. If any.
+                hitAction?.Invoke(this);
+
+                //And also die if dieOnBulletCollision
+                if (dieOnBulletCollision)
+                    Die(true);
+
+                bullet.Die();
+            }
+        }
     }
 
     protected virtual void Update()

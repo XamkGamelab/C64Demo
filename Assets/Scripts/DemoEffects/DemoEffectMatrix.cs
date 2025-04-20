@@ -212,7 +212,7 @@ public class DemoEffectMatrix : DemoEffectBase
                 });
                 
                 //Delay and start fading out
-                Task.Delay(4000).ContinueWith(_ =>
+                Task.Delay(6000).ContinueWith(_ =>
                 {
                     ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[1], () =>
                     {
