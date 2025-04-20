@@ -14,19 +14,13 @@ public class DemoeffectNoise : DemoEffectBase
 {
     private TMP_Text txt;
     private TMP_Text txtClone;
+    private TMP_Text txtPressFirePrompt;
 
     private Image img;
     private Image noiseImage;
-
     private Image TheEnd_the;
     private Image TheEnd_end;
     private Image TheEnd_heart;
-
-
-    private float startTime;
-
-    private bool inputActive = false;
-    private bool inputOnCooldown = false;
 
     //40 x 25 images represent C64 1000 bytes "Screen ram" characters (equal to petscii square char)
     (int width, int height) noiseSize = (45, 25);
@@ -166,19 +160,20 @@ public class DemoeffectNoise : DemoEffectBase
         //Shadow color for all shadow clones
         txt.color = shadowHeart.color = shadowEnd.color = shadowThe.color = new Color(0f, 0f, 0f, 0.9f);
 
+        //
+        RectTransform txtFirePromptRect = ApplicationController.Instance.UI.CreateRectTransformObject("Text_fire_prompt", new Vector2(320f, 16f), new Vector3(0, 8f, 0), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f));
+        txtFirePromptRect.pivot = new Vector2(0.5f, 0f);
+        txtPressFirePrompt = TextFunctions.AddTextMeshProTextComponent(txtFirePromptRect, "C64_Pro_Mono-STYLE", 8, ApplicationController.Instance.C64PaletteArr[1]);
+        txtPressFirePrompt.alignment = TextAlignmentOptions.Center;
+        txtPressFirePrompt.text = "[PRESS FIRE TO QUIT]";
+        AddToGeneratedObjectsDict(txtFirePromptRect.gameObject.name, txtFirePromptRect.gameObject);
+
         return base.Init(parTime, tutorialText);
     }
 
     private Sprite SpriteFromTexture(Texture2D texture2D)
     {
         return Sprite.Create(texture2D, new Rect(0.0f, 0.0f, texture2D.width, texture2D.height), new Vector2(0.5f, 0.5f), 100.0f);
-    }
-    private void HandleFireInput(bool b)
-    {
-        if (!FirePressed && b && !inputOnCooldown)
-        {
-        }
-        FirePressed = b;
     }
 
     public override IEnumerator Run(System.Action callbackEnd)
@@ -189,26 +184,28 @@ public class DemoeffectNoise : DemoEffectBase
         for (int i = 0; i < credits.Length; i++)
             creditsQueue.Enqueue(credits[i]);
         
-
         Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[0];
 
         AudioController.Instance.PlayTrack("Credits");
-
-        //Disable input and reset all values
-        inputActive = false;
-        
-        inputOnCooldown = false;
-        
+                
         GeneratedObjectsSetActive(true);
-
         RotateCreditsTexts();
-
         ExecuteInUpdate = true;
 
         ApplicationController.Instance.FadeImageInOut(2f, ApplicationController.Instance.C64PaletteArr[1], null, () => 
         {
-            startTime = Time.time;
-            ExecuteInUpdate = true;            
+            ExecuteInUpdate = true;
+
+            //Should there be at least some delay here?
+            InputController.Instance.Fire1.Subscribe(b => 
+            {
+                //Dispose input subscription and end demo when fire is pressed
+                if (b)
+                {
+                    Disposables?.Dispose();
+                    EndDemo();
+                }
+            }).AddTo(Disposables);
         });
 
         yield return UpdateNoise();
