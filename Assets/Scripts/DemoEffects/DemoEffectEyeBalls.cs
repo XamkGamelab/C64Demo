@@ -85,7 +85,7 @@ public class DemoEffectEyeBalls : DemoEffectBase
             GenericEnemy enemy = ballRenderer.gameObject.
                 AddComponent<GenericEnemy>().
                 Init(null, typeof(CircleCollider2D), true, false).
-                AddBulletHitAction(HandleBulletHitBall);
+                AddBulletHitAction(HandleBulletHitBall) as GenericEnemy;
 
             SimpleSpriteAnimator ballSpriteAnimator = ballRenderer.gameObject.AddComponent<SimpleSpriteAnimator>();
             ballSpriteAnimator.DontAutoPlay = true;            
@@ -125,16 +125,10 @@ public class DemoEffectEyeBalls : DemoEffectBase
     {
         yield return base.Run(callbackEnd);
 
-        Debug.Log("Start eye balls!");
-
         Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[0];
 
         moveInput = Vector2.zero;
         isEnding = false;
-
-        
-
-        
 
         img.gameObject.SetActive(true);
         leftTextImg.gameObject.SetActive(true);
@@ -224,7 +218,7 @@ public class DemoEffectEyeBalls : DemoEffectBase
         shipRenderer.transform.position = nextPosition;
     }
 
-    private void HandleBulletHitBall(GenericEnemy ballEnemy)
+    private void HandleBulletHitBall(GenericActorBase ballEnemy)
     {
         //Give score
         Score.Value += 100;
@@ -281,8 +275,7 @@ public class DemoEffectEyeBalls : DemoEffectBase
         float angleStep = 22.5f;
         float radius = 0.64f;        
         float fullMoveTime = 1.2f;
-        float sinMag = 0.32f;
-
+        
         for (int i = 0; i < ballEnemies.Count(); i++)
         {
             float ypos = radius * Mathf.Cos(Mathf.PI * angleStep * i / 180f);

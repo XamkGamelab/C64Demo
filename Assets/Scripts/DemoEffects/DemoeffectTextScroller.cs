@@ -273,7 +273,7 @@ public class DemoEffectTextScroller : DemoEffectBase
         SpriteRenderer asteroidRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("Asteroid", pos, asteroidBrownSprites.First());
         asteroidSpriteAnimator = asteroidRenderer.gameObject.AddComponent<SimpleSpriteAnimator>();
         asteroidSpriteAnimator.Sprites = asteroidBrownSprites;
-        GenericEnemy enemy = asteroidRenderer.gameObject.AddComponent<GenericEnemy>().Init(new Vector2(-.5f, 0), typeof(BoxCollider2D), true);        
+        GenericEnemy enemy = asteroidRenderer.gameObject.AddComponent<GenericEnemy>().Init(new Vector2(-.5f, 0), typeof(BoxCollider2D), true) as GenericEnemy;
         return enemy;
     }
 

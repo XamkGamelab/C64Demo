@@ -53,7 +53,6 @@ public static class TextFunctions
 
     public static Rect GetTextMeshLastCharacterLocalBounds(TMP_Text textComponent)
     {
-        TMP_Text tmp;
         TMP_TextInfo tmpInfo;
 
         tmpInfo = textComponent.textInfo;
@@ -63,8 +62,7 @@ public static class TextFunctions
 
         if (tmpInfo.characterCount > 1)
         {
-            TMP_CharacterInfo cInfo = tmpInfo.characterInfo[tmpInfo.characterCount - 1];
-            //Debug.Log(">>> cur char: " + cInfo.character.ToString() + " vertex index: " + cInfo.vertexIndex + " vertex br: " + cInfo.vertex_BR.position);
+            TMP_CharacterInfo cInfo = tmpInfo.characterInfo[tmpInfo.characterCount - 1];            
             characterRect.min = cInfo.vertex_TL.position;
             characterRect.max = cInfo.vertex_BR.position;
         }

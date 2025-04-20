@@ -1,10 +1,11 @@
-using UnityEngine;
-using UniRx;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using UniRx;
+using UnityEngine;
 
-public class GenericEnemy : GenericActorBase
+public class GenericActorBase : MonoBehaviour
 {
-    /*
     public ReactiveProperty<Vector3?> DeathPosition = new ReactiveProperty<Vector3?>(null);
     public int BulletHitCount = 0;
     private SpriteRenderer spriteRenderer => GetComponent<SpriteRenderer>();
@@ -12,9 +13,9 @@ public class GenericEnemy : GenericActorBase
     private Rigidbody2D rb;
     private Vector2? moveSpeed = Vector2.zero;
     private bool dieOnBulletCollision;
-    private Action<GenericEnemy> hitAction = null;
-    
-    public GenericEnemy Init(Vector2? speed, Type colliderType, bool isTrigger = true, bool dieOnBullet = true)
+    private Action<GenericActorBase> hitAction = null;
+
+    public virtual GenericActorBase Init(Vector2? speed, Type colliderType, bool isTrigger = true, bool dieOnBullet = true)
     {
         if (colliderType == typeof(BoxCollider2D) || colliderType == typeof(CircleCollider2D))
         {
@@ -28,13 +29,13 @@ public class GenericEnemy : GenericActorBase
             rb.isKinematic = true;
             rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
         }
-        
+
         dieOnBulletCollision = dieOnBullet;
         moveSpeed = speed;
         return this;
     }
 
-    public GenericEnemy AddBulletHitAction(Action<GenericEnemy> action)
+    public GenericActorBase AddBulletHitAction(Action<GenericActorBase> action)
     {
         hitAction = action;
         return this;
@@ -52,12 +53,12 @@ public class GenericEnemy : GenericActorBase
             hitAction?.Invoke(this);
 
             //And also die if dieOnBulletCollision
-            if (dieOnBulletCollision)            
+            if (dieOnBulletCollision)
                 Die(true);
 
             bullet.Die();
         }
-            
+
     }
 
     public virtual void Die(bool destroyGO)
@@ -72,5 +73,4 @@ public class GenericEnemy : GenericActorBase
         if (moveSpeed.HasValue)
             transform.Translate(moveSpeed.Value * Time.deltaTime);
     }
-    */
 }
