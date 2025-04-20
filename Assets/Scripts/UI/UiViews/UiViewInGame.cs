@@ -84,10 +84,12 @@ public class UiViewInGame : UiView
         //Dispose previous timer if any and start observing again
         disposableTimer?.Dispose();
 
-        //Show tutorial panel animated with correct text
-        TextTutorial.text = tutorialText;
+        //Show tutorial panel animated with correct text        
         PanelTutorial.anchoredPosition3D = new Vector3(0, tutorialHiddenPositionY, 0);
         PanelTutorial.gameObject.SetActive(true);
+        TextTutorial.text = tutorialText;
+        PanelTutorial.ForceUpdateRectTransforms();
+
         PanelTutorial.DOAnchorPos3DY(0f, 1f).SetEase(Ease.OutSine);
         //Hide tutorial after showSeconds
         disposableTimer = Observable.Timer(TimeSpan.FromSeconds(showSeconds)).Subscribe(t =>

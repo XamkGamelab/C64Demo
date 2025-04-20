@@ -25,3 +25,5 @@ MonoBehaviour:
     MusicClip: {fileID: 8300000, guid: fb6095ca5a003494482db8e613dd276a, type: 3}
   - Name: RunningRight
     MusicClip: {fileID: 8300000, guid: 1939a4cab9e679444b2bf13df25be99b, type: 3}
+  - Name: ExplosionLong
+    MusicClip: {fileID: 8300000, guid: 2853079eab2c0fe40a6a3705c3318907, type: 3}

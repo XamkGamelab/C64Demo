@@ -7,16 +7,19 @@ using Unity.VisualScripting;
 using DG.Tweening;
 using System.Linq;
 using UniRx;
-using static UnityEditor.PlayerSettings;
 
 public class DemoEffectEyeBalls : DemoEffectBase
 {
+    //Images
     private Image img;
     private Image leftTextImg;
     private Image rightTextImg;
 
+    //Sprites
     private SpriteRenderer shipRenderer;
     private SpriteRenderer bigEyeRenderer;
+    private SimpleSpriteAnimator explosionSpriteAnimator;
+
     private List<GenericEnemy> ballEnemies = new List<GenericEnemy>();
 
     private Material spriteScrollMaterial;
@@ -33,21 +36,23 @@ public class DemoEffectEyeBalls : DemoEffectBase
     private SimpleSpriteAnimator bigEyeAnimator;
     private SimpleSpriteAnimator bloodSpriteAnimator;
 
+    //Sprite sheets
     private List<Sprite> eyeSprites;
     private List<Sprite> bigEyeOpenSprites;
     private List<Sprite> eyeBloodSplashSprites;
-
+    private List<Sprite> bigExplosionSprites;
     public override DemoEffectBase Init(float parTime, string tutorialText)
     {
         eyeSprites = TextureAndGaphicsFunctions.LoadSpriteSheet("EyeSheet");
         bigEyeOpenSprites = TextureAndGaphicsFunctions.LoadSpriteSheet("BigEyeOpenSpriteSheetPSD");
-        eyeBloodSplashSprites = TextureAndGaphicsFunctions.LoadSpriteSheet("EyeBloodSplashSpriteSheet");
+        eyeBloodSplashSprites = TextureAndGaphicsFunctions.LoadSpriteSheet("EyeBloodSplashSpriteSheet"); 
+        bigExplosionSprites = TextureAndGaphicsFunctions.LoadSpriteSheet("BigExplosionSheet");
 
         spriteScrollMaterial = GameObject.Instantiate<Material>(Resources.Load<Material>("CustomSpriteScrolling"));
 
         //Play area rect and ship start position
         playAreaRect = CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position);
-        shipAppearPosition = shipStartPosition = new Vector3(playAreaRect.center.x - .64f, playAreaRect.yMin + .16f, 1f);
+        shipAppearPosition = shipStartPosition = new Vector3(playAreaRect.center.x - .96f, playAreaRect.yMin + .16f, 1f);
         
         //Main bg image
         RectTransform rect = ApplicationController.Instance.UI.CreateRectTransformObject("Image_lizard_eye", new Vector2(320, 200), Vector2.zero, Vector2.one * .5f, Vector2.one * .5f); 
@@ -189,6 +194,17 @@ public class DemoEffectEyeBalls : DemoEffectBase
         laserRenderer.AddComponent<GenericBullet>().Init(new Vector2(0, 2f), true);
     }
 
+    private SpriteRenderer InstantiateExplosion(Vector3 pos)
+    {
+        //Explosion
+        SpriteRenderer explosionRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("Explosion", pos, bigExplosionSprites.First());
+        explosionSpriteAnimator = explosionRenderer.gameObject.AddComponent<SimpleSpriteAnimator>();
+        explosionSpriteAnimator.Loops = 1;
+        explosionSpriteAnimator.DestroyAfterLoops = true;
+        explosionSpriteAnimator.Sprites = bigExplosionSprites;
+        return explosionRenderer;
+    }
+
     private SpriteRenderer InstantiateBloodSplash(Vector3 pos)
     {
         //Eye blood splash
@@ -235,7 +251,10 @@ public class DemoEffectEyeBalls : DemoEffectBase
         moveInput = Vector2.zero;
         FirePressed = false;
 
-        InstantiateBloodSplash(player.transform.position);
+        //Play explosion
+        AudioController.Instance.PlaySoundEffect("ExplosionLong");
+
+        InstantiateExplosion(player.transform.position);
         player.SpriteRend.enabled = false;
         RespawnShip();
     }
