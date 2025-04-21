@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using System.Linq;
 using UniRx;
@@ -47,8 +46,7 @@ public abstract class DemoEffectBase: IDemoEffect
     {
         Started.Value = true;
         Score.Value = 0;
-        Debug.Log("SCORE: " + Score.Value);
-
+        
         Disposables = new CompositeDisposable();
         EndDemoCallback = endDemoCallback;        
         yield return null;

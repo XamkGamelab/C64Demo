@@ -1,12 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using System.Linq;
 using UniRx;
 using TMPro;
 using System;
-using UnityEngine.Rendering;
 using DG.Tweening;
 
 public class UiViewInGame : UiView
@@ -21,12 +16,8 @@ public class UiViewInGame : UiView
     public RectTransform PanelTutorial;
     public RectTransform TimeBonusContainer;
 
-    //Give this when effect starts (Run() in demo base )
-    private float startTime;
     private Color textTimeBonusInitColor;
     private IDisposable disposableTimer;
-
-
 
     private float tutorialHiddenPositionY => PanelTutorial.sizeDelta.y;
 
@@ -48,10 +39,6 @@ public class UiViewInGame : UiView
 
     public void ShowLastBonusAndNewTutorial(string tutorialText, int lastEffectTimeBonus, Action timeBonusCallback, int showSeconds = 5)
     {
-        //Corner case for credits effect, that has now tutorial
-        if (string.IsNullOrEmpty(tutorialText))
-            return;
-
         //Corner case for first effect, that has no time bonus from the last effect to show
         if (lastEffectTimeBonus > 0)
         {
@@ -64,6 +51,7 @@ public class UiViewInGame : UiView
                 OnComplete(() =>
                 {
                     TimeBonusContainer.gameObject.SetActive(false);
+
                     ShowTutorialText(tutorialText, showSeconds);
 
                     //Invoke callback to update effects scores in app controller
@@ -76,9 +64,13 @@ public class UiViewInGame : UiView
             ShowTutorialText(tutorialText, showSeconds);
         }
     }
-    
+
     public void ShowTutorialText(string tutorialText, int showSeconds = 5)
     {
+        //All the effects don't have tutorial, so don't do anything here
+        if (string.IsNullOrEmpty(tutorialText))
+            return;
+
         DOTween.Kill(PanelTutorial);
 
         //Dispose previous timer if any and start observing again

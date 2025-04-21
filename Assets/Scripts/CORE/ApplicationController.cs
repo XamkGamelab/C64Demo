@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
@@ -63,8 +62,6 @@ public class ApplicationController : SingletonMono<ApplicationController>
         //DON'T SHOW UI BEFORE THIS!!!!!
         await Task.Delay(1000);
 
-        Debug.Log("Ready");
-
         CameraSettings = new Dictionary<string, CameraSettings>()
         {
             { "orthoPixel", new CameraSettings { Orthographic = true, OrthographicSize = 1.2f } },
@@ -76,10 +73,10 @@ public class ApplicationController : SingletonMono<ApplicationController>
         {
             //new DemoEffectIntro().Init(25f, "Press Space or Fire") ,
             //new DemoEffectRun().Init(20f, "Toggle left/right rapidly to run"),                        
-            //new DemoEffectTextScroller().Init(20f, "Control ship with left/right and up/down.\nPress fire to shoot."),
-            //new DemoEffectEyeBalls().Init(30f, "Left/right to control the ship.\nPress fire to shoot."),
-            new DemoEffectMatrix().Init(30f, "Left/right to control the hand.\nCatch highlighted falling letters"),
-            new DemoeffectNoise().Init(25f, ""),
+            new DemoEffectTextScroller().Init(20f, "Control ship with left/right and up/down.\nPress fire to shoot."),
+            new DemoEffectEyeBalls().Init(30f, "Left/right to control the ship.\nPress fire to shoot."),
+            new DemoEffectMatrix().Init(60f, "Left/right to control the hand.\nCatch highlighted falling letters"),
+            new DemoeffectNoise().Init(1f, ""),
             //new DemoEffectSunset().Init(30f, "Left/right to control the character. Press fire to shoot"),            
             //new DemoEffectTimeBomb().Init(30f, "Defuse the bomb")
             
@@ -87,8 +84,6 @@ public class ApplicationController : SingletonMono<ApplicationController>
 
         demoEffects.ForEach(effect => 
         {
-            //Instead subscribe to Running (bool reactive, from demo base!) time when effect Runs!
-
             //Also update here updates the time value in UI (in game), if the effect is running
             effect.Score.Subscribe(score => 
             {
@@ -117,11 +112,10 @@ public class ApplicationController : SingletonMono<ApplicationController>
                 {
                     //Show final time and score in UI when effect is finished
                     float bonusTime = effect.ParTime - runningTime;
-                    if (uiViewInGame != null && bonusTime > 0)
-                    {
-                        lastEffectTimeBonus = (int)(bonusTime * 100f);                        
-                        //uiViewInGame.ShowTimeBonus(bonusScore); //NO, because when new effect starts, last time bonus is displayed, and after that, new tutorial is displayed
-                    }
+                    if (uiViewInGame != null && bonusTime > 0)                    
+                        lastEffectTimeBonus = (int)(bonusTime * 100f);                                            
+                    else
+                        lastEffectTimeBonus = 0;
                 }
             }).AddTo(disposables); //TODO: this is never disposed, is it actually needed...
         });
@@ -142,8 +136,9 @@ public class ApplicationController : SingletonMono<ApplicationController>
         //Reset scores of all effects
         demoEffects.ForEach(e => e.Score.Value = 0);
 
-        //Reset total time
-        totalTime = 0f;
+        //Reset times
+        lastEffectTimeBonus = 0;
+        runningTime = totalTime = 0f;
 
         //Delay "turning monitor on"
         disposableMonitorTimer?.Dispose();
@@ -267,14 +262,6 @@ public class ApplicationController : SingletonMono<ApplicationController>
                 currentDemoEffect.DoUpdate();
 
             UpdateRunningTime();
-        }
-
-        for (int i = 0; i < 20; i++)
-        {
-            if (Input.GetKeyDown("joystick 1 button " + i))
-            {
-                print("joystick 1 button " + i);
-            }
         }
 
         //Piece of shit Unity, piece of shit event system workaround
