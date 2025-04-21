@@ -265,6 +265,8 @@ public class DemoEffectEyeBalls : DemoEffectBase
 
         if (ballEnemy.BulletHitCount == 1)
         {
+            //Play eye open sound
+            AudioController.Instance.PlaySoundEffect("EyeOpen", .5f, UnityEngine.Random.Range(0.8f,1f));
             //Play eye opening
             ballEnemy.GetComponent<SimpleSpriteAnimator>().Play(true);
         }
@@ -272,6 +274,8 @@ public class DemoEffectEyeBalls : DemoEffectBase
         {
             DOTween.Kill(ballEnemy.transform);
             ballEnemy.gameObject.SetActive(false);
+            //Play eye pop sound
+            AudioController.Instance.PlaySoundEffect("EyePop");
             //Instantiate blood sprite anim
             InstantiateBloodSplash(ballEnemy.transform.position);
         }
