@@ -19,7 +19,7 @@ public class UiViewIntroScreen : UiView
     private IDisposable disposableInputFire;
 
     private string[] introTexts = new string[] {
-        "Long ago, in a not-so-distant galaxy, humankind wielded machines called microcomputers.",
+        "Aeons ago, in a not-so-distant galaxy, programmers wielded machines called microcomputers.",
         "Upon them, they crafted programs with no purpose — no function — other than to defy the limits of their humble silicon. These creations were called demos.",
         "They served as beacons of creativity and raw code, pushing hardware beyond its bounds and proclaiming the brilliance of their makers.",
         "This is the tale of those bold explorers of the digital frontier…"
@@ -41,6 +41,9 @@ public class UiViewIntroScreen : UiView
 
     private IEnumerator AnimateIntroText()
     {
+        //Start playing the opening credits music
+        AudioController.Instance.PlayTrack("OpeningCredits", 1f, 1f);
+
         yield return new WaitForSeconds(1f);
         TextPressFire.gameObject.SetActive(true);
         TextIntroText.gameObject.SetActive(true);
@@ -55,6 +58,10 @@ public class UiViewIntroScreen : UiView
             GroupTextIntro.DOFade(0f, 1f);
             yield return new WaitForSeconds(1.2f);
         }
+
+        //Automatically trigger moving to main menu, if player hasn't pressed fire:
+        yield return new WaitForSeconds(2f);
+        HandleFireInput(true);
     }
 
     private void HandleFireInput(bool b)
