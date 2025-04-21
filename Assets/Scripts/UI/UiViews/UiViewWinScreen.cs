@@ -41,12 +41,20 @@ public class UiViewWinScreen : UiView
         base.Show(_showViewWhenThisHides);
     }
 
+    public override void Hide(bool _stopCoroutines = false)
+    {
+        base.Hide(_stopCoroutines);
+    }
+
     public void ShowScoreAndTime(int score, int hiscore, float totalTime)
     {
         StopAllCoroutines();
 
         TextScore.text = score.ToString("00000000");
         TextTime.text = totalTime.ToString("00:00.00");
+
+        //Start fading out music (new track fades it back in)
+        AudioController.Instance.FadeOutMusic(4f);
 
         GroupAllRect.anchoredPosition3D = new Vector3(GroupAllRect.anchoredPosition3D.x, groupAllHiddenPositionY, GroupAllRect.anchoredPosition3D.z);
         GroupAllRect.
