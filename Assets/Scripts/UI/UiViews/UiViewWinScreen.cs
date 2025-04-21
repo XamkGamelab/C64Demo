@@ -50,8 +50,12 @@ public class UiViewWinScreen : UiView
     {
         StopAllCoroutines();
 
+        TimeSpan timeSpan = TimeSpan.FromSeconds(totalTime);
+
         TextScore.text = score.ToString("00000000");
-        TextTime.text = totalTime.ToString("00:00.00");
+        //hi-score is not implemented yet
+
+        TextTime.text = string.Format("{0:00}:{1:00}.{2:00}", (int)timeSpan.TotalMinutes, timeSpan.Seconds, timeSpan.Milliseconds / 10); totalTime.ToString("00:00.00");
 
         //Start fading out music (new track fades it back in)
         AudioController.Instance.FadeOutMusic(4f);
