@@ -193,7 +193,6 @@ public class DemoEffectIntro : DemoEffectBase
     }
     private IEnumerator AnimateStartText()
     {
-        Debug.Log("ANIMATE START TEXT COROUTINE!!!!");
         string c64typewriter = "";
         for (int i = 0; i < c64default.Length; i++)
         {
@@ -230,7 +229,7 @@ public class DemoEffectIntro : DemoEffectBase
                 }
             }
 
-            txt2.text = animatedString; //spriteStrings[imgIndex].Substring(0, showLettersCount);
+            txt2.text = animatedString;
             Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[Random.Range(0, ApplicationController.Instance.C64PaletteArr.Length)];
             yield return new WaitForSeconds(0.1f);
             imgIndex = imgIndex < spriteStrings.Count - 1 ? ++imgIndex : 0;

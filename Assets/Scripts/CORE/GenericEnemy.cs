@@ -2,8 +2,9 @@ using UnityEngine;
 using UniRx;
 using System;
 
-public class GenericEnemy : MonoBehaviour
+public class GenericEnemy : GenericActorBase
 {
+    /*
     public ReactiveProperty<Vector3?> DeathPosition = new ReactiveProperty<Vector3?>(null);
     public int BulletHitCount = 0;
     private SpriteRenderer spriteRenderer => GetComponent<SpriteRenderer>();
@@ -71,4 +72,5 @@ public class GenericEnemy : MonoBehaviour
         if (moveSpeed.HasValue)
             transform.Translate(moveSpeed.Value * Time.deltaTime);
     }
+    */
 }

@@ -6,9 +6,12 @@ using System.Linq;
 using TMPro;
 using UniRx;
 using System;
+using DG.Tweening;
 
 public class UiViewWinScreen : UiView
 {
+    public CanvasGroup GroupAll;
+    public RectTransform GroupAllRect;
     public RectTransform ScoreContainer;
     public RectTransform TimeContainer;
     public TMP_Text TextScore;
@@ -18,32 +21,54 @@ public class UiViewWinScreen : UiView
     private bool firePressed = false;
     private IDisposable disposableInputFire;
 
+    private float groupAllEndPositionY;
+    private float groupAllHiddenPositionY;
+
     protected override void Awake()
     {
-        base.Awake();        
+        base.Awake();
+        GroupAllRect = GroupAll.GetComponent<RectTransform>();
+        groupAllEndPositionY = GroupAllRect.anchoredPosition3D.y;
+        groupAllHiddenPositionY = -GroupAllRect.sizeDelta.y;
     }
 
     public override void Show(UiView _showViewWhenThisHides = null)
     {
-        
+
         ScoreContainer.gameObject.SetActive(false);
         TimeContainer.gameObject.SetActive(false);
         TextToMainMenu.gameObject.SetActive(false);
-        base.Show(_showViewWhenThisHides);        
+        base.Show(_showViewWhenThisHides);
+    }
+
+    public override void Hide(bool _stopCoroutines = false)
+    {
+        base.Hide(_stopCoroutines);
     }
 
     public void ShowScoreAndTime(int score, int hiscore, float totalTime)
     {
-        TextScore.text = score.ToString("00000000"); 
-        TextTime.text = totalTime.ToString("00:00.00");
-
-        //TODO: Show hi-score somewhere
-
-        //TODO: totalTime is NOT implemented yet
-
-        Debug.Log("START ANIMATE SCORE AND TIME COROUTINE ONLY ONCE!!!");
         StopAllCoroutines();
-        StartCoroutine(AnimateScoreAndTime());
+
+        TimeSpan timeSpan = TimeSpan.FromSeconds(totalTime);
+
+        TextScore.text = score.ToString("00000000");
+        //hi-score is not implemented yet
+
+        TextTime.text = string.Format("{0:00}:{1:00}.{2:00}", (int)timeSpan.TotalMinutes, timeSpan.Seconds, timeSpan.Milliseconds / 10); totalTime.ToString("00:00.00");
+
+        //Start fading out music (new track fades it back in)
+        AudioController.Instance.FadeOutMusic(4f);
+
+        GroupAllRect.anchoredPosition3D = new Vector3(GroupAllRect.anchoredPosition3D.x, groupAllHiddenPositionY, GroupAllRect.anchoredPosition3D.z);
+        GroupAllRect.
+            DOAnchorPos3DY(groupAllEndPositionY, 1f).
+            SetDelay(1f).
+            SetEase(Ease.OutSine).
+            OnComplete(() =>
+        {
+            StartCoroutine(AnimateScoreAndTime());
+        });
     }
 
     private IEnumerator AnimateScoreAndTime()

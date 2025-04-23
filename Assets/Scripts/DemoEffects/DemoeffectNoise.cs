@@ -9,24 +9,20 @@ using UniRx;
 using DG.Tweening;
 using System;
 using static UnityEngine.GraphicsBuffer;
+using System.Threading.Tasks;
+using UnityEditor.Search;
 
 public class DemoeffectNoise : DemoEffectBase
 {
     private TMP_Text txt;
     private TMP_Text txtClone;
+    private TMP_Text txtPressFirePrompt;
 
     private Image img;
     private Image noiseImage;
-
     private Image TheEnd_the;
     private Image TheEnd_end;
     private Image TheEnd_heart;
-
-
-    private float startTime;
-
-    private bool inputActive = false;
-    private bool inputOnCooldown = false;
 
     //40 x 25 images represent C64 1000 bytes "Screen ram" characters (equal to petscii square char)
     (int width, int height) noiseSize = (45, 25);
@@ -45,14 +41,20 @@ public class DemoeffectNoise : DemoEffectBase
         ApplicationController.Instance.C64PaletteArr[9],
     };
 
-    private string[] credits = new string[] 
+    private string[] credits = new string[]
     {
-        "Programming/graphics\np3v1",
-        "Second credit",
-        "Third credit",
+        "[ programming and\ngraphics ]\np3v1",
+        "[ music jing3 ]\nSpring Spring",
+        "[ music C64 Level 1 ]\ntcarisland",
+        "[ music C64_action_loop ]\n©2017 Emma Andersson\n(Emma_MA)",
+        "[ music Battle Intro ]\ncelestialghost8",
+        "[ music\nC64_uptempo_chiptune ]\nSkrjablin",
+        "[ 3D C64 model ]\ndark_igorek",
+        "[ 3D book models ]\nspookyghostboo",
+        "[ 3D joystick model ]\ncontraryk",
     };
-        
-    
+
+
     private Queue<string> creditsQueue = new Queue<string>();
     private string currentCredits;
 
@@ -83,7 +85,7 @@ public class DemoeffectNoise : DemoEffectBase
         noiseImageRect.pivot = new Vector2(0.5f, 0.5f);
         noiseImageRect.SetAsLastSibling();
         noiseImage = noiseImageRect.AddComponent<Image>();
-        
+
         AddToGeneratedObjectsDict(noiseImageRect.gameObject.name, noiseImageRect.gameObject);
 
         for (int y = 0; y < noiseSize.height; y++)
@@ -128,7 +130,7 @@ public class DemoeffectNoise : DemoEffectBase
         shadowEnd.sprite = GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("TheEnd_end"));
         AddToGeneratedObjectsDict(endRect2.gameObject.name, endRect2.gameObject);
 
-        TheEnd_the = GameObject.Instantiate(endRect1.gameObject, endRect1).GetComponent<Image>();        
+        TheEnd_the = GameObject.Instantiate(endRect1.gameObject, endRect1).GetComponent<Image>();
         TheEnd_the.rectTransform.localPosition = new Vector3(-4f, 4f, 0f);
         AddToGeneratedObjectsDict(TheEnd_the.gameObject.name, TheEnd_the.gameObject);
 
@@ -144,13 +146,13 @@ public class DemoeffectNoise : DemoEffectBase
         endInitPos = endRect2.anchoredPosition3D;
         heartInitPos = endRect3.anchoredPosition3D;
 
-        
+
 
         //Credits text
         RectTransform txtRect = ApplicationController.Instance.UI.CreateRectTransformObject("Text_intro", new Vector2(320f, 26f), new Vector3(0, -40f, 0), Vector2.one * .5f, Vector2.one * .5f);
         txtRect.pivot = new Vector2(0.5f, 0.5f);
         txt = TextFunctions.AddTextMeshProTextComponent(txtRect, "8-BIT_WONDER", 12, ApplicationController.Instance.C64PaletteArr[1]);
-        txt.alignment = TextAlignmentOptions.Center;        
+        txt.alignment = TextAlignmentOptions.Center;
         AddToGeneratedObjectsDict(txtRect.gameObject.name, txtRect.gameObject);
 
         txtClone = GameObject.Instantiate(txtRect.gameObject, txtRect).GetComponent<TMP_Text>();
@@ -160,19 +162,20 @@ public class DemoeffectNoise : DemoEffectBase
         //Shadow color for all shadow clones
         txt.color = shadowHeart.color = shadowEnd.color = shadowThe.color = new Color(0f, 0f, 0f, 0.9f);
 
+        //
+        RectTransform txtFirePromptRect = ApplicationController.Instance.UI.CreateRectTransformObject("Text_fire_prompt", new Vector2(320f, 16f), new Vector3(0, 8f, 0), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f));
+        txtFirePromptRect.pivot = new Vector2(0.5f, 0f);
+        txtPressFirePrompt = TextFunctions.AddTextMeshProTextComponent(txtFirePromptRect, "C64_Pro_Mono-STYLE", 8, ApplicationController.Instance.C64PaletteArr[1]);
+        txtPressFirePrompt.alignment = TextAlignmentOptions.Center;
+        txtPressFirePrompt.text = "[PRESS FIRE TO QUIT]";
+        AddToGeneratedObjectsDict(txtFirePromptRect.gameObject.name, txtFirePromptRect.gameObject);
+
         return base.Init(parTime, tutorialText);
     }
 
     private Sprite SpriteFromTexture(Texture2D texture2D)
     {
         return Sprite.Create(texture2D, new Rect(0.0f, 0.0f, texture2D.width, texture2D.height), new Vector2(0.5f, 0.5f), 100.0f);
-    }
-    private void HandleFireInput(bool b)
-    {
-        if (!FirePressed && b && !inputOnCooldown)
-        {
-        }
-        FirePressed = b;
     }
 
     public override IEnumerator Run(System.Action callbackEnd)
@@ -182,28 +185,44 @@ public class DemoeffectNoise : DemoEffectBase
         //Enqueue the credits and init first        
         for (int i = 0; i < credits.Length; i++)
             creditsQueue.Enqueue(credits[i]);
-        
 
         Camera.main.backgroundColor = ApplicationController.Instance.C64PaletteArr[0];
 
+        AudioController.Instance.FadeOutMusic(2f);
+        //Hold on, hold on...
+        yield return new WaitForSeconds(2f);
+        AudioController.Instance.FadeInMusic(.1f);
         AudioController.Instance.PlayTrack("Credits");
 
-        //Disable input and reset all values
-        inputActive = false;
-        
-        inputOnCooldown = false;
-        
-        GeneratedObjectsSetActive(true);
-
-        RotateCreditsTexts();
-
-        ExecuteInUpdate = true;
-
-        ApplicationController.Instance.FadeImageInOut(2f, ApplicationController.Instance.C64PaletteArr[1], null, () => 
+        //GO! Flash white and start running stuff
+        ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[1], () =>
         {
-            startTime = Time.time;
-            ExecuteInUpdate = true;            
-        });
+            //Enable everything but "press fire" prompt
+            GeneratedObjectsSetActive(true, new List<string> { "Text_fire_prompt" });
+
+            RotateCreditsTexts();
+
+            ExecuteInUpdate = true;
+
+
+            //Delay and start fading out
+            Task.Delay(3000).ContinueWith(_ =>
+            {
+                ApplicationController.Instance.FadeImageInOut(.3f, ApplicationController.Instance.C64PaletteArr[1], null, null);
+
+                txtPressFirePrompt.gameObject.SetActive(true);
+
+                InputController.Instance.Fire1.Subscribe(b =>
+                {
+                    //Dispose input subscription and end demo when fire is pressed
+                    if (b)
+                    {
+                        Disposables?.Dispose();
+                        EndDemo();
+                    }
+                }).AddTo(Disposables);
+            }, TaskScheduler.FromCurrentSynchronizationContext());
+        }, null);
 
         yield return UpdateNoise();
     }
@@ -228,7 +247,7 @@ public class DemoeffectNoise : DemoEffectBase
             currentCredits = creditsQueue.Dequeue();
             txt.text = txtClone.text = currentCredits;
             txt.transform.rotation = Quaternion.Euler(new Vector3(-90f, 0f, 0f));
-            txt.transform.DORotate(Vector3.zero, 1f).SetEase(Ease.OutSine).OnComplete(() => 
+            txt.transform.DORotate(Vector3.zero, 1f).SetEase(Ease.OutSine).OnComplete(() =>
             {
                 //Show credits a while, then rotate it away and run next credits
                 txt.transform.DORotate(new Vector3(90f, 0f, 0f), 1f).SetDelay(2f).SetEase(Ease.InSine).OnComplete(() =>
@@ -237,7 +256,7 @@ public class DemoeffectNoise : DemoEffectBase
                 });
             });
         }
-        else        
+        else
             EndDemo();
     }
 
@@ -255,7 +274,7 @@ public class DemoeffectNoise : DemoEffectBase
     private IEnumerator UpdateNoise()
     {
         float arrayOffset = 0;
-        
+
         while (true)
         {
             yield return new WaitForSeconds(.05f);
@@ -270,7 +289,7 @@ public class DemoeffectNoise : DemoEffectBase
                     float yCoord = offset + (float)y / noiseSize.height * (MathFunctions.GetSin(Time.time, 1f, 1f) + 2f);
                     offset = arrayOffset; // (MathFunctions.GetSin(Time.time, 3f, 1f) + 2f);
                     float sample = Mathf.PerlinNoise(xCoord, yCoord);
-                    noisePixels[y * noiseSize.width + x] = gradient[Mathf.FloorToInt(Mathf.Clamp01(sample) * (gradient.Length-1))];                    
+                    noisePixels[y * noiseSize.width + x] = gradient[Mathf.FloorToInt(Mathf.Clamp01(sample) * (gradient.Length - 1))];
                 }
             }
 

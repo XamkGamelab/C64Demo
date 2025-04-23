@@ -61,16 +61,21 @@ public class DemoEffectTextScroller : DemoEffectBase
     
     private const int asteroidsRequired = 10;
 
-    private List<Sprite> bigExplosionSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("BigExplosionSheet");
-    private List<Sprite> asteroidBrownSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("AsteroidBrownSheet");
+    private List<Sprite> bigExplosionSprites;
+    private List<Sprite> asteroidBrownSprites;
+
+    //Separate composite disposable for asteroid spawning and destruction
+    private CompositeDisposable asteroidsDisposable;
 
     public override DemoEffectBase Init(float parTime, string tutorialText)
     {
+        bigExplosionSprites = TextureAndGaphicsFunctions.LoadSpriteSheet("BigExplosionSheet");
+        asteroidBrownSprites = TextureAndGaphicsFunctions.LoadSpriteSheet("AsteroidBrownSheet");
+
         //Get camera rect and ship init pos
         Rect camRect = CameraFunctions.GetCameraRect(Camera.main, Camera.main.transform.position);
         shipAppearPosition = shipStartPosition = new Vector3(camRect.xMin + .32f, camRect.center.y, 1f);
         
-
         //Top gradients
         InstantiateGradientImages(8, (4, 32));
 
@@ -119,6 +124,12 @@ public class DemoEffectTextScroller : DemoEffectBase
         //Ship sprite        
         shipRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("SpaceShip", shipStartPosition, GameObject.Instantiate<Sprite>(Resources.Load<Sprite>("SpaceShipHorizontal")));
         shipRenderer.sortingOrder = 100000;
+        GenericPlayer player = shipRenderer.gameObject.
+            AddComponent<GenericPlayer>().
+            Init(null, typeof(CircleCollider2D), true, false, false).
+            IgnoreBullets(true).
+            AddHitAction(HandleEnemyHitPlayer) as GenericPlayer;
+
         AddToGeneratedObjectsDict(shipRenderer.gameObject.name, shipRenderer.gameObject);
         
         shipAppearPosition.x = camRect.xMin - shipRenderer.size.x;
@@ -154,7 +165,9 @@ public class DemoEffectTextScroller : DemoEffectBase
         GeneratedObjectsSetActive(true);
 
         AudioController.Instance.PlayTrack("Track2", 1f, 4f);
- 
+
+        RespawnShip(true);
+        /*
         shipRenderer.transform.DOMoveX(shipStartPosition.x, 2f).OnComplete(() => 
         {
             //Subscribe to input when ship is in position...
@@ -165,6 +178,7 @@ public class DemoEffectTextScroller : DemoEffectBase
             //...and start spawning asteroids on interval
             Observable.Interval(TimeSpan.FromMilliseconds(spawnAsteroidIntervalMs)).Subscribe(_ => SpawnAsteroid()).AddTo(Disposables);
         });
+        */
 
         yield return AnimateSpriteScroll();        
     }
@@ -205,6 +219,49 @@ public class DemoEffectTextScroller : DemoEffectBase
         FirePressed = b;
     }
 
+    private void HandleEnemyHitPlayer(GenericActorBase player)
+    {
+        //Disable input, instantiate explosion sprite anim, hide ship and start respawn
+        moveInput = Vector2.zero;
+        FirePressed = false;
+
+        //Play explosion
+        AudioController.Instance.PlaySoundEffect("ExplosionLong");
+
+        InstantiateExplosion(player.transform.position);
+        player.SpriteRend.enabled = false;
+        RespawnShip(false);
+    }
+
+    private void RespawnShip(bool subscribeAsteroidSpawning)
+    {
+        //Dispose input
+        Disposables.Dispose();
+        Disposables = new CompositeDisposable();
+
+        //Move ship to init pos and subscribe back to input
+        shipRenderer.transform.position = shipAppearPosition;
+        //Enable sprite renderer
+        shipRenderer.GetComponent<GenericActorBase>().SpriteRend.enabled = true;
+        shipRenderer.gameObject.SetActive(true);
+        shipRenderer.transform.DOMoveX(shipStartPosition.x, 2f).OnComplete(() =>
+        {
+            //Subscribe to input when ship is in position...
+            InputController.Instance.Fire1.Subscribe(b => HandleFireInput(b)).AddTo(Disposables);
+            InputController.Instance.Horizontal.Subscribe(f => moveInput.x = f).AddTo(Disposables);
+            InputController.Instance.Vertical.Subscribe(f => moveInput.y = f).AddTo(Disposables);
+
+            //...and start spawning asteroids on interval.
+            //NOTICE: this is a separate IDisposable, because this needs to be done only in Run() and disposed in End()
+            if (subscribeAsteroidSpawning)
+            {
+                Debug.Log("*************** SUBS ONLY ONCE TO ASTEROID SPAWN *************");
+                asteroidsDisposable = new CompositeDisposable();
+                Observable.Interval(TimeSpan.FromMilliseconds(spawnAsteroidIntervalMs)).Subscribe(_ => SpawnAsteroid()).AddTo(asteroidsDisposable);
+            }
+        });
+    }
+
     private void SpawnAsteroid()
     {
         float rndY = UnityEngine.Random.Range(playAreaRect.yMin, playAreaRect.yMax);
@@ -224,6 +281,9 @@ public class DemoEffectTextScroller : DemoEffectBase
                 asteroidsDestroyed++;
                 if (asteroidsDestroyed >= asteroidsRequired)
                 {
+                    ExecuteInUpdate = false;
+                    //Dispose asteroid spawning separetely, because the subscription is NOT added to compositeDisposable!!
+                    asteroidsDisposable?.Dispose();
                     //Unsubsribe from input and asteroid spawning
                     Disposables.Dispose();
                     moveInput = Vector2.zero;
@@ -235,17 +295,17 @@ public class DemoEffectTextScroller : DemoEffectBase
                     //Move ship to right and fade in transition
                     shipRenderer.transform.DOMoveX(playAreaRect.xMax + shipRenderer.size.x, 2f, false).SetDelay(0.1f).SetEase(Ease.InExpo).OnComplete(() => 
                     { 
-
                         ApplicationController.Instance.FadeImageInOut(1f, ApplicationController.Instance.C64PaletteArr[1], () =>
                         {
                             Debug.Log("END TEXT SCROLLER?!");
+                            
                             base.End(true);
                         }, null);
                     });
                 }
             }
         }
-        ).AddTo(Disposables);
+        ).AddTo(asteroidsDisposable);
     }
     private void InstantiateLaserShot(Vector3 pos)
     {
@@ -270,7 +330,7 @@ public class DemoEffectTextScroller : DemoEffectBase
         SpriteRenderer asteroidRenderer = TextureAndGaphicsFunctions.InstantiateSpriteRendererGO("Asteroid", pos, asteroidBrownSprites.First());
         asteroidSpriteAnimator = asteroidRenderer.gameObject.AddComponent<SimpleSpriteAnimator>();
         asteroidSpriteAnimator.Sprites = asteroidBrownSprites;
-        GenericEnemy enemy = asteroidRenderer.gameObject.AddComponent<GenericEnemy>().Init(new Vector2(-.5f, 0), typeof(BoxCollider2D), true);        
+        GenericEnemy enemy = asteroidRenderer.gameObject.AddComponent<GenericEnemy>().Init(new Vector2(-.5f, 0), typeof(BoxCollider2D), true) as GenericEnemy;
         return enemy;
     }
 

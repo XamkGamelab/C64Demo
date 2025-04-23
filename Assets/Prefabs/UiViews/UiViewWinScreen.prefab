@@ -65,6 +65,8 @@ MonoBehaviour:
   CloseWhenAnotherViewOpens: 0
   IsOpen:
     value: 0
+  GroupAll: {fileID: 3526401363060726427}
+  GroupAllRect: {fileID: 0}
   ScoreContainer: {fileID: 2037412418155138402}
   TimeContainer: {fileID: 6639081222360847275}
   TextScore: {fileID: 6927144319614279470}
@@ -906,6 +908,7 @@ GameObject:
   - component: {fileID: 4371780254496677787}
   - component: {fileID: 4095274778606129153}
   - component: {fileID: 4995307860600734398}
+  - component: {fileID: 3526401363060726427}
   m_Layer: 6
   m_Name: ImageWinScreenContainer
   m_TagString: Untagged
@@ -931,11 +934,11 @@ RectTransform:
   - {fileID: 288277903960879975}
   m_Father: {fileID: 6413975607269653182}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -60}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 0}
+  m_AnchoredPosition: {x: 0, y: 60}
   m_SizeDelta: {x: 700, y: 500}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0.5, y: 0}
 --- !u!222 &4095274778606129153
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -974,6 +977,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &3526401363060726427
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6480126499924895514}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &7220746642378586358
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using System.Linq;
 using UniRx;
@@ -47,8 +46,7 @@ public abstract class DemoEffectBase: IDemoEffect
     {
         Started.Value = true;
         Score.Value = 0;
-        Debug.Log("SCORE: " + Score.Value);
-
+        
         Disposables = new CompositeDisposable();
         EndDemoCallback = endDemoCallback;        
         yield return null;
@@ -76,5 +74,10 @@ public abstract class DemoEffectBase: IDemoEffect
     public void GeneratedObjectsSetActive(bool active)
     {
         GeneratedObjects.ToList().ForEach(kvp => kvp.Value.SetActive(active));
+    }
+
+    public void GeneratedObjectsSetActive(bool active, List<string> exlude)
+    {
+        GeneratedObjects.ToList().Where(kvp => !exlude.Contains(kvp.Key)).ToList().ForEach(kvp => kvp.Value.SetActive(active));
     }
 }

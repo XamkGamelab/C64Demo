@@ -43,8 +43,7 @@ public class DemoEffectRun : DemoEffectBase
     private Vector3 txtRectStartPos = new Vector3(-30f, -30f, 0);
     private bool nextInputLeft = true;
     private bool goalReached = false;
-    private float runSoundCounter = 0f;
-
+    
     private VertexGradient gradientLeft = new VertexGradient(ApplicationController.Instance.C64PaletteArr[6], ApplicationController.Instance.C64PaletteArr[0], ApplicationController.Instance.C64PaletteArr[9], ApplicationController.Instance.C64PaletteArr[0]);
     
     private List<Sprite> runningManSprites => TextureAndGaphicsFunctions.LoadSpriteSheet("RunningManSheetPSD");
