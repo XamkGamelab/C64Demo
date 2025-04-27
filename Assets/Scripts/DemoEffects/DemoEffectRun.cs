@@ -77,7 +77,7 @@ public class DemoEffectRun : DemoEffectBase
         //Waving text
         txtRect = ApplicationController.Instance.UI.CreateRectTransformObject("Text_scroller", new Vector2(ApplicationController.Instance.UI.GetCanvasSize().Value.x, 8), txtRectStartPos, Vector2.one * .5f, Vector2.one * .5f);
         txtRect.pivot = new Vector2(1f, 0.5f);
-        txt = TextFunctions.AddTextMeshProTextComponent(txtRect, "C64_Pro_Mono-STYLE", 8, ApplicationController.Instance.C64PaletteArr[1]);
+        txt = TextFunctions.AddTextMeshProTextComponent(txtRect, "C64_Pro_Mono-STYLE_SDF", 12, ApplicationController.Instance.C64PaletteArr[1]);
         txt.alignment = TextAlignmentOptions.MidlineRight;
         txt.enableVertexGradient = true;        
         txt.colorGradient = gradientLeft;
