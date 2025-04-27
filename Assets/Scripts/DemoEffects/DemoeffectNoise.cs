@@ -1,16 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
 using DG.Tweening;
-using System;
-using static UnityEngine.GraphicsBuffer;
 using System.Threading.Tasks;
-using UnityEditor.Search;
 
 public class DemoeffectNoise : DemoEffectBase
 {
